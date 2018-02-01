@@ -1,3 +1,9 @@
+# MAC specific
+.DS_Store
+
+# JetBrains specific
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

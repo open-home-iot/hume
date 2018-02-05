@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
-from threading import Thread, Event
+from threading import Thread, Condition
 
 from SEALS.serial_interface.events import *
 from SEALS.serial_interface import serial_interface
@@ -10,8 +10,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     """
 
     """
-    log_file = open('server.log', 'w')
-    event = Event()
+
+    def __init__(self, *args, **kwargs):
+        """
+
+        :param args:
+        :param kwargs:
+        """
+        super(BaseHTTPRequestHandler, self).__init__(*args, **kwargs)
+        self.condition = Condition()
+        self.reply = None
 
     def do_GET(self):
         """
@@ -24,25 +32,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             shutdown_thread = Thread(target=shutdown, args=(self,))
             shutdown_thread.daemon = True
             shutdown_thread.start()
+
         elif 'distance' in request_path.path:
             print("HTTP SERVER: Sending get distance command")
-            serial_interface.execute_command(GET_DISTANCE)
+            serial_interface.execute_command(self, GET_DISTANCE)
+
             print("HTTP SERVER: Waiting for reply")
             # TODO look into Condition.wait_for(). Remember that max wait time should be defined to avoid deadlocks
-            reply = serial_interface.get_reply_message()
-            print("HTTP SERVER: Reply was: ", reply)
+            self.condition.wait_for(predicate=self.reply is not None)
 
-    def log_message(self, format, *args):
-        """
+            print("HTTP SERVER: Reply was: ", self.reply)
+            self.reply = None
 
-        :param format:
-        :param args:
-        :return:
-        """
-        self.log_file.write("%s - - [%s] %s\n" %
-                            (self.client_address[0],
-                             self.log_date_time_string(),
-                             format % args))
+    def resolve_wait(self, reply):
+        self.reply = reply
 
 
 def shutdown(handler):
@@ -51,7 +54,6 @@ def shutdown(handler):
     :param handler:
     :return:
     """
-    handler.log_file.close()
     handler.server.shutdown()
 
 
@@ -65,15 +67,6 @@ def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
     server_address = ('', 8080)
     server = server_class(server_address, handler_class)
     server.serve_forever()
-
-
-def notify_reply():
-    """
-
-    :return:
-    """
-    print("HTTP SERVER: Notified of reply")
-    # TODO look into Condition.wait_for()
 
 
 if __name__ == '__main__':

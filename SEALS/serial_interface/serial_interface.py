@@ -50,7 +50,7 @@ class EventThread(Thread):
             # Prevents a new command from interrupting the current sequence.
             AWAITING_REPLY = True
 
-            command = COMMAND_BUFFER.get()
+            handler, command = COMMAND_BUFFER.get()
             print("SERI SERVER: Got command: ", command)
             send_message(str(command))
 
@@ -58,11 +58,12 @@ class EventThread(Thread):
             try:
                 print("SERI SERVER: Waiting for reply from arduino")
                 self.event.wait(timeout=2.0)
-                notify_reply()
             except TimeoutError:
                 print("SERI SERVER: Reply timed out")
                 REPLY_MESSAGE = str(ERR)
-                notify_reply()
+            finally:
+                notify_reply(handler)
+                AWAITING_REPLY = False
 
 
 writer_thread = EventThread()
@@ -200,33 +201,24 @@ events = {
     }
 
 
-def execute_command(command=None):
+def execute_command(handler, command):
     """
 
     :param command:
+    :param handler:
     :return:
     """
     if AWAITING_REPLY:
         return
 
-    COMMAND_BUFFER.put(command)
+    COMMAND_BUFFER.put((handler, command))
     writer_thread.event.set()
 
 
-def notify_reply():
+def notify_reply(handler):
     """
-
+    
+    :param handler:
     :return:
     """
-    http_server.notify_reply()
-
-
-def get_reply_message():
-    """
-
-    :return:
-    """
-    global REPLY_MESSAGE
-    reply = REPLY_MESSAGE
-    REPLY_MESSAGE = None
-    return reply
+    handler.resolve_wait(REPLY_MESSAGE)

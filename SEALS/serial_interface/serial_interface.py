@@ -141,9 +141,9 @@ def alarm_raised(sub):
     :param sub:
     :return:
     """
-    print("SERI SERVER: Alarm was raised")
     global ALARM_RAISED
     ALARM_RAISED = sub == ON
+    print("SERI SERVER: Alarm is raised: ", ALARM_RAISED)
     reply(PROXIMITY_ALARM, sub)
 
 
@@ -165,8 +165,6 @@ def get_distance(sub):
     :return:
     """
     print("SERI SERVER: Got distance reply")
-    global AWAITING_REPLY
-    AWAITING_REPLY = False
     reply_received(sub)
 
 
@@ -208,6 +206,7 @@ def execute_command(handler, command):
     :param handler:
     :return:
     """
+    # TODO: Add handling for busy, return cause code etc.
     if AWAITING_REPLY:
         return
 
@@ -217,7 +216,7 @@ def execute_command(handler, command):
 
 def notify_reply(handler):
     """
-    
+
     :param handler:
     :return:
     """

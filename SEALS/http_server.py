@@ -32,7 +32,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
-            self.reply = None
 
     def resolve_wait(self, reply=None):
         self.reply = reply

@@ -4,7 +4,6 @@ from serial import Serial
 from threading import Thread, Event
 
 from SEALS.serial_interface.events import *
-from SEALS import http_server
 
 
 # State objects
@@ -212,7 +211,6 @@ def execute_command(handler, command):
     :return:
     """
     global AWAITING_REPLY
-    print("SERI SERVER: Is awaiting reply: ", AWAITING_REPLY)
     if AWAITING_REPLY:
         handler.resolve_wait()
         return

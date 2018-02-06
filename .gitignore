@@ -1,6 +1,9 @@
 # MAC specific
 .DS_Store
 
+# Application specific
+.log
+
 # JetBrains specific
 .idea
 

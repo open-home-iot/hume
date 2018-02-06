@@ -46,12 +46,16 @@ class EventThread(Thread):
         print("Command waiter started")
         while True:
             self.event.wait()
+            self.event.clear()  # If the flag is not cleared, the next wait will return immediately.
 
             # Prevents a new command from interrupting the current sequence.
             AWAITING_REPLY = True
 
             handler, command = COMMAND_BUFFER.get()
             print("SERI SERVER: Got command: ", command)
+            if command == 'shutdown':
+                break
+
             send_message(str(command))
 
             # Wait for reply.
@@ -62,6 +66,7 @@ class EventThread(Thread):
                 print("SERI SERVER: Reply timed out")
                 REPLY_MESSAGE = str(ERR)
             finally:
+                self.event.clear()  # Keep a cleared event flag!
                 notify_reply(handler)
                 AWAITING_REPLY = False
 
@@ -164,7 +169,6 @@ def get_distance(sub):
     :param sub:
     :return:
     """
-    print("SERI SERVER: Got distance reply")
     reply_received(sub)
 
 
@@ -183,6 +187,7 @@ def event_notification(event):
     :param event:
     :return:
     """
+    print("SERI SERVER: Event notification: ", event)
     event_info = event.split(" ")
 
     if len(event_info) > 1:
@@ -206,8 +211,10 @@ def execute_command(handler, command):
     :param handler:
     :return:
     """
-    # TODO: Add handling for busy, return cause code etc.
+    global AWAITING_REPLY
+    print("SERI SERVER: Is awaiting reply: ", AWAITING_REPLY)
     if AWAITING_REPLY:
+        handler.resolve_wait()
         return
 
     COMMAND_BUFFER.put((handler, command))
@@ -220,4 +227,5 @@ def notify_reply(handler):
     :param handler:
     :return:
     """
-    handler.resolve_wait(REPLY_MESSAGE)
+    print("SERI SERVER: Notifying HTTP SERVER")
+    handler.resolve_wait(reply=REPLY_MESSAGE)

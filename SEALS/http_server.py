@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
-from threading import Thread, Condition
+from threading import Thread, Event
 
 from SEALS.serial_interface.events import *
 from SEALS.serial_interface import serial_interface
@@ -10,16 +10,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     """
 
     """
-
-    def __init__(self, *args, **kwargs):
-        """
-
-        :param args:
-        :param kwargs:
-        """
-        super(BaseHTTPRequestHandler, self).__init__(*args, **kwargs)
-        self.condition = Condition()
-        self.reply = None
+    reply = None
+    event = None
 
     def do_GET(self):
         """
@@ -27,6 +19,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         :return:
         """
         request_path = urlparse(self.path)
+        self.event = Event()
 
         if 'shutdown' in request_path.path:
             shutdown_thread = Thread(target=shutdown, args=(self,))
@@ -37,15 +30,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             print("HTTP SERVER: Sending get distance command")
             serial_interface.execute_command(self, GET_DISTANCE)
 
-            print("HTTP SERVER: Waiting for reply")
-            # TODO look into Condition.wait_for(). Remember that max wait time should be defined to avoid deadlocks
-            self.condition.wait_for(predicate=self.reply is not None)
-
+            self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
             self.reply = None
 
-    def resolve_wait(self, reply):
+    def resolve_wait(self, reply=None):
         self.reply = reply
+        self.event.set()
 
 
 def shutdown(handler):
@@ -54,6 +45,7 @@ def shutdown(handler):
     :param handler:
     :return:
     """
+    serial_interface.execute_command(handler, 'shutdown')
     handler.server.shutdown()
 
 

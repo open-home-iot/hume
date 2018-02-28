@@ -3,8 +3,12 @@ from datetime import datetime
 from threading import Thread
 
 
+hardcoded_pic_dir = '/home/pi/Pictures/'
+pic_type = '.jpg'
+
+
 def snapshot():
-    tag = datetime.now().strftime("%a %d %m %H:%M:%S")
+    tag = hardcoded_pic_dir + datetime.now().strftime("%a %d %m %H:%M:%S") + pic_type
     camera = PiCamera()
     camera.capture(tag)
 

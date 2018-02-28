@@ -4,6 +4,7 @@ from serial import Serial
 from threading import Thread, Event
 
 from .events import *
+from ..camera.snapshot import concurrent_snapshot
 
 import requests
 
@@ -154,6 +155,9 @@ def alarm_raised(sub):
 
     # TODO Add HTTP request to localhost:8000, directly to web server
     alarm_status = 'on' if sub == '1' else 'off'
+    if alarm_status == 'on':
+        concurrent_snapshot()
+
     requests.get('http://localhost:8000/events/alarm/' + alarm_status)
 
 

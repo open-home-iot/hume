@@ -4,7 +4,7 @@ from serial import Serial
 from threading import Thread, Event
 
 from .events import *
-from ..camera.snapshot import concurrent_snapshot
+from camera.snapshot import concurrent_snapshot
 
 import requests
 

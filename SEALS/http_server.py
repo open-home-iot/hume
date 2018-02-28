@@ -2,8 +2,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from threading import Thread, Event
 
-from SEALS.serial_interface.events import *
-from SEALS.serial_interface import serial_interface
+from serial_interface.events import *
+from serial_interface import serial_interface
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -19,6 +19,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         :return:
         """
         request_path = urlparse(self.path)
+        print(request_path.path)
         self.event = Event()
 
         if 'shutdown' in request_path.path:

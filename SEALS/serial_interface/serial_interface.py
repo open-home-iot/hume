@@ -3,7 +3,9 @@ from select import select
 from serial import Serial
 from threading import Thread, Event
 
-from SEALS.serial_interface.events import *
+from .events import *
+
+import requests
 
 
 # State objects
@@ -63,7 +65,7 @@ class EventThread(Thread):
                 self.event.wait(timeout=2.0)
             except TimeoutError:
                 print("SERI SERVER: Reply timed out")
-                REPLY_MESSAGE = str(ERR)
+                REPLY_MESSAGE = EVENT[ERR]
             finally:
                 self.event.clear()  # Keep a cleared event flag!
                 notify_reply(handler)
@@ -146,9 +148,13 @@ def alarm_raised(sub):
     :return:
     """
     global ALARM_RAISED
-    ALARM_RAISED = sub == ON
+    ALARM_RAISED = sub == EVENT_SUB_CAUSE[ON]
     print("SERI SERVER: Alarm is raised: ", ALARM_RAISED)
     reply(PROXIMITY_ALARM, sub)
+
+    # TODO Add HTTP request to localhost:8000, directly to web server
+    alarm_status = 'on' if sub == '1' else 'off'
+    requests.get('http://localhost:8000/events/alarm/' + alarm_status)
 
 
 def reply_received(sub):
@@ -197,9 +203,9 @@ def event_notification(event):
 
 
 events = {
-        "0": alarm_raised,
-        "5": get_distance,
-        "9": error,
+        EVENT[PROXIMITY_ALARM]: alarm_raised,
+        EVENT[GET_DISTANCE]: get_distance,
+        EVENT[ERR]: error,
     }
 
 

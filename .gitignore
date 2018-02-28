@@ -3,6 +3,7 @@
 
 # Application specific
 .log
+*.rdb
 
 # JetBrains specific
 .idea

@@ -1,16 +1,21 @@
-# GENERAL
-OFF = '0'
-ON = '1'
-ERR = '9'
+# Event sub causes
+OFF = 0
+ON = 1
+ERR = 9
 
-# IN
-PROXIMITY_ALARM = '0'
+EVENT_SUB_CAUSE = {
+    OFF: '0',
+    ON: '1',
+    ERR: '9'
+}
 
-# OUT
-GET_DISTANCE = '5'
-
+# Event indexing
+PROXIMITY_ALARM = 0
+GET_DISTANCE = 5
 
 # Event Iterables
-IN_EVENTS = {'0', }
-
-OUT_EVENTS = {'5', }
+EVENT = {
+    PROXIMITY_ALARM: '0',
+    GET_DISTANCE: '5',
+    ERR: '9'
+}

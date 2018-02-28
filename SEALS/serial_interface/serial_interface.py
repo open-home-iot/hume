@@ -20,7 +20,7 @@ COMMAND_BUFFER = Queue()
 
 
 # Serial connection
-CONNECTION = Serial(port='/dev/tty.usbmodem1411', baudrate=9600)
+CONNECTION = Serial(port='/dev/ttyACM0', baudrate=9600)
 
 
 class EventThread(Thread):

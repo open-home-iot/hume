@@ -11,6 +11,7 @@ def snapshot():
     tag = hardcoded_pic_dir + datetime.now().strftime("%a %d %m %H:%M:%S") + pic_type
     camera = PiCamera()
     camera.capture(tag)
+    camera.close()
 
 
 def concurrent_snapshot():

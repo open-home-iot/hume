@@ -153,7 +153,6 @@ def alarm_raised(sub):
     print("SERI SERVER: Alarm is raised: ", ALARM_RAISED)
     reply(PROXIMITY_ALARM, sub)
 
-    # TODO Add HTTP request to localhost:8000, directly to web server
     alarm_status = 'on' if sub == '1' else 'off'
     if alarm_status == 'on':
         concurrent_snapshot()

@@ -5,6 +5,9 @@
 .log
 *.rdb
 
+# Build angular app
+/dist
+
 # JetBrains specific
 .idea
 

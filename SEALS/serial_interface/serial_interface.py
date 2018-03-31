@@ -157,7 +157,7 @@ def alarm_raised(sub):
     if alarm_status == 'on':
         concurrent_snapshot()
 
-    requests.get('http://localhost:8000/events/alarm/' + alarm_status)
+    requests.get('http://localhost:8000/api/events/alarm/' + alarm_status)
 
 
 def reply_received(sub):

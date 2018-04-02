@@ -2,6 +2,7 @@ import argparse
 
 from http_server import http_server
 from serial_interface import serial_interface
+from event_handler import event_handler
 
 
 DEFAULT_SERIAL_PORT = '/dev/ttyACM0'
@@ -31,4 +32,5 @@ if __name__ == '__main__':
     port = args.port if args.port is not None else DEFAULT_PORT
 
     serial_interface.start(serial_port=serial_port, baudrate=baudrate)
+    event_handler.start()
     http_server.start(server_address=(ip, port))

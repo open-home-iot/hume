@@ -13,7 +13,7 @@ EVENT_SUB_CAUSE = {
 PROXIMITY_ALARM = 0
 GET_DISTANCE = 5
 
-# Event Iterables
+# Event iterables
 EVENT = {
     PROXIMITY_ALARM: '0',
     GET_DISTANCE: '5',

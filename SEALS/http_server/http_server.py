@@ -4,8 +4,8 @@ from urllib.parse import urlparse
 
 from threading import Thread, Event
 
-from serial_interface.events import *
-from serial_interface import event_handler
+from event_handler.events import *
+from event_handler import event_handler
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):

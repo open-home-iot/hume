@@ -4,8 +4,7 @@ from threading import Thread
 
 from event_handler import event_handler
 
-# Serial connection
-CONNECTION = None
+CONNECTION = None  # Serial connection
 
 
 def decode(message):
@@ -27,13 +26,9 @@ def reply(main, sub):
 
 
 def serial_select(serial_port='', baudrate=9600):
-    """
-
-    :return:
-    """
     global CONNECTION
-
     CONNECTION = Serial(port=serial_port, baudrate=baudrate)
+
     print("Select waiter started")
     while True:
         # Since no timeout is specified, block until read is available
@@ -42,8 +37,8 @@ def serial_select(serial_port='', baudrate=9600):
         select([CONNECTION], [], [])
         # ------------------------------
 
-        event = CONNECTION.readline()
-        event_handler.event_notification(decode(event))
+        event = decode(CONNECTION.readline())
+        event_handler.event_notification(event)
 
 
 def start(serial_port='', baudrate=9600):

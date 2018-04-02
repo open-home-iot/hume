@@ -1,5 +1,7 @@
 import requests
 
+from requests import exceptions as request_exceptions
+
 from threading import Thread, Event
 
 from queue import Queue
@@ -63,7 +65,14 @@ def alarm_raised(sub):
     if alarm_status == 'on':
         concurrent_snapshot()
 
-    requests.get('http://localhost:8000/api/events/alarm/' + alarm_status)
+    try:
+        requests.get('http://localhost:8000/api/events/alarm/' + alarm_status)
+    except request_exceptions.ConnectionError:
+        print('SERI SERVER: Could not notify HTTP server of event, unreachable')
+
+
+def error(sub):
+    print("SERI SERVER: An error was received!")
 
 
 def reply_received(sub):
@@ -73,10 +82,6 @@ def reply_received(sub):
 
 def get_distance(sub):
     reply_received(sub)
-
-
-def error(sub):
-    print("An error was received!")
 
 
 def event_notification(event):

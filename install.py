@@ -7,6 +7,14 @@ if len(sys.argv) < 2:
     print('You need to supply at least one argument of where the environment variable should be saved.')
     exit(1)
 
+try:
+    os.environ['DJANGO_STATIC_DIR']  # Will raise KeyError if env var non existent.
+    print('ERROR')
+    print('Environment variable already set!')
+    exit(1)
+except KeyError:
+    pass
+
 user_path = os.path.expanduser('~/')
 
 save_location = sys.argv[1]

@@ -1,9 +1,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
 from urllib.parse import urlparse
+
 from threading import Thread, Event
 
 from serial_interface.events import *
-from serial_interface import serial_interface
+from serial_interface import event_handler
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -29,7 +31,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         elif 'distance' in request_path.path:
             print("HTTP SERVER: Sending get distance command")
-            serial_interface.execute_command(self, GET_DISTANCE)
+            event_handler.execute_command(self, GET_DISTANCE)
 
             self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
@@ -45,22 +47,15 @@ def shutdown(handler):
     :param handler:
     :return:
     """
-    serial_interface.execute_command(handler, 'shutdown')
+    event_handler.execute_command(handler, 'shutdown')
     handler.server.shutdown()
 
 
-def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
+def start(server_address=('', 8000)):
     """
 
-    :param server_class:
-    :param handler_class:
+    :param server_address:
     :return:
     """
-    server_address = ('', 8080)
-    server = server_class(server_address, handler_class)
+    server = HTTPServer(server_address, HTTPRequestHandler)
     server.serve_forever()
-
-
-if __name__ == '__main__':
-    serial_interface.start()
-    run(handler_class=HTTPRequestHandler)

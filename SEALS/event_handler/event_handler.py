@@ -67,39 +67,19 @@ def alarm_raised(sub):
 
 
 def reply_received(sub):
-    """
-
-    :param sub:
-    :return:
-    """
     writer_thread.reply_message = sub
     writer_thread.event.set()
 
 
 def get_distance(sub):
-    """
-
-    :param sub:
-    :return:
-    """
     reply_received(sub)
 
 
 def error(sub):
-    """
-
-    :param sub:
-    :return:
-    """
     print("An error was received!")
 
 
 def event_notification(event):
-    """
-
-    :param event:
-    :return:
-    """
     print("SERI SERVER: Event notification: ", event)
     event_info = event.split(" ")
 
@@ -118,13 +98,6 @@ events = {
 
 
 def execute_command(handler, command):
-    """
-
-    :param command:
-    :param handler:
-    :return:
-    """
-
     if writer_thread.awaiting_reply:
         handler.resolve_wait()
         return
@@ -134,11 +107,6 @@ def execute_command(handler, command):
 
 
 def notify_reply(handler):
-    """
-
-    :param handler:
-    :return:
-    """
     print("SERI SERVER: Notifying HTTP SERVER")
     handler.resolve_wait(reply=writer_thread.reply_message)
 

@@ -9,17 +9,10 @@ from event_handler import event_handler
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
-    """
-
-    """
     reply = None
     event = None
 
     def do_GET(self):
-        """
-
-        :return:
-        """
         request_path = urlparse(self.path)
         print(request_path.path)
         self.event = Event()
@@ -36,26 +29,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
 
-    def resolve_wait(self, reply=None):
+    def resolve_wait(self, reply='Busy'):
         self.reply = reply
         self.event.set()
 
 
 def shutdown(handler):
-    """
-
-    :param handler:
-    :return:
-    """
     event_handler.execute_command(handler, 'shutdown')
     handler.server.shutdown()
 
 
 def start(server_address=('', 8000)):
-    """
-
-    :param server_address:
-    :return:
-    """
     server = HTTPServer(server_address, HTTPRequestHandler)
     server.serve_forever()

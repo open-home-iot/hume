@@ -9,41 +9,20 @@ CONNECTION = None
 
 
 def decode(message):
-    """
-
-    :param message:
-    :return:
-    """
     decoded_string = message.decode('utf-8')
     return decoded_string.strip()
 
 
 def encode(message):
-    """
-
-    :param message:
-    :return:
-    """
     return message.encode('utf-8')
 
 
 def send_message(message):
-    """
-
-    :param message:
-    :return:
-    """
     message = encode(message)
     CONNECTION.write(message)
 
 
 def reply(main, sub):
-    """
-
-    :param main:
-    :param sub:
-    :return:
-    """
     send_message(str(main) + ' ' + str(sub))
 
 

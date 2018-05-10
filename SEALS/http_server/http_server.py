@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from threading import Thread, Event
 
 from event_handler.events import *
-from event_handler import event_handler
+from serial_interface import serial_event_handler
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -14,17 +14,17 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         request_path = urlparse(self.path)
-        print(request_path.path)
         self.event = Event()
 
         if 'shutdown' in request_path.path:
+            print("HTTP SERVER: Got shutdown command")
             shutdown_thread = Thread(target=shutdown, args=(self,))
             shutdown_thread.daemon = True
             shutdown_thread.start()
 
         elif 'distance' in request_path.path:
             print("HTTP SERVER: Sending get distance command")
-            event_handler.execute_command(self, GET_DISTANCE)
+            serial_event_handler.execute_command(self, GET_DISTANCE)
 
             self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
@@ -37,7 +37,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 def shutdown(handler):
-    event_handler.execute_command(handler, 'shutdown')
+    serial_event_handler.execute_command(handler, 'shutdown')
     handler.server.shutdown()
 
 

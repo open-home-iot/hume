@@ -2,7 +2,7 @@ from select import select
 from serial import Serial
 from threading import Thread
 
-from event_handler import event_handler
+from serial_interface import serial_event_handler
 
 
 serial_port = None
@@ -28,7 +28,7 @@ def reply(main, sub):
 
 def read_incoming_data():
     event = decode(serial_port.readline())
-    event_handler.event_notification(event)
+    serial_event_handler.event_notification(event)
 
     read_loop()
 
@@ -47,5 +47,8 @@ def init_serial_port(port, baudrate):
 
 def start(port, baudrate):
     listener = Thread(target=init_serial_port,
-                      args=(port, baudrate))
+                      args=(port, baudrate),
+                      daemon=True)
+    # The significance of this flag is that the entire Python program exits when only daemon threads are left. The
+    # serial interface will then shutdown once HTTP server and the event handler are both shut down.
     listener.start()

@@ -1,13 +1,19 @@
 import argparse
+import signal
+import requests
 
+from threading import Thread
 from http_server import http_server
 from serial_interface import serial_interface
-from event_handler import event_handler
+from serial_interface import serial_event_handler
 
 
 DEFAULT_BAUDRATE = 9600   # Baudrate of the serial interface
-DEFAULT_IP = '127.0.0.1'  # IP of this HTTP event server
+DEFAULT_IP = ''  # IP of this HTTP event server
 DEFAULT_PORT = 8080       # Port of this HTTP event server
+
+ip = ''
+port = ''
 
 
 def parse_arguments():
@@ -21,6 +27,16 @@ def parse_arguments():
     return args
 
 
+def send_shutdown(target_address):
+    requests.get('http://' + target_address + ':' + str(port) + '/shutdown')
+
+
+def handle_sigint(signal, frame):
+    target_address = 'localhost' if ip == '' else ip
+    shutdown_thread = Thread(target=send_shutdown, args=(target_address,), daemon=True)
+    shutdown_thread.start()
+
+
 if __name__ == '__main__':
     args = parse_arguments()
 
@@ -29,9 +45,11 @@ if __name__ == '__main__':
 
     # Optional arguments
     baudrate = args.baudrate if args.baudrate is not None else DEFAULT_BAUDRATE
-    target_ip = args.ip if args.ip is not None else DEFAULT_IP
-    target_port = args.port if args.port is not None else DEFAULT_PORT
+    ip = args.ip if args.ip is not None else DEFAULT_IP
+    port = args.port if args.port is not None else DEFAULT_PORT
+
+    signal.signal(signal.SIGINT, handle_sigint)
 
     serial_interface.start(serial_port, baudrate)
-    event_handler.start()
-    http_server.start((target_ip, target_port))
+    serial_event_handler.start()
+    http_server.start((ip, port))

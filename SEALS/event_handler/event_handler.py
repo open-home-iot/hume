@@ -58,7 +58,7 @@ class EventThread(Thread):
 
 def alarm_raised(sub):
     writer_thread.alarm_raised = sub == EVENT_SUB_CAUSE[ON]
-    print("SERI SERVER: Alarm is raised: ", writer_thread.alarm_raised)
+    print("SERI SERVER: Alarm status is: ", writer_thread.alarm_raised)
     serial_interface.reply(PROXIMITY_ALARM, sub)
 
     alarm_status = 'on' if sub == '1' else 'off'

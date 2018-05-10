@@ -4,7 +4,8 @@ from threading import Thread
 
 from event_handler import event_handler
 
-CONNECTION = None  # Serial connection
+
+serial_port = None
 
 
 def decode(message):
@@ -18,30 +19,33 @@ def encode(message):
 
 def send_message(message):
     message = encode(message)
-    CONNECTION.write(message)
+    serial_port.write(message)
 
 
 def reply(main, sub):
     send_message(str(main) + ' ' + str(sub))
 
 
-def serial_select(serial_port='', baudrate=9600):
-    global CONNECTION
-    CONNECTION = Serial(port=serial_port, baudrate=baudrate)
+def read_incoming_data():
+    event = decode(serial_port.readline())
+    event_handler.event_notification(event)
 
-    print("Select waiter started")
-    while True:
-        # Since no timeout is specified, block until read is available
-        # ------------------------------
-        # BLOCKS
-        select([CONNECTION], [], [])
-        # ------------------------------
-
-        event = decode(CONNECTION.readline())
-        event_handler.event_notification(event)
+    read_loop()
 
 
-def start(serial_port='', baudrate=9600):
-    listener = Thread(target=serial_select,
-                      kwargs={'serial_port': serial_port, 'baudrate': baudrate})
+def read_loop():
+    select([serial_port], [], [])
+    read_incoming_data()
+
+
+def init_serial_port(port, baudrate):
+    global serial_port
+    serial_port = Serial(port=port, baudrate=baudrate)
+    print("SERI SERVER: Selecting on port: ", port)
+    read_loop()
+
+
+def start(port='', baudrate=9600):
+    listener = Thread(target=init_serial_port,
+                      args=(port, baudrate))
     listener.start()

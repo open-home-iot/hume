@@ -2,8 +2,6 @@ import requests
 
 from requests import exceptions as request_exceptions
 
-from threading import Thread, Event
-
 from queue import Queue
 
 try:
@@ -12,29 +10,32 @@ except ImportError:
     def concurrent_snapshot():
         print('SERI SERVER: PICAMERA NOT AVAILABLE')
 
-from event_handler.events import *
+from events.events import *
+from events.event_handler import EventThread
 from serial_interface import serial_interface
 
 
 writer_thread = None
+alarm_status = False
 
 
-class EventThread(Thread):
+class SerialEventHandler(EventThread):
 
     def __init__(self, *args, **kwargs):
-        super(EventThread, self).__init__(*args, **kwargs)
-        self.event = Event()
-        self.alarm_raised = False
+        super(SerialEventHandler, self).__init__(*args, **kwargs)
+
         self.awaiting_reply = False
-        self.reply_message = None
+        self.reply = None
         self.command_buffer = Queue()
 
     def run(self):
         print("SERI SERVER: Event handler started")
-        while True:
-            self.event.wait()
+
+        while 1:
+            self.wait()  # Wait for notify
+
             self.awaiting_reply = True  # Semaphore set to prevent another event interrupting.
-            self.event.clear()  # If the flag is not cleared, the next wait will return immediately.
+            self.clear()  # If the flag is not cleared, the next wait will return immediately.
 
             handler, command = self.command_buffer.get()
             print("SERI SERVER: Got command: ", command)
@@ -45,24 +46,38 @@ class EventThread(Thread):
 
             # Wait for reply.
             print("SERI SERVER: Waiting for reply from arduino")
-            self.event.wait(timeout=2.0)
+            self.wait(timeout=2.0)
 
-            self.event.clear()  # Keep a cleared event flag!
-            notify_reply(handler)
+            self.clear()  # Keep a cleared event flag!
+            handler.notify_reply(reply=self.reply)
             self.awaiting_reply = False
+
+    def busy(self):
+        return self.awaiting_reply
+
+    def execute_command(self, command):
+        self.command_buffer.put(command)
+        self.event.set()
+
+    def send_reply(self, reply):
+        self.reply = reply
+        self.event.set()
 
 
 def alarm_raised(sub):
-    writer_thread.alarm_raised = sub == EVENT_SUB_CAUSE[ON]
-    print("SERI SERVER: Alarm status is: ", writer_thread.alarm_raised)
-    serial_interface.reply(PROXIMITY_ALARM, sub)
+    global alarm_status
+    alarm_status = sub == EVENT_SUB_CAUSE[ON]
+    print("SERI SERVER: Alarm status is: ", alarm_status)
+    serial_interface.reply(PROXIMITY_ALARM, sub)  # Ack towards arduino
 
-    alarm_status = 'on' if sub == '1' else 'off'
-    if alarm_status == 'on':
+    # Snap a picture if alarm was turned on
+    if alarm_status:
         concurrent_snapshot()
 
+    # Notify frontend
+    alarm_url = 'on' if alarm_status else 'off'
     try:
-        requests.get('http://localhost:8000/api/events/alarm/' + alarm_status)
+        requests.get('http://localhost:8000/api/events/alarm/' + alarm_url)
     except request_exceptions.ConnectionError:
         print('SERI SERVER: Could not notify HTTP server of event, unreachable')
 
@@ -72,8 +87,7 @@ def error(sub):
 
 
 def reply_received(sub):
-    writer_thread.reply_message = sub
-    writer_thread.event.set()
+    writer_thread.send_reply(sub)
 
 
 def get_distance(sub):
@@ -99,20 +113,14 @@ events = {
 
 
 def execute_command(handler, command):
-    if writer_thread.awaiting_reply:
-        handler.resolve_wait()
+    if writer_thread.busy():
+        handler.notify_reply()
         return
 
-    writer_thread.command_buffer.put((handler, command))
-    writer_thread.event.set()
-
-
-def notify_reply(handler):
-    print("SERI SERVER: Notifying HTTP SERVER")
-    handler.resolve_wait(reply=writer_thread.reply_message)
+    writer_thread.execute_command((handler, command))
 
 
 def start():
     global writer_thread
-    writer_thread = EventThread()
+    writer_thread = SerialEventHandler()
     writer_thread.start()

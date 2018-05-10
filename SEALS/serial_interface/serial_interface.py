@@ -8,6 +8,11 @@ from serial_interface import serial_event_handler
 serial_port = None
 
 
+"""
+The serial interface does not have a corresponding shutdown handler since it is run as a daemon
+"""
+
+
 def decode(message):
     decoded_string = message.decode('utf-8')
     return decoded_string.strip()

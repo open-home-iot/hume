@@ -48,8 +48,10 @@ if __name__ == '__main__':
     ip = args.ip if args.ip is not None else DEFAULT_IP
     port = args.port if args.port is not None else DEFAULT_PORT
 
+    # Needs to be declared after argument parsing but before starting services
     signal.signal(signal.SIGINT, handle_sigint)
 
+    # Start necessary services
     serial_interface.start(serial_port, baudrate)
     serial_event_handler.start()
     http_server.start((ip, port))

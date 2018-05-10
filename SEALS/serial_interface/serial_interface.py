@@ -45,7 +45,7 @@ def init_serial_port(port, baudrate):
     read_loop()
 
 
-def start(port='', baudrate=9600):
+def start(port, baudrate):
     listener = Thread(target=init_serial_port,
                       args=(port, baudrate))
     listener.start()

@@ -10,7 +10,7 @@ try:
     from camera.snapshot import concurrent_snapshot
 except ImportError:
     def concurrent_snapshot():
-        print('PICAMERA NOT AVAILABLE')
+        print('SERI SERVER: PICAMERA NOT AVAILABLE')
 
 from event_handler.events import *
 from serial_interface import serial_interface
@@ -30,7 +30,7 @@ class EventThread(Thread):
         self.command_buffer = Queue()
 
     def run(self):
-        print("Command waiter started")
+        print("SERI SERVER: Event handler started")
         while True:
             self.event.wait()
             self.awaiting_reply = True  # Semaphore set to prevent another event interrupting.

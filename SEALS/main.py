@@ -5,18 +5,17 @@ from serial_interface import serial_interface
 from event_handler import event_handler
 
 
-DEFAULT_SERIAL_PORT = '/dev/ttyACM0'
-DEFAULT_BAUDRATE = 9600
-DEFAULT_IP = '192.168.0.10'
-DEFAULT_PORT = 8080
+DEFAULT_BAUDRATE = 9600   # Baudrate of the serial interface
+DEFAULT_IP = '127.0.0.1'  # IP of this HTTP event server
+DEFAULT_PORT = 8080       # Port of this HTTP event server
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='SEALS, Serial Event And hTTP Listening Service.')
-    parser.add_argument('--serial_port', type=str)
+    parser.add_argument('--serial_port', type=str, required=True)
     parser.add_argument('--baudrate', type=int)
-    parser.add_argument('--target_ip', type=str)
-    parser.add_argument('--target_port', type=int)
+    parser.add_argument('--ip', type=str)
+    parser.add_argument('--port', type=int)
     args = parser.parse_args()
     print(args)
     return args
@@ -25,11 +24,14 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
 
-    serial_port = args.serial_port if args.serial_port is not None else DEFAULT_SERIAL_PORT
+    # Required arguments
+    serial_port = args.serial_port
+
+    # Optional arguments
     baudrate = args.baudrate if args.baudrate is not None else DEFAULT_BAUDRATE
     target_ip = args.ip if args.ip is not None else DEFAULT_IP
     target_port = args.port if args.port is not None else DEFAULT_PORT
 
-    serial_interface.start(serial_port=serial_port, baudrate=baudrate)
+    serial_interface.start(serial_port, baudrate)
     event_handler.start()
-    http_server.start(server_address=(target_ip, target_port))
+    http_server.start((target_ip, target_port))

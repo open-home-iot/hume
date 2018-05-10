@@ -29,6 +29,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.event.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
 
+            # TODO extend to send the reponse back! (for more than this dummy test command though :-)
+
     def resolve_wait(self, reply='Busy'):
         self.reply = reply
         self.event.set()
@@ -39,6 +41,7 @@ def shutdown(handler):
     handler.server.shutdown()
 
 
-def start(server_address=('', 8000)):
+def start(server_address):
     server = HTTPServer(server_address, HTTPRequestHandler)
+    print("HTTP SERVER: Starting HTTP server")
     server.serve_forever()

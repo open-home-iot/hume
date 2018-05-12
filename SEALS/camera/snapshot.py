@@ -5,7 +5,7 @@ from .picture_storage import get_picture_directory
 
 
 def snapshot():
-    tag = get_picture_directory() + datetime.now().strftime("%a %d %m %H:%M:%S") + '.jpg'
+    tag = get_picture_directory() + datetime.now().strftime("%Y_%m_%d_%H:%M:%S") + '.jpg'
     camera = PiCamera()
     camera.capture(tag)
     camera.close()

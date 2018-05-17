@@ -53,5 +53,4 @@ if __name__ == '__main__':
 
     # Start necessary services
     serial_interface.start(serial_port, baudrate)
-    serial_event_handler.start()
     http_server.start((ip, port))

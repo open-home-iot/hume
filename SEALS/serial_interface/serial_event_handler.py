@@ -1,6 +1,4 @@
-import requests
-
-from requests import exceptions as request_exceptions
+from http_server import web_interface
 
 from queue import Queue
 
@@ -11,57 +9,39 @@ except ImportError:
         print('SERI SERVER: PICAMERA NOT AVAILABLE')
 
 from events.events import *
-from events.event_handler import EventThread
 from serial_interface import serial_interface
 
 
-writer_thread = None
 alarm_status = False
 
 
-class SerialEventHandler(EventThread):
+def execute_command(handler, command):
+    event_handler.execute_command((handler, command))
+
+
+class SerialEventHandler:
 
     def __init__(self, *args, **kwargs):
         super(SerialEventHandler, self).__init__(*args, **kwargs)
 
-        self.awaiting_reply = False
-        self.reply = None
-        self.command_buffer = Queue()
-
-    def run(self):
-        print("SERI SERVER: Event handler started")
-
-        while 1:
-            self.wait()  # Wait for notify
-
-            self.awaiting_reply = True  # Semaphore set to prevent another event interrupting.
-            self.clear()  # If the flag is not cleared, the next wait will return immediately.
-
-            handler, command = self.command_buffer.get()
-            print("SERI SERVER: Got command: ", command)
-            if command == 'shutdown':
-                break
-
-            serial_interface.send_message(str(command))  # Send a message to the Arduino
-
-            # Wait for reply.
-            print("SERI SERVER: Waiting for reply from arduino")
-            self.wait(timeout=2.0)
-
-            self.clear()  # Keep a cleared event flag!
-            handler.notify_reply(reply=self.reply)
-            self.awaiting_reply = False
-
-    def busy(self):
-        return self.awaiting_reply
+        self.handler = None
 
     def execute_command(self, command):
-        self.command_buffer.put(command)
-        self.event.set()
+        handler, c = command
+        if self.handler:
+            handler.notify()
+            return
+        else:
+            self.handler = handler  # Semaphore set to prevent another event interrupting.
 
-    def send_reply(self, reply):
-        self.reply = reply
-        self.event.set()
+        serial_interface.send_message(str(command))
+
+    def reply(self, reply):
+        self.handler.notify(reply=reply)
+        self.handler = None
+
+
+event_handler = SerialEventHandler()
 
 
 def alarm_raised(sub):
@@ -76,10 +56,7 @@ def alarm_raised(sub):
 
     # Notify frontend
     alarm_url = 'on' if alarm_status else 'off'
-    try:
-        requests.get('http://localhost:8000/api/events/alarm/' + alarm_url)
-    except request_exceptions.ConnectionError:
-        print('SERI SERVER: Could not notify HTTP server of event, unreachable')
+    web_interface.notify_alarm(alarm_url)
 
 
 def error(sub):
@@ -87,10 +64,14 @@ def error(sub):
 
 
 def reply_received(sub):
-    writer_thread.send_reply(sub)
+    event_handler.reply(sub)
 
 
-def get_distance(sub):
+def get_alarm_status(sub):
+    reply_received(sub)
+
+
+def set_alarm_state(sub):
     reply_received(sub)
 
 
@@ -107,20 +88,7 @@ def event_notification(event):
 
 events = {
         EVENT[PROXIMITY_ALARM]: alarm_raised,
-        EVENT[GET_DISTANCE]: get_distance,
+        EVENT[GET_ALARM_STATUS]: get_alarm_status,
+        EVENT[SET_ALARM_STATE]: set_alarm_state,
         EVENT[ERR]: error,
     }
-
-
-def execute_command(handler, command):
-    if writer_thread.busy():
-        handler.notify_reply()
-        return
-
-    writer_thread.execute_command((handler, command))
-
-
-def start():
-    global writer_thread
-    writer_thread = SerialEventHandler()
-    writer_thread.start()

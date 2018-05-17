@@ -2,15 +2,16 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from urllib.parse import urlparse
 
-from threading import Thread, Event
-
 from events.events import *
-from events.event_handler import EventThread
 from serial_interface import serial_event_handler
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
     reply = None
+
+    def notify(self, reply='busy'):
+        self.reply = reply
+        self.event.set()
 
     def do_GET(self):
         self.event = Event()
@@ -22,22 +23,30 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             shutdown_thread.daemon = True
             shutdown_thread.start()
 
-        elif 'distance' in request_path.path:
-            print("HTTP SERVER: Sending get distance command")
-            serial_event_handler.execute_command(self, GET_DISTANCE)
+        elif 'get_alarm_status' in request_path.path:
+            print('HTTP SERVER: Got get alarm status command')
+            serial_event_handler.execute_command(self, GET_ALARM_STATUS)
 
             self.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
 
-            # TODO extend to send the reponse back! (for more than this dummy test command though :-)
+        elif 'set_alarm_state_on' in request_path.path:
+            print('HTTP SERVER: Got set alarm state command')
+            serial_event_handler.execute_command(self, SET_ALARM_STATE)
 
-    def notify_reply(self, reply='Busy'):
-        self.reply = reply
-        self.event.set()
+            self.wait()
+            print('HTTP SERVER: Reply was: ', self.reply)
+
+        elif 'set_alarm_state_off' in request_path.path:
+            print('HTTP SERVER: Got set alarm state command')
+            # TODO extend execute command to handle multiple args for main/sub
+            serial_event_handler.execute_command(self, SET_ALARM_STATE)
+
+            self.wait()
+            print('HTTP SERVER: Reply was: ', self.reply)
 
 
 def shutdown(handler):
-    serial_event_handler.execute_command(handler, 'shutdown')
     handler.server.shutdown()
 
 

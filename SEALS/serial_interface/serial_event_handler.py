@@ -51,10 +51,10 @@ def proximity_alarm(sub):
         if active_config.is_config_valid():
             serial_interface.send_message(PROXIMITY_ALARM, ON)
 
-            if active_config.get_config_item(configurations.ALARM_STATE):
+            if active_config.get_config_item(configurations.ALARM):
                 timestamp = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
 
-                if active_config.get_config_item(configurations.PICTURE_STATE):
+                if active_config.get_config_item(configurations.PICTURE_MODE):
                     concurrent_snapshot(timestamp)
 
                 http_requests.notify_alarm(alarm_status, timestamp)

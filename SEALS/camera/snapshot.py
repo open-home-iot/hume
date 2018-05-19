@@ -1,17 +1,16 @@
 from picamera import PiCamera
-from datetime import datetime
 from threading import Thread
 from .picture_storage import get_picture_directory
 
 
-def snapshot():
-    tag = get_picture_directory() + datetime.now().strftime("%Y_%m_%d_%H:%M:%S") + '.jpg'
+def snapshot(timestamp):
+    tag = get_picture_directory() + timestamp + '.jpg'
     camera = PiCamera()
     camera.capture(tag)
     camera.close()
 
 
-def concurrent_snapshot():
-    thread = Thread(target=snapshot)
+def concurrent_snapshot(timestamp):
+    thread = Thread(target=snapshot, args=timestamp)
     thread.daemon = True
     thread.start()

@@ -23,27 +23,22 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             shutdown_thread.daemon = True
             shutdown_thread.start()
 
-        elif 'get_alarm_status' in request_path.path:
+        elif 'get_alarm_state' in request_path.path:
             print('HTTP SERVER: Got get alarm status command')
-            serial_event_handler.execute_command(self, GET_ALARM_STATUS)
+            serial_event_handler.execute_command(self, main=GET_ALARM_STATE)
 
             self.wait()
             print("HTTP SERVER: Reply was: ", self.reply)
 
-        elif 'set_alarm_state_on' in request_path.path:
-            print('HTTP SERVER: Got set alarm state command')
-            serial_event_handler.execute_command(self, SET_ALARM_STATE)
+        elif 'set_alarm_state' in request_path.path:
+            main, sub = request_path.path.split('/')
+            serial_event_handler.execute_command(self, main=SET_ALARM_STATE, sub=sub)
 
             self.wait()
             print('HTTP SERVER: Reply was: ', self.reply)
 
-        elif 'set_alarm_state_off' in request_path.path:
-            print('HTTP SERVER: Got set alarm state command')
-            # TODO extend execute command to handle multiple args for main/sub
-            serial_event_handler.execute_command(self, SET_ALARM_STATE)
-
-            self.wait()
-            print('HTTP SERVER: Reply was: ', self.reply)
+        else:
+            print(request_path.path)
 
 
 def shutdown(handler):

@@ -22,13 +22,10 @@ def encode(message):
     return message.encode('utf-8')
 
 
-def send_message(message):
+def send_message(main, sub):
+    message = main + ' ' + sub
     message = encode(message)
     serial_port.write(message)
-
-
-def reply(main, sub):
-    send_message(str(main) + ' ' + str(sub))
 
 
 def read_incoming_data():

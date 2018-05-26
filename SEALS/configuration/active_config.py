@@ -1,5 +1,8 @@
 class Configuration:
-    config_dict = None
+    config_dict = {
+        0: True,
+        1: True,
+    }
 
     def set_config_item(self, key, value):
         self.config_dict[key] = value

@@ -8,7 +8,7 @@ from configuration import configurations
 try:
     from camera.snapshot import concurrent_snapshot
 except ImportError:
-    def concurrent_snapshot():
+    def concurrent_snapshot(ts):
         print('SERI SERVER: PICAMERA NOT AVAILABLE')
 
 from events.events import *
@@ -46,23 +46,25 @@ event_handler = SerialEventHandler()
 def proximity_alarm(sub):
     alarm_status = sub == ON
     print("SERI SERVER: Alarm status received: ", alarm_status)
+    timestamp = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
 
     if alarm_status:
-        if active_config.is_config_valid():
-            serial_interface.send_message(PROXIMITY_ALARM, ON)
 
-            if active_config.get_config_item(configurations.ALARM):
-                timestamp = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
+        serial_interface.send_message(PROXIMITY_ALARM, ON)
 
-                if active_config.get_config_item(configurations.PICTURE_MODE):
-                    concurrent_snapshot(timestamp)
+        if active_config.get_config_item(configurations.ALARM):
 
-                http_requests.notify_alarm(alarm_status, timestamp)
+            if active_config.get_config_item(configurations.PICTURE_MODE):
+                concurrent_snapshot(timestamp)
 
-            else:
-                serial_interface.send_message(SET_ALARM_STATE, OFF)
+            http_requests.notify_alarm(alarm_status, timestamp)
+
+        else:
+            serial_interface.send_message(SET_ALARM_STATE, OFF)
     else:
         serial_interface.send_message(PROXIMITY_ALARM, OFF)
+
+        http_requests.notify_alarm(alarm_status, timestamp)
 
 
 def reply_received(sub):

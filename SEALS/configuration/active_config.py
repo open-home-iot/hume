@@ -1,3 +1,6 @@
+from configuration.configurations import *
+
+
 class Configuration:
     config_dict = {
         0: True,
@@ -17,4 +20,13 @@ class Configuration:
         return self.config_dict
 
 
+true = ['1', 'True', 'true', True]
+false = ['0', 'False', 'false', False]
 active_config = Configuration()
+
+
+def update_config(new_config):
+    active_config.set_config_item(ALARM, new_config['alarm_state'] in true)
+    active_config.set_config_item(PICTURE_MODE, new_config['picture_mode'] in true)
+
+    print("CONFIGURATIONS: New config:", active_config.get_config())

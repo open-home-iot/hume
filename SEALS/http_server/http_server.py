@@ -4,6 +4,10 @@ from urllib.parse import urlparse
 
 from events.events import *
 from serial_interface import serial_event_handler
+from http_server.http_requests import get_config
+from configuration.active_config import active_config
+from configuration.active_config import update_config
+from configuration.configurations import *
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
@@ -22,6 +26,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             shutdown_thread = Thread(target=shutdown, args=(self,))
             shutdown_thread.daemon = True
             shutdown_thread.start()
+
+        elif 'configuration_change' in request_path.path:
+            print('HTTP SERVER: Got new configuration update')
+            query = urlparse(self.path).query
+            query_components = dict(qc.split('=') for qc in query.split('&'))
+            print(query_components)
+
+            update_config(query_components)
 
         elif 'get_alarm_state' in request_path.path:
             print('HTTP SERVER: Got get alarm status command')
@@ -47,5 +59,10 @@ def shutdown(handler):
 
 def start(server_address):
     server = HTTPServer(server_address, HTTPRequestHandler)
+    print("HTTP SERVER: Getting configuration")
+    config = get_config()
+    active_config.set_config_item(ALARM, config['alarm_state'])
+    active_config.set_config_item(PICTURE_MODE, config['picture_mode'])
+
     print("HTTP SERVER: Starting HTTP server")
     server.serve_forever()

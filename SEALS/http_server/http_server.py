@@ -11,9 +11,9 @@ from configuration.configurations import *
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
-    reply = None
+    reply = 'unset'
 
-    def notify(self, reply='busy'):
+    def notify(self, reply='error'):
         self.reply = reply
         self.event.set()
 
@@ -38,18 +38,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             print('HTTP SERVER: Got get alarm status command')
             serial_event_handler.execute_command(self, main=GET_ALARM_STATE)
 
-            self.wait()
+            self.wait(timeout=2.0)
             print("HTTP SERVER: Reply was: ", self.reply)
 
-        elif 'set_alarm_state' in request_path.path:
-            main, sub = request_path.path.split('/')
-            serial_event_handler.execute_command(self, main=SET_ALARM_STATE, sub=sub)
-
-            self.wait()
-            print('HTTP SERVER: Reply was: ', self.reply)
+            self.send_response(200, message={'message': self.reply})
+            self.end_headers()
 
         else:
-            print(request_path.path)
+            print("HTTP SERVER: Path not found: ", request_path.path)
 
 
 def shutdown(handler):
@@ -57,11 +53,12 @@ def shutdown(handler):
 
 
 def start(server_address):
-    server = HTTPServer(server_address, HTTPRequestHandler)
+    # Get config first since the config determines if reporting should be carried outwards.
     print("HTTP SERVER: Getting configuration")
     config = get_config()
     active_config.set_config_item(ALARM, config['alarm_state'])
     active_config.set_config_item(PICTURE_MODE, config['picture_mode'])
 
     print("HTTP SERVER: Starting HTTP server")
+    server = HTTPServer(server_address, HTTPRequestHandler)
     server.serve_forever()

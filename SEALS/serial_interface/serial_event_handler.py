@@ -67,27 +67,30 @@ def proximity_alarm(sub):
         http_requests.notify_alarm(alarm_status, timestamp)
 
 
-def reply_received(sub):
+def reply_received(sub=''):
     event_handler.reply(sub)
 
 
 def get_alarm_status(sub):
-    reply_received(sub)
+    reply_received(sub=sub)
 
 
-def set_alarm_state(sub):
-    reply_received(sub)
+def error():
+    reply_received()
 
 
 def event_notification(event):
     event_info = event.split(" ")
 
-    main, sub = event_info
-    events[main](sub)
+    if len(event_info) > 1:
+        main, sub = event_info
+        events[main](sub)
+    else:
+        events[event_info[0]]()
 
 
 events = {
         PROXIMITY_ALARM: proximity_alarm,
         GET_ALARM_STATE: get_alarm_status,
-        SET_ALARM_STATE: set_alarm_state,
+        ERR: error,
     }

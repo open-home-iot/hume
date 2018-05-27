@@ -31,7 +31,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             print('HTTP SERVER: Got new configuration update')
             query = urlparse(self.path).query
             query_components = dict(qc.split('=') for qc in query.split('&'))
-            print(query_components)
 
             update_config(query_components)
 

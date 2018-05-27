@@ -1,3 +1,5 @@
+import json
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from urllib.parse import urlparse
@@ -38,11 +40,17 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             print('HTTP SERVER: Got get alarm status command')
             serial_event_handler.execute_command(self, main=GET_ALARM_STATE)
 
-            self.wait(timeout=2.0)
+            self.wait(timeout=5.0)
             print("HTTP SERVER: Reply was: ", self.reply)
 
-            self.send_response(200, message={'message': self.reply})
-            self.end_headers()
+            if self.reply == 'unset':
+                self.send_response(500)
+                self.end_headers()
+            else:
+                self.send_response(200)
+                self.end_headers()
+                json_dump = json.dumps({'alarm_state': self.reply})
+                self.wfile.write(json_dump.encode('utf-8'))
 
         else:
             print("HTTP SERVER: Path not found: ", request_path.path)

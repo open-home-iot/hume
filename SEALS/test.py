@@ -1,3 +1,5 @@
-from http_server.http_requests import *
+import requests
 
-get_config()
+res = requests.get('http://localhost:8080/get_alarm_state')
+print(res.text)
+print(res.content)

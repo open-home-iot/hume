@@ -25,6 +25,7 @@ def encode(message):
 def send_message(main, sub):
     message = main + ' ' + sub
     message = encode(message)
+    print('SERI INTERFACE: Sending message: ', message)
     serial_port.write(message)
 
 

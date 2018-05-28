@@ -48,21 +48,12 @@ def proximity_alarm(sub):
     print("SERI SERVER: Alarm status received: ", alarm_status)
     timestamp = datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
 
-    if alarm_status:
+    serial_interface.send_message(PROXIMITY_ALARM, ON if alarm_status else OFF)
 
-        serial_interface.send_message(PROXIMITY_ALARM, ON)
+    if active_config.get_config_item(configurations.ALARM):
 
-        if active_config.get_config_item(configurations.ALARM):
-
-            if active_config.get_config_item(configurations.PICTURE_MODE):
-                concurrent_snapshot(timestamp)
-
-            http_requests.notify_alarm(alarm_status, timestamp)
-
-        else:
-            serial_interface.send_message(SET_ALARM_STATE, OFF)
-    else:
-        serial_interface.send_message(PROXIMITY_ALARM, OFF)
+        if active_config.get_config_item(configurations.PICTURE_MODE):
+            concurrent_snapshot(timestamp)
 
         http_requests.notify_alarm(alarm_status, timestamp)
 
@@ -76,6 +67,7 @@ def get_alarm_status(sub):
 
 
 def error():
+    print('SERI SERVER: Error received')
     reply_received()
 
 

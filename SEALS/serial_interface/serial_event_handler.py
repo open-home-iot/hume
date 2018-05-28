@@ -52,7 +52,8 @@ def proximity_alarm(sub):
 
     if active_config.get_config_item(configurations.ALARM):
 
-        if active_config.get_config_item(configurations.PICTURE_MODE):
+        # Only snapshot on alarm on
+        if alarm_status and active_config.get_config_item(configurations.PICTURE_MODE):
             concurrent_snapshot(timestamp)
 
         http_requests.notify_alarm(alarm_status, timestamp)

@@ -10,7 +10,6 @@ ERR = '9'
 # Event indexing
 PROXIMITY_ALARM = '0'
 GET_ALARM_STATE = '1'
-SET_ALARM_STATE = '2'
 
 
 class EventThread(ABC, Thread):

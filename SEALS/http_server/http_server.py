@@ -49,7 +49,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             else:
                 self.send_response(200)
                 self.end_headers()
-                json_dump = json.dumps({'alarm_state': self.reply})
+                json_dump = json.dumps({'alarm_state': True if self.reply == ON else False})
                 self.wfile.write(json_dump.encode('utf-8'))
 
         else:

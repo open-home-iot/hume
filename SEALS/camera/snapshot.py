@@ -11,6 +11,6 @@ def snapshot(timestamp):
 
 
 def concurrent_snapshot(timestamp):
-    thread = Thread(target=snapshot, args=timestamp)
+    thread = Thread(target=snapshot, args=(timestamp, ))
     thread.daemon = True
     thread.start()

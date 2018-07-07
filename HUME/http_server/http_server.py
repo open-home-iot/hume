@@ -6,10 +6,7 @@ from urllib.parse import urlparse
 
 from events.events import *
 from serial_interface import serial_event_handler
-from http_server.http_requests import get_config
-from configuration.active_config import active_config
-from configuration.active_config import update_config
-from configuration.configurations import *
+from configuration import active_config
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
@@ -34,7 +31,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, EventThread):
             query = urlparse(self.path).query
             query_components = dict(qc.split('=') for qc in query.split('&'))
 
-            update_config(query_components)
+            active_config.update_config(query_components)
 
         elif 'get_alarm_state' in request_path.path:
             print('HTTP SERVER: Got get alarm status command')
@@ -63,9 +60,7 @@ def shutdown(handler):
 def start(server_address):
     # Get config first since the config determines if reporting should be carried outwards.
     print("HTTP SERVER: Getting configuration")
-    config = get_config()
-    active_config.set_config_item(ALARM, config['alarm_state'])
-    active_config.set_config_item(PICTURE_MODE, config['picture_mode'])
+    active_config.init_config()
 
     print("HTTP SERVER: Starting HTTP server")
     server = HTTPServer(server_address, HTTPRequestHandler)

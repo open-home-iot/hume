@@ -3,7 +3,7 @@ from http_server import http_requests
 from datetime import datetime
 
 from configuration.active_config import active_config
-from configuration import configurations
+from configuration import config_definitions
 
 try:
     from camera.snapshot import concurrent_snapshot
@@ -50,10 +50,10 @@ def proximity_alarm(sub):
 
     serial_interface.send_message(PROXIMITY_ALARM, ON if alarm_status else OFF)
 
-    if active_config.get_config_item(configurations.ALARM):
+    if active_config.get_config_item(config_definitions.ALARM):
 
         # Only snapshot on alarm on
-        if alarm_status and active_config.get_config_item(configurations.PICTURE_MODE):
+        if alarm_status and active_config.get_config_item(config_definitions.PICTURE_MODE):
             concurrent_snapshot(timestamp)
 
         http_requests.notify_alarm(alarm_status, timestamp)

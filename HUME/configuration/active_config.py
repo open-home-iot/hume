@@ -1,4 +1,7 @@
-from configuration.configurations import *
+import util
+
+from configuration.config_definitions import *
+from http_server import http_requests
 
 
 class Configuration:
@@ -23,6 +26,10 @@ class Configuration:
 true = ['1', 'True', 'true', True]
 false = ['0', 'False', 'false', False]
 active_config = Configuration()
+
+
+def init_config():
+    util.async_callback(target=http_requests.get_config, callback=update_config)
 
 
 def update_config(new_config):

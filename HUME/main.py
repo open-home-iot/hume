@@ -5,19 +5,18 @@ import requests
 from threading import Thread
 from http_server import http_server
 from serial_interface import serial_interface
-from serial_interface import serial_event_handler
 
 
-DEFAULT_BAUDRATE = 9600   # Baudrate of the serial interface
-DEFAULT_IP = ''  # IP of this HTTP event server
-DEFAULT_PORT = 8080       # Port of this HTTP event server
+DEFAULT_BAUDRATE = 9600  # Baudrate of the serial interface
+DEFAULT_IP = ''          # IP of this HTTP event server
+DEFAULT_PORT = 8080      # Port of this HTTP event server
 
 ip = ''
 port = ''
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='SEALS, Serial Event And hTTP Listening Service.')
+    parser = argparse.ArgumentParser(description='HUME, HOME Hub.')
     parser.add_argument('--serial_port', type=str, required=True)
     parser.add_argument('--baudrate', type=int)
     parser.add_argument('--ip', type=str)

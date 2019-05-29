@@ -1,2 +1,0 @@
-ALARM = 0
-PICTURE_MODE = 1

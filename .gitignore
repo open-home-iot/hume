@@ -4,6 +4,7 @@
 # Application specific
 .log
 *.rdb
+*.sqlite3
 
 # Build angular app
 /dist

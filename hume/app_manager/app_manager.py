@@ -56,30 +56,31 @@ class AppManager:
             application.stop()
 
     def start_utility_applications(self):
-        utility_application_modules = [(defs.UTIL_BROKER, broker),
-                                       (defs.UTIL_LOG, log),
-                                       (defs.UTIL_SCHEDULER, scheduler),
-                                       (defs.UTIL_STORAGE, storage)]
+        utility_application_modules = [(defs.APPL_UTIL_BROKER, broker),
+                                       (defs.APPL_UTIL_LOG, log),
+                                       (defs.APPL_UTIL_SCHEDULER, scheduler),
+                                       (defs.APPL_UTIL_STORAGE, storage)]
 
         for key, module in utility_application_modules:
             self.start_application(key, module)
 
     def start_transport_applications(self):
-        transport_application_modules = [(defs.TRANS_HTTP, http),
-                                         (defs.TRANS_SERIAL, serial)]
+        transport_application_modules = [(defs.APPL_TRANS_HTTP, http),
+                                         (defs.APPL_TRANS_SERIAL, serial)]
 
         for key, module in transport_application_modules:
             self.start_application(key, module)
 
     def start_business_applications(self):
-        business_application_modules = [(defs.BUSIN_DEVICE, device),
-                                        (defs.BUSIN_HINT, hint)]
+        business_application_modules = [(defs.APPL_BUSIN_DEVICE, device),
+                                        (defs.APPL_BUSIN_HINT, hint)]
 
         for key, module in business_application_modules:
             self.start_application(key, module)
 
     def start_application(self, app_key, module):
         application_instance = module.start()
+        print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
     def interrupt(self, signum, frame):

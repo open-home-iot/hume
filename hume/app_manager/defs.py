@@ -1,14 +1,14 @@
 # Application instance tags
 # Transport
-TRANS_HTTP = 'http'
-TRANS_SERIAL = 'serial'
+APPL_TRANS_HTTP = 'http'
+APPL_TRANS_SERIAL = 'serial'
 
 # Utility
-UTIL_BROKER = 'broker'
-UTIL_LOG = 'log'
-UTIL_SCHEDULER = 'scheduler'
-UTIL_STORAGE = 'storage'
+APPL_UTIL_BROKER = 'broker'
+APPL_UTIL_LOG = 'log'
+APPL_UTIL_SCHEDULER = 'scheduler'
+APPL_UTIL_STORAGE = 'storage'
 
 # Business
-BUSIN_DEVICE = 'device'
-BUSIN_HINT = 'hint'
+APPL_BUSIN_DEVICE = 'device'
+APPL_BUSIN_HINT = 'hint'

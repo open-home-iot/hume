@@ -14,13 +14,13 @@ from . import defs
 
 
 def initiate():
+    # Parse args
+    arg_parser.parse_args()
+
     app_manager = AppManager()
 
     # Handle signals
     signal_handling.bind_signal_handlers(app_manager)
-
-    # Parse args
-    arg_parser.parse_args(app_manager)
 
     # Start application
     app_manager.start()

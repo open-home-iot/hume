@@ -1,7 +1,7 @@
 from .. import ApplicationABC
 
 
-class BrokerApplication(ApplicationABC):
+class PublisherApplication(ApplicationABC):
 
     def start(self):
         pass

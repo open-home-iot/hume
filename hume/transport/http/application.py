@@ -1,6 +1,9 @@
 import subprocess
 import os
+import threading
 
+from . import server_handler
+from . import defs
 from .. import ApplicationABC
 
 
@@ -9,11 +12,32 @@ class HttpApplication(ApplicationABC):
     server_process = None
 
     def start(self):
+
+        gunicorn_root_path = os.path.dirname(os.path.abspath(__file__)) + '/server/'
+        print("Gunicorn root %s" % gunicorn_root_path)
+
+        def prestart_clean():
+            if os.path.isfile(gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE):
+                print("found logfile")
+                os.remove(gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE)
+            if os.path.isfile(gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE):
+                print("found logfile")
+                os.remove(gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE)
+
+            print("end of prestart clean")
+
+        prestart_clean()
+
         print("Starting HTTP application process")
 
         self.server_process = subprocess.Popen(['gunicorn',
-                                                '--chdir', os.path.dirname(os.path.abspath(__file__)) + '/server',
+                                                '--chdir', gunicorn_root_path,
+                                                '--access-logfile', defs.GUNICORN_ACCESS_LOGFILE,
+                                                '--error-logfile', defs.GUNICORN_ERROR_LOGFILE,
                                                 'http_django_server.wsgi'])
+
+        thread = threading.Thread(target=server_handler.start, daemon=True)
+        thread.start()
 
     def stop(self):
         if self.server_process.poll() is None:

@@ -4,7 +4,7 @@ APPL_TRANS_HTTP = 'http'
 APPL_TRANS_SERIAL = 'serial'
 
 # Utility
-APPL_UTIL_BROKER = 'broker'
+APPL_UTIL_PUBLISHER = 'publisher'
 APPL_UTIL_LOG = 'log'
 APPL_UTIL_SCHEDULER = 'scheduler'
 APPL_UTIL_STORAGE = 'storage'

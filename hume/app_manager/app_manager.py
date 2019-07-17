@@ -1,6 +1,6 @@
 from transport import http
 from transport import serial
-from utility import broker
+from utility import publisher
 from utility import log
 from utility import scheduler
 from utility import storage
@@ -25,7 +25,7 @@ def initiate():
     # Start application
     app_manager.start()
 
-    # While running, provide CLI interface
+    # While running, provide CLI
     cli.start_cli(app_manager)
 
 
@@ -56,7 +56,7 @@ class AppManager:
             application.stop()
 
     def start_utility_applications(self):
-        utility_application_modules = [(defs.APPL_UTIL_BROKER, broker),
+        utility_application_modules = [(defs.APPL_UTIL_PUBLISHER, publisher),
                                        (defs.APPL_UTIL_LOG, log),
                                        (defs.APPL_UTIL_SCHEDULER, scheduler),
                                        (defs.APPL_UTIL_STORAGE, storage)]

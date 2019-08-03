@@ -1,0 +1,6 @@
+Django==2.2.1
+gunicorn==19.9.0
+pytz==2019.1
+pyzmq==18.0.2
+sqlparse==0.3.0
+zmq==0.0.0

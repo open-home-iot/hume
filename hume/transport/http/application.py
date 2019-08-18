@@ -11,7 +11,7 @@ class HttpApplication(ApplicationABC):
 
     server_process = None
 
-    def start(self):
+    def start(self, utility_applications=None):
 
         gunicorn_root_path = os.path.dirname(os.path.abspath(__file__)) + '/server/'
         print("Gunicorn root %s" % gunicorn_root_path)

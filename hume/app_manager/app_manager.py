@@ -39,7 +39,7 @@ class AppManager(ApplicationABC):
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :return:
+        :return: N/A
         """
 
         print("Starting applications")
@@ -63,7 +63,7 @@ class AppManager(ApplicationABC):
         application is also stopped so that they in turn can release resources
         and shut down.
 
-        :return:
+        :return: N/A
         """
 
         for key, application in self.applications.items():
@@ -75,7 +75,7 @@ class AppManager(ApplicationABC):
         Status information for the application manager. This function should
         return information about the application manager's current state.
 
-        :return:
+        :return: N/A
         """
 
         pass

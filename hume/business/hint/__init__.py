@@ -7,10 +7,10 @@ def start(args=None, utility_applications=None, transport_applications=None):
     start the underlying application and return its instance.
 
     :param args: arguments intended for the hint application.
-    :param utility_applications:   a list of all utility applications that
+    :param utility_applications:   a dict of all utility applications that
                                    the hint application is allowed to
                                    use.
-    :param transport_applications: a list of all transport applications that
+    :param transport_applications: a dict of all transport applications that
                                    the hint application is allowed to
                                    use.
     :return: HintApplication

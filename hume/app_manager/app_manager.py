@@ -48,19 +48,9 @@ class AppManager(ApplicationABC):
 
         # No need to check if args is None since the object always exists after
         # parsing arguments, even if there were no arguments.
-
-        print("Starting applications")
-
-        print("Starting utility applications")
         self.start_utility_applications(args=args)
-
-        print("Starting transport applications")
         self.start_transport_applications(args=args)
-
-        print("Starting business applications")
         self.start_business_applications(args=args)
-
-        print("Started all applications")
 
     def stop(self):
         """
@@ -74,7 +64,6 @@ class AppManager(ApplicationABC):
         """
 
         for key, application in self.applications.items():
-            print("Stopping %s" % application)
             application.stop()
 
     def status(self):
@@ -119,8 +108,6 @@ class AppManager(ApplicationABC):
         """
 
         application_instance = module.start(args=args)
-
-        print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
     def start_transport_applications(self, args=None):
@@ -135,12 +122,16 @@ class AppManager(ApplicationABC):
         transport_application_modules = [(defs.APPL_TRANS_HTTP, http),
                                          (defs.APPL_TRANS_SERIAL, serial)]
 
-        utility_applications = [
-            self.applications[defs.APPL_UTIL_LOG],
-            self.applications[defs.APPL_UTIL_BROKER],
-            self.applications[defs.APPL_UTIL_STORAGE],
-            self.applications[defs.APPL_UTIL_SCHEDULER]
-        ]
+        utility_applications = {
+            defs.APPL_UTIL_LOG:
+                self.applications[defs.APPL_UTIL_LOG],
+            defs.APPL_UTIL_BROKER:
+                self.applications[defs.APPL_UTIL_BROKER],
+            defs.APPL_UTIL_STORAGE:
+                self.applications[defs.APPL_UTIL_STORAGE],
+            defs.APPL_UTIL_SCHEDULER:
+                self.applications[defs.APPL_UTIL_SCHEDULER]
+        }
 
         for key, module in transport_application_modules:
             self.start_transport_application(
@@ -165,7 +156,7 @@ class AppManager(ApplicationABC):
         :param module:  module containing the application that is about to be
                         started.
         :param args:    arguments intended for a transport application.
-        :param utility_applications: a list of all utility applications that the
+        :param utility_applications: a dict of all utility applications that the
                                      transport application is allowed to use.
         :return:        N/A
         """
@@ -193,17 +184,23 @@ class AppManager(ApplicationABC):
         business_application_modules = [(defs.APPL_BUSIN_DEVICE, device),
                                         (defs.APPL_BUSIN_HINT, hint)]
 
-        utility_applications = [
-            self.applications[defs.APPL_UTIL_LOG],
-            self.applications[defs.APPL_UTIL_BROKER],
-            self.applications[defs.APPL_UTIL_STORAGE],
-            self.applications[defs.APPL_UTIL_SCHEDULER]
-        ]
+        utility_applications = {
+            defs.APPL_UTIL_LOG:
+                self.applications[defs.APPL_UTIL_LOG],
+            defs.APPL_UTIL_BROKER:
+                self.applications[defs.APPL_UTIL_BROKER],
+            defs.APPL_UTIL_STORAGE:
+                self.applications[defs.APPL_UTIL_STORAGE],
+            defs.APPL_UTIL_SCHEDULER:
+                self.applications[defs.APPL_UTIL_SCHEDULER]
+        }
 
-        transport_applications = [
-            self.applications[defs.APPL_TRANS_HTTP],
-            self.applications[defs.APPL_TRANS_SERIAL]
-        ]
+        transport_applications = {
+            defs.APPL_TRANS_HTTP:
+                self.applications[defs.APPL_TRANS_HTTP],
+            defs.APPL_TRANS_SERIAL:
+                self.applications[defs.APPL_TRANS_SERIAL]
+        }
 
         for key, module in business_application_modules:
             self.start_business_application(
@@ -230,10 +227,10 @@ class AppManager(ApplicationABC):
         :param module:  module containing the application that is about to be
                         started.
         :param args:    arguments intended for a business application.
-        :param utility_applications:   a list of all utility applications that
+        :param utility_applications:   a dict of all utility applications that
                                        the business application is allowed to
                                        use.
-        :param transport_applications: a list of all transport applications that
+        :param transport_applications: a dict of all transport applications that
                                        the business application is allowed to
                                        use.
         :return:        N/A

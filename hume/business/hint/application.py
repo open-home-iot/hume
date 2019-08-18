@@ -14,14 +14,15 @@ class HintApplication(ApplicationABC):
         lifecycle management pattern.
 
         :param args: arguments intended for an application.
-        :param utility_applications:   a list of all utility applications that
+        :param utility_applications:   a dict of all utility applications that
                                        the hint application is allowed to
                                        use.
-        :param transport_applications: a list of all transport applications that
+        :param transport_applications: a dict of all transport applications that
                                        the hint application is allowed to
                                        use.
         :return: N/A
         """
+
         pass
 
     def stop(self):

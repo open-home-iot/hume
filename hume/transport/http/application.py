@@ -20,7 +20,7 @@ class HttpApplication(ApplicationABC):
         lifecycle management pattern.
 
         :param args: arguments intended for an application.
-        :param utility_applications: a list of all utility applications that
+        :param utility_applications: a dict of all utility applications that
                                      the http application is allowed to
                                      use.
         :return: N/A
@@ -28,11 +28,9 @@ class HttpApplication(ApplicationABC):
 
         self.gunicorn_root_path = \
             os.path.dirname(os.path.abspath(__file__)) + '/server/'
-        print("Gunicorn root %s" % self.gunicorn_root_path)
 
         self.clear_gunicorn_logs(args)
 
-        print("Starting HTTP application process")
         self.server_process = subprocess.Popen(
             ['gunicorn',
              '--chdir', self.gunicorn_root_path,
@@ -70,14 +68,12 @@ class HttpApplication(ApplicationABC):
             if os.path.isfile(
                     self.gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
             ):
-                print("Removing Gunicorn access logfile")
                 os.remove(
                     self.gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
                 )
             if os.path.isfile(
                     self.gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
             ):
-                print("Removing Gunicorn error logfile")
                 os.remove(
                     self.gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
                 )

@@ -11,7 +11,7 @@ class SerialApplication(ApplicationABC):
         lifecycle management pattern.
 
         :param args: arguments intended for an application.
-        :param utility_applications: a list of all utility applications that
+        :param utility_applications: a dict of all utility applications that
                                      the serial application is allowed to
                                      use.
         :return: N/A

@@ -5,6 +5,12 @@ from datetime import datetime
 from .. import ApplicationABC
 
 
+def now():
+    return "%s%s%s".format(
+        "[", datetime.now().strftime("%Y/%m/%d %H:%M:%S"), "]"
+    )
+
+
 class LogApplication(ApplicationABC):
     application_name = 'LogApplication'
 
@@ -82,8 +88,19 @@ class LogApplication(ApplicationABC):
         with open(self.log_directory + log, operation) as log:
 
             if operation == 'a':
-                statement = "\nCONTINUED %s \n" % datetime.now()
+                statement = "\nCONTINUED %s \n" % now()
             else:
-                statement = "CREATED %s \n" % datetime.now()
+                statement = "CREATED %s \n" % now()
 
             log.write(statement)
+
+    def write_to_log(self, tag, message):
+        """
+
+        :param tag:
+        :param message:
+        :return:
+        """
+
+        with open(self.log_directory + self.master_log, 'a') as log:
+            log.write("%s - %s : %s".format(tag, now(), message))

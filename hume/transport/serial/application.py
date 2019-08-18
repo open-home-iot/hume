@@ -1,9 +1,14 @@
+from utility.log.application import LogApplication
+from utility.log.defs import LOG_LEVEL_INFO
 from .. import ApplicationABC
+from . import defs
 
 
 class SerialApplication(ApplicationABC):
 
     application_name = 'SerialApplication'
+
+    log_application: LogApplication = None  # Typed for ease-of-access.
 
     def start(self, args=None, utility_applications=None):
         """
@@ -16,7 +21,11 @@ class SerialApplication(ApplicationABC):
                                      use.
         :return: N/A
         """
-        pass
+        self.log_application = utility_applications[defs.APPL_UTIL_LOG]
+
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Started."
+        )
 
     def stop(self):
         """
@@ -26,7 +35,9 @@ class SerialApplication(ApplicationABC):
 
         :return: N/A
         """
-        pass
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Stopped."
+        )
 
     def status(self):
         """

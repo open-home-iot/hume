@@ -1,9 +1,14 @@
+from utility.log.application import LogApplication
+from utility.log.defs import LOG_LEVEL_INFO
 from .. import ApplicationABC
+from . import defs
 
 
 class DeviceApplication(ApplicationABC):
 
     application_name = 'DeviceApplication'
+
+    log_application: LogApplication = None  # Typed for ease-of-access.
 
     def start(self,
               args=None,
@@ -22,8 +27,11 @@ class DeviceApplication(ApplicationABC):
                                        use.
         :return: N/A
         """
+        self.log_application = utility_applications[defs.APPL_UTIL_LOG]
 
-        pass
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Started."
+        )
 
     def stop(self):
         """
@@ -33,7 +41,9 @@ class DeviceApplication(ApplicationABC):
 
         :return: N/A
         """
-        pass
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Stopped."
+        )
 
     def status(self):
         """

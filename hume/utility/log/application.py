@@ -3,15 +3,17 @@ import os
 from datetime import datetime
 
 from .. import ApplicationABC
+from .defs import *
 
 
 def now():
-    return "%s%s%s".format(
+    return "{}{}{}".format(
         "[", datetime.now().strftime("%Y/%m/%d %H:%M:%S"), "]"
     )
 
 
 class LogApplication(ApplicationABC):
+
     application_name = 'LogApplication'
 
     log_directory = ''  # Initialized during start()
@@ -80,6 +82,9 @@ class LogApplication(ApplicationABC):
         :return:    N/A
         """
 
+        if '.log' not in log:
+            raise NameError("Please end log file names with '.log'")
+
         operation = 'w'
 
         if os.path.exists(self.log_directory + log):
@@ -94,13 +99,29 @@ class LogApplication(ApplicationABC):
 
             log.write(statement)
 
-    def write_to_log(self, tag, message):
+    def write_to_log(self, level, tag, message, log=None):
         """
+        Writes to a log file.
 
-        :param tag:
-        :param message:
+        :param level:   determined if 'INFO', 'WARNING', or 'ERROR' should be
+                        displayed next to the log entry.
+        :param tag:     tag of the logging entity, to differentiate log entries
+                        from one another.
+        :param message: message content of the logging action.
+        :param log:     optional argument to choose which EXISTING log to write
+                        to. If left blank, the master log 'hume.log' is chosen.
+                        If supplying a log file name, the call MUST be preceded
+                        by a call to create_log(<log file name>)
         :return:
         """
+        if log is None:
+            log = self.master_log
 
-        with open(self.log_directory + self.master_log, 'a') as log:
-            log.write("%s - %s : %s".format(tag, now(), message))
+        if not os.path.exists(self.log_directory + log):
+            raise FileNotFoundError(log + " does not exist. You need to create"
+                                          "it before attempting to write to it")
+
+        with open(self.log_directory + log, 'a') as log:
+            log.write("{} - {} {}: {}\n".format(
+                now(), LOG_LEVEL_TAGS[level], tag, message)
+            )

@@ -2,6 +2,8 @@ from transport import http
 from transport import serial
 from utility import broker
 from utility import log
+from utility.log.application import LogApplication, \
+    LOG_LEVEL_INFO, LOG_LEVEL_WARNING
 from utility import scheduler
 from utility import storage
 from business import device
@@ -33,6 +35,9 @@ def initiate():
 class AppManager(ApplicationABC):
 
     application_name = 'AppManager'
+
+    log_application: LogApplication = None  # Typed for ease-of-access.
+
     applications = dict()
 
     def start(self, args=None):
@@ -49,8 +54,27 @@ class AppManager(ApplicationABC):
         # No need to check if args is None since the object always exists after
         # parsing arguments, even if there were no arguments.
         self.start_utility_applications(args=args)
+
+        self.log_application = self.applications[defs.APPL_UTIL_LOG]
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Started utility applications."
+        )
+
         self.start_transport_applications(args=args)
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Started transport applications."
+        )
+
         self.start_business_applications(args=args)
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Started business applications."
+        )
 
     def stop(self):
         """
@@ -62,9 +86,20 @@ class AppManager(ApplicationABC):
 
         :return: N/A
         """
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Stopping system."
+        )
 
         for key, application in self.applications.items():
             application.stop()
+
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Stopped all running applications, exiting now."
+        )
 
     def status(self):
         """
@@ -169,7 +204,6 @@ class AppManager(ApplicationABC):
             utility_applications=utility_applications
         )
 
-        print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
     def start_business_applications(self, args=None):
@@ -247,7 +281,6 @@ class AppManager(ApplicationABC):
             transport_applications=transport_applications
         )
 
-        print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
     def interrupt(self, signum, frame):
@@ -259,6 +292,11 @@ class AppManager(ApplicationABC):
         :param frame:  <see python docs>
         :return:       N/A
         """
+        self.log_application.write_to_log(
+            LOG_LEVEL_WARNING,
+            self.application_name,
+            "SIGINT was received, stopping system."
+        )
 
         self.stop()
 

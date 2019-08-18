@@ -16,7 +16,7 @@ from .application_abc import ApplicationABC
 
 def initiate():
     # Parse args
-    arg_parser.parse_args()
+    args = arg_parser.parse_args()
 
     app_manager = AppManager()
 
@@ -24,7 +24,7 @@ def initiate():
     signal_handling.bind_signal_handlers(app_manager)
 
     # Start application
-    app_manager.start()
+    app_manager.start(args=args)
 
     # While running, provide CLI
     cli.start_cli(app_manager)
@@ -34,24 +34,30 @@ class AppManager(ApplicationABC):
 
     applications = dict()
 
-    def start(self):
+    def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :return: N/A
+        :param args: arguments passed at the start of this program, which can
+                     be relayed to a specific application or kept in the
+                     application manager.
+        :return:     N/A
         """
+
+        # No need to check if args is None since the object always exists after
+        # parsing arguments, even if there were no arguments.
 
         print("Starting applications")
 
         print("Starting utility applications")
-        self.start_utility_applications()
+        self.start_utility_applications(args=args)
 
         print("Starting transport applications")
-        self.start_transport_applications()
+        self.start_transport_applications(args=args)
 
         print("Starting business applications")
-        self.start_business_applications()
+        self.start_business_applications(args=args)
 
         print("Started all applications")
 
@@ -80,11 +86,12 @@ class AppManager(ApplicationABC):
 
         pass
 
-    def start_utility_applications(self):
+    def start_utility_applications(self, args=None):
         """
         Starts all utility related applications of the HUME system. Utility
         applications are defined under .../hume/utility.
 
+        :param args: arguments intended for a utility application.
         :return: N/A
         """
 
@@ -94,9 +101,9 @@ class AppManager(ApplicationABC):
                                        (defs.APPL_UTIL_STORAGE, storage)]
 
         for key, module in utility_application_modules:
-            self.start_utility_application(key, module)
+            self.start_utility_application(key, module, args=args)
 
-    def start_utility_application(self, app_key, module):
+    def start_utility_application(self, app_key, module, args=None):
         """
         Start a single utility application and register it with the application
         manager's register of applications.
@@ -106,19 +113,21 @@ class AppManager(ApplicationABC):
                         registry.
         :param module:  module containing the application that is about to be
                         started.
+        :param args:    arguments intended for a utility application.
         :return:        N/A
         """
 
-        application_instance = module.start()
+        application_instance = module.start(args=args)
 
         print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
-    def start_transport_applications(self):
+    def start_transport_applications(self, args=None):
         """
         Starts all transport related applications of the HUME system. Transport
         applications are defined under .../hume/transport.
 
+        :param args: arguments intended for a transport application.
         :return: N/A
         """
 
@@ -136,12 +145,14 @@ class AppManager(ApplicationABC):
             self.start_transport_application(
                 key,
                 module,
+                args=args,
                 utility_applications=utility_applications
             )
 
     def start_transport_application(self,
                                     app_key,
                                     module,
+                                    args=None,
                                     utility_applications=None):
         """
         Start a single transport application and register it with the
@@ -152,23 +163,29 @@ class AppManager(ApplicationABC):
                         registry.
         :param module:  module containing the application that is about to be
                         started.
+        :param args:    arguments intended for a transport application.
         :param utility_applications: a list of all utility applications that the
                                      transport application is allowed to use.
         :return:        N/A
         """
 
+        if utility_applications is None:
+            utility_applications = []
+
         application_instance = module.start(
+            args=args,
             utility_applications=utility_applications
         )
 
         print("Started %s" % application_instance)
         self.applications[app_key] = application_instance
 
-    def start_business_applications(self):
+    def start_business_applications(self, args=None):
         """
         Starts all business related applications of the HUME system. Transport
         applications are defined under .../hume/business.
 
+        :param args: arguments intended for a business application.
         :return: N/A
         """
 
@@ -191,15 +208,17 @@ class AppManager(ApplicationABC):
             self.start_business_application(
                 key,
                 module,
+                args=args,
                 utility_applications=utility_applications,
                 transport_applications=transport_applications
             )
 
     def start_business_application(self,
-                          app_key,
-                          module,
-                          utility_applications=None,
-                          transport_applications=None):
+                                   app_key,
+                                   module,
+                                   args=None,
+                                   utility_applications=None,
+                                   transport_applications=None):
         """
         Start a single business application and register it with the
         application manager's register of applications.
@@ -209,6 +228,7 @@ class AppManager(ApplicationABC):
                         registry.
         :param module:  module containing the application that is about to be
                         started.
+        :param args:    arguments intended for a business application.
         :param utility_applications:   a list of all utility applications that
                                        the business application is allowed to
                                        use.
@@ -218,7 +238,13 @@ class AppManager(ApplicationABC):
         :return:        N/A
         """
 
+        if transport_applications is None:
+            transport_applications = []
+        if utility_applications is None:
+            utility_applications = []
+
         application_instance = module.start(
+            args=args,
             utility_applications=utility_applications,
             transport_applications=transport_applications
         )

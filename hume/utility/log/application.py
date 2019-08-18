@@ -3,11 +3,12 @@ from .. import ApplicationABC
 
 class LogApplication(ApplicationABC):
 
-    def start(self):
+    def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
+        :param args: arguments intended for an application.
         :return: N/A
         """
 

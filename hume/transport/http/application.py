@@ -11,9 +11,20 @@ class HttpApplication(ApplicationABC):
 
     server_process = None
 
-    def start(self, utility_applications=None):
+    def start(self, args=None, utility_applications=None):
+        """
+        Start lifecycle hook for all applications following the simple
+        lifecycle management pattern.
 
-        gunicorn_root_path = os.path.dirname(os.path.abspath(__file__)) + '/server/'
+        :param args: arguments intended for an application.
+        :param utility_applications: a list of all utility applications that
+                                     the http application is allowed to
+                                     use.
+        :return: N/A
+        """
+
+        gunicorn_root_path = \
+            os.path.dirname(os.path.abspath(__file__)) + '/server/'
         print("Gunicorn root %s" % gunicorn_root_path)
 
         def prestart_clean():
@@ -40,8 +51,22 @@ class HttpApplication(ApplicationABC):
         thread.start()
 
     def stop(self):
+        """
+        Stop lifecycle hook for all applications following the simple
+        lifecycle management pattern. This hook should ensure that all resources
+        related to this application are released.
+
+        :return: N/A
+        """
+
         if self.server_process.poll() is None:
             self.server_process.terminate()
 
     def status(self):
+        """
+        Status information for the application. This function should
+        return information about the application's current state.
+
+        :return: N/A
+        """
         pass

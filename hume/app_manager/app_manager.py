@@ -32,6 +32,7 @@ def initiate():
 
 class AppManager(ApplicationABC):
 
+    application_name = 'AppManager'
     applications = dict()
 
     def start(self, args=None):

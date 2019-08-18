@@ -3,6 +3,9 @@ from .. import ApplicationABC
 
 class LogApplication(ApplicationABC):
 
+    application_name = 'LogApplication'
+    log_directory = '/logfiles'
+
     def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple

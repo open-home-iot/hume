@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class StorageApplication(ApplicationABC):
 
+    application_name = 'StorageApplication'
+
     def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple

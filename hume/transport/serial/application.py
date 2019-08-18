@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class SerialApplication(ApplicationABC):
 
+    application_name = 'SerialApplication'
+
     def start(self, args=None, utility_applications=None):
         """
         Start lifecycle hook for all applications following the simple

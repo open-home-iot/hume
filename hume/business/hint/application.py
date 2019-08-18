@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class HintApplication(ApplicationABC):
 
+    application_name = 'HintApplication'
+
     def start(self,
               args=None,
               utility_applications=None,

@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class SchedulerApplication(ApplicationABC):
 
+    application_name = 'SchedulerApplication'
+
     def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple

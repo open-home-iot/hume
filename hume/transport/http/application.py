@@ -9,6 +9,7 @@ from .. import ApplicationABC
 
 class HttpApplication(ApplicationABC):
 
+    application_name = 'HttpApplication'
     server_process = None
 
     def start(self, args=None, utility_applications=None):
@@ -28,24 +29,29 @@ class HttpApplication(ApplicationABC):
         print("Gunicorn root %s" % gunicorn_root_path)
 
         def prestart_clean():
-            if os.path.isfile(gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE):
-                print("found logfile")
+            if os.path.isfile(
+                    gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
+            ):
+                print("Removing Gunicorn access logfile")
                 os.remove(gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE)
-            if os.path.isfile(gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE):
-                print("found logfile")
+            if os.path.isfile(
+                    gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
+            ):
+                print("Removing Gunicorn error logfile")
                 os.remove(gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE)
 
-            print("end of prestart clean")
+            print("Prestart clean done")
 
         prestart_clean()
 
         print("Starting HTTP application process")
-
-        self.server_process = subprocess.Popen(['gunicorn',
-                                                '--chdir', gunicorn_root_path,
-                                                '--access-logfile', defs.GUNICORN_ACCESS_LOGFILE,
-                                                '--error-logfile', defs.GUNICORN_ERROR_LOGFILE,
-                                                'http_django_server.wsgi'])
+        self.server_process = subprocess.Popen(
+            ['gunicorn',
+             '--chdir', gunicorn_root_path,
+             '--access-logfile', defs.GUNICORN_ACCESS_LOGFILE,
+             '--error-logfile', defs.GUNICORN_ERROR_LOGFILE,
+             'http_django_server.wsgi']
+        )
 
         thread = threading.Thread(target=server_handler.start, daemon=True)
         thread.start()

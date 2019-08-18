@@ -9,7 +9,11 @@ class ApplicationABC(metaclass=ABCMeta):
     methods are intended to ease the way in which applications are started,
     stopped, and checked for status; in order to prevent applications all having
     different lifecycle management.
+
+    Dependencies can be injected through extending the start() function with
+    additional keyword arguments.
     """
+    application_name = 'ApplicationABC'
 
     @abstractmethod
     def start(self):

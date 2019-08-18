@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class DeviceApplication(ApplicationABC):
 
+    application_name = 'DeviceApplication'
+
     def start(self,
               args=None,
               utility_applications=None,

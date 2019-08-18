@@ -3,6 +3,8 @@ from .. import ApplicationABC
 
 class BrokerApplication(ApplicationABC):
 
+    application_name = 'BrokerApplication'
+
     def start(self, args=None):
         """
         Start lifecycle hook for all applications following the simple

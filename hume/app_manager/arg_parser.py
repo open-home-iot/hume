@@ -6,7 +6,7 @@ def parse_args():
         description='HUME, the HOME network hub'
     )
 
-    arg_parser.add_argument('--clear_logs',
+    arg_parser.add_argument('--clear-logs',
                             help="Clear out all logs produced by the logging "
                                  "application.",
                             action='store_true')

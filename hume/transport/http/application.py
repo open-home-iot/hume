@@ -10,6 +10,8 @@ from .. import ApplicationABC
 class HttpApplication(ApplicationABC):
 
     application_name = 'HttpApplication'
+
+    gunicorn_root_path = ''
     server_process = None
 
     def start(self, args=None, utility_applications=None):
@@ -24,30 +26,16 @@ class HttpApplication(ApplicationABC):
         :return: N/A
         """
 
-        gunicorn_root_path = \
+        self.gunicorn_root_path = \
             os.path.dirname(os.path.abspath(__file__)) + '/server/'
-        print("Gunicorn root %s" % gunicorn_root_path)
+        print("Gunicorn root %s" % self.gunicorn_root_path)
 
-        def prestart_clean():
-            if os.path.isfile(
-                    gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
-            ):
-                print("Removing Gunicorn access logfile")
-                os.remove(gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE)
-            if os.path.isfile(
-                    gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
-            ):
-                print("Removing Gunicorn error logfile")
-                os.remove(gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE)
-
-            print("Prestart clean done")
-
-        prestart_clean()
+        self.clear_gunicorn_logs(args)
 
         print("Starting HTTP application process")
         self.server_process = subprocess.Popen(
             ['gunicorn',
-             '--chdir', gunicorn_root_path,
+             '--chdir', self.gunicorn_root_path,
              '--access-logfile', defs.GUNICORN_ACCESS_LOGFILE,
              '--error-logfile', defs.GUNICORN_ERROR_LOGFILE,
              'http_django_server.wsgi']
@@ -76,3 +64,20 @@ class HttpApplication(ApplicationABC):
         :return: N/A
         """
         pass
+
+    def clear_gunicorn_logs(self, args):
+        if args.clear_logs:
+            if os.path.isfile(
+                    self.gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
+            ):
+                print("Removing Gunicorn access logfile")
+                os.remove(
+                    self.gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
+                )
+            if os.path.isfile(
+                    self.gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
+            ):
+                print("Removing Gunicorn error logfile")
+                os.remove(
+                    self.gunicorn_root_path + defs.GUNICORN_ERROR_LOGFILE
+                )

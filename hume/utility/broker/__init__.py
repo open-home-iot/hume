@@ -9,7 +9,7 @@ def start(args=None):
     :param args: arguments intended for the broker application.
     :return: BrokerApplication
     """
-    broker_application = application.BrokerApplication()
-    broker_application.start(args=args)
+    broker = application.Broker()
+    broker.start(args=args)
 
-    return broker_application
+    return broker

@@ -1,9 +1,9 @@
 from .. import ApplicationABC
 
 
-class BrokerApplication(ApplicationABC):
+class Broker(ApplicationABC):
 
-    application_name = 'BrokerApplication'
+    application_name = 'Broker'
 
     def start(self, args=None):
         """

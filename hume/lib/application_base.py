@@ -1,4 +1,13 @@
 from abc import ABCMeta, abstractmethod
+from enum import Enum
+
+
+class ApplicationStatus(Enum):
+    STARTING = 1
+    RUNNING = 2
+    STOPPING = 3
+    STOPPED = 4
+    PROBLEM = 5
 
 
 class ApplicationABC(metaclass=ABCMeta):
@@ -42,6 +51,6 @@ class ApplicationABC(metaclass=ABCMeta):
         Status information for the application. This function should
         return information about the application's current state.
 
-        :return: N/A
+        :return: status integer
         """
         pass

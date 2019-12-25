@@ -13,7 +13,7 @@ from . import signal_handling
 from . import cli
 from . import arg_parser
 from . import defs
-from .application_abc import ApplicationABC
+from hume.lib.application_base import ApplicationABC
 
 
 def initiate():

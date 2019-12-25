@@ -2,7 +2,7 @@ import subprocess
 import os
 import psutil
 
-from utility.log.application import LogApplication, \
+from operations.log.application import Logger, \
     LOG_LEVEL_INFO, LOG_LEVEL_ERROR
 
 from transport.http_listener import defs
@@ -13,35 +13,33 @@ class HttpListener(ApplicationABC):
 
     application_name = 'HttpListener'
 
-    log_application: LogApplication = None  # Typed for ease-of-access.
+    logger: Logger = None  # Typed for ease-of-access.
 
     gunicorn_root_path = ''
     server_process = None
 
-    def start(self, args=None, utility_applications=None):
+    def start(self, *args, cli_args=None, logger=None, **kwargs):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param args: arguments intended for an application.
-        :param utility_applications: a dict of all utility applications that
-                                     the application is allowed to
-                                     use.
+        :param cli_args: arguments intended for an application.
+        :param logger: logging application
         :return: N/A
         """
-        self.log_application = utility_applications[defs.APPL_UTIL_LOG]
+        self.logger = logger
 
         self.check_for_started_servers()
 
         self.gunicorn_root_path = os.path.dirname(os.path.abspath(__file__))
 
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Gunicorn root path: {}".format(self.gunicorn_root_path)
         )
 
-        self.clear_gunicorn_logs(args)
+        self.clear_gunicorn_logs(cli_args)
 
         self.server_process = subprocess.Popen(
             ['gunicorn',
@@ -51,7 +49,7 @@ class HttpListener(ApplicationABC):
              'http_django_server.wsgi']
         )
 
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO, self.application_name, "Started."
         )
 
@@ -67,7 +65,7 @@ class HttpListener(ApplicationABC):
         if self.server_process.poll() is None:
             self.server_process.terminate()
 
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO, self.application_name, "Stopped."
         )
 
@@ -80,8 +78,8 @@ class HttpListener(ApplicationABC):
         """
         pass
 
-    def clear_gunicorn_logs(self, args):
-        if args.clear_logs:
+    def clear_gunicorn_logs(self, cli_args):
+        if cli_args.clear_logs:
             if os.path.isfile(
                     self.gunicorn_root_path + defs.GUNICORN_ACCESS_LOGFILE
             ):
@@ -120,7 +118,7 @@ class HttpListener(ApplicationABC):
         if len(gunicorn_pids) > 0:
 
             # Write to log which PID needs to be terminated
-            self.log_application.write_to_log(
+            self.logger.write_to_log(
                 LOG_LEVEL_ERROR,
                 self.application_name,
                 "An instance of the HTTP application's http_listener exists already, "

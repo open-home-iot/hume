@@ -1,28 +1,26 @@
-from transport import http_listener
-from transport import http_communicator
-from transport import serial_listener
-from transport import serial_communicator
+from transport.http_listener.application import HttpListener
+from transport.http_communicator.application import HttpCommunicator
+from transport.serial_listener.application import SerialListener
+from transport.serial_communicator.application import SerialCommunicator
 
-from utility import broker
-from utility import log
-from utility.log.application import LogApplication, \
+from utility.broker.application import Broker
+from operations.log.application import Logger, \
     LOG_LEVEL_INFO, LOG_LEVEL_WARNING
-from utility import scheduler
-from utility import storage
+from utility.scheduler.application import Scheduler
+from utility.storage.application import Storage
 
-from business import device
-from business import hint
+from business.device.application import Device
+from business.hint.application import Hint
 
 from . import signal_handling
 from . import cli
 from . import arg_parser
-from . import defs
 from lib.application_base import ApplicationABC
 
 
 def initiate():
     # Parse args
-    args = arg_parser.parse_args()
+    cli_args = arg_parser.parse_args()
 
     app_manager = AppManager()
 
@@ -30,7 +28,7 @@ def initiate():
     signal_handling.bind_signal_handlers(app_manager)
 
     # Start application
-    app_manager.start(args=args)
+    app_manager.start(cli_args=cli_args)
 
     # While running, provide CLI
     cli.start_cli(app_manager)
@@ -40,41 +38,71 @@ class AppManager(ApplicationABC):
 
     application_name = 'AppManager'
 
-    log_application: LogApplication = None  # Typed for ease-of-access.
+    logger: Logger = None  # Typed for ease-of-access.
 
     applications = dict()
 
-    def start(self, args=None):
+    # ------------------------------------------
+    # APPLICATION MODULE REGISTRATION LISTS
+    # ------------------------------------------
+
+    # BASIC LAYER
+    operations_applications = [
+        Logger
+    ]
+
+    # UTILITY LAYER, STARTS FIRST
+    utility_applications = [
+        Broker,
+        Storage,
+        Scheduler
+    ]
+
+    # TRANSPORT LAYER, STARTS SECOND
+    transport_applications = [
+        HttpCommunicator,
+        HttpListener,
+        SerialCommunicator,
+        SerialListener
+    ]
+
+    # BUSINESS LAYER, STARTS THIRD
+    business_applications = [
+        Device,
+        Hint
+    ]
+
+    def start(self, *args, cli_args=None, **kwargs):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param args: arguments passed at the start of this program, which can
-                     be relayed to a specific application or kept in the
-                     application manager.
-        :return:     N/A
+        :param cli_args: arguments passed at the start of this program, which
+                         can be relayed to a specific application or kept in the
+                         application manager.
+        :return:         N/A
         """
 
-        # No need to check if args is None since the object always exists after
-        # parsing arguments, even if there were no arguments.
-        self.start_utility_applications(args=args)
+        self.configure_operations(cli_args=cli_args)
 
-        self.log_application = self.applications[defs.APPL_UTIL_LOG]
-        self.log_application.write_to_log(
+        # No need to check if cli_args is None since the object always exists
+        # after parsing arguments, even if there were no arguments.
+        self.start_utility_applications(cli_args=cli_args)
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Started utility applications."
         )
 
-        self.start_transport_applications(args=args)
-        self.log_application.write_to_log(
+        self.start_transport_applications(cli_args=cli_args)
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Started transport applications."
         )
 
-        self.start_business_applications(args=args)
-        self.log_application.write_to_log(
+        self.start_business_applications(cli_args=cli_args)
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Started business applications."
@@ -90,16 +118,21 @@ class AppManager(ApplicationABC):
 
         :return: N/A
         """
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Stopping system."
         )
 
         for key, application in self.applications.items():
+            self.logger.write_to_log(
+                LOG_LEVEL_INFO,
+                self.application_name,
+                "Stopping {}.".format(application.application_name)
+            )
             application.stop()
 
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO,
             self.application_name,
             "Stopped all running applications, exiting now."
@@ -115,187 +148,109 @@ class AppManager(ApplicationABC):
 
         pass
 
-    def start_utility_applications(self, args=None):
+    def configure_operations(self, cli_args=None):
+        for application in self.operations_applications:
+            application_instance = application()
+            application_instance.start(cli_args=cli_args)
+            self.applications[application.application_name] = application_instance
+
+        self.logger = self.applications[Logger.application_name]
+
+    def start_utility_applications(self, cli_args=None):
         """
         Starts all utility related applications of the HUME system. Utility
         applications are defined under .../hume/utility.
 
-        :param args: arguments intended for a utility application.
+        :param cli_args: arguments intended for a utility application.
         :return: N/A
         """
+        for application in self.utility_applications:
+            self.start_utility_application(application, cli_args=cli_args)
 
-        utility_application_modules = [(defs.APPL_UTIL_LOG, log),
-                                       (defs.APPL_UTIL_BROKER, broker),
-                                       (defs.APPL_UTIL_SCHEDULER, scheduler),
-                                       (defs.APPL_UTIL_STORAGE, storage)]
-
-        for key, module in utility_application_modules:
-            self.start_utility_application(key, module, args=args)
-
-    def start_utility_application(self, app_key, module, args=None):
+    def start_utility_application(self, application, cli_args=None):
         """
         Start a single utility application and register it with the application
         manager's register of applications.
 
-        :param app_key: identifier for the application about to be started, used
-                        for instant access to its instance in the application
-                        registry.
-        :param module:  module containing the application that is about to be
-                        started.
-        :param args:    arguments intended for a utility application.
+        :param application: Python class to instantiate
+        :param cli_args: arguments intended for a utility application.
         :return:        N/A
         """
+        self.logger.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Starting {}.".format(application.application_name)
+        )
 
-        application_instance = module.start(args=args)
-        self.applications[app_key] = application_instance
+        application_instance = application()
+        application_instance.start(
+            cli_args=cli_args,
+            logger=self.applications[Logger.application_name]
+        )
+        self.applications[application.application_name] = application_instance
 
-    def start_transport_applications(self, args=None):
+    def start_transport_applications(self, cli_args=None):
         """
         Starts all transport related applications of the HUME system. Transport
         applications are defined under .../hume/transport.
 
-        :param args: arguments intended for a transport application.
+        :param cli_args: arguments intended for a transport application.
         :return: N/A
         """
+        for application in self.transport_applications:
+            self.start_transport_application(application, cli_args=cli_args)
 
-        transport_application_modules = [(defs.APPL_TRANS_HTTP_LISTENER,
-                                          http_listener),
-                                         (defs.APPL_TRANS_HTTP_COMMUNICATOR,
-                                          http_communicator),
-                                         (defs.APPL_TRANS_SERIAL_LISTENER,
-                                          serial_listener),
-                                         (defs.APPL_TRANS_SERIAL_COMMUNICATOR,
-                                          serial_communicator)]
-
-        utility_applications = {
-            defs.APPL_UTIL_LOG:
-                self.applications[defs.APPL_UTIL_LOG],
-            defs.APPL_UTIL_BROKER:
-                self.applications[defs.APPL_UTIL_BROKER],
-            defs.APPL_UTIL_STORAGE:
-                self.applications[defs.APPL_UTIL_STORAGE],
-            defs.APPL_UTIL_SCHEDULER:
-                self.applications[defs.APPL_UTIL_SCHEDULER]
-        }
-
-        for key, module in transport_application_modules:
-            self.start_transport_application(
-                key,
-                module,
-                args=args,
-                utility_applications=utility_applications
-            )
-
-    def start_transport_application(self,
-                                    app_key,
-                                    module,
-                                    args=None,
-                                    utility_applications=None):
+    def start_transport_application(self, application, cli_args=None):
         """
         Start a single transport application and register it with the
         application manager's register of applications.
 
-        :param app_key: identifier for the application about to be started, used
-                        for instant access to its instance in the application
-                        registry.
-        :param module:  module containing the application that is about to be
-                        started.
-        :param args:    arguments intended for a transport application.
-        :param utility_applications: a dict of all utility applications that the
-                                     transport application is allowed to use.
+        :param application: Python class to instantiate
+        :param cli_args:    arguments intended for a transport application.
         :return:        N/A
         """
 
-        if utility_applications is None:
-            utility_applications = []
-
-        application_instance = module.start(
-            args=args,
-            utility_applications=utility_applications
+        application_instance = application()
+        application_instance.start(
+            cli_args=cli_args,
+            logger=self.applications[Logger.application_name],
+            scheduler=self.applications[Scheduler.application_name],
+            broker=self.applications[Broker.application_name],
+            storage=self.applications[Storage.application_name]
         )
+        self.applications[application.application_name] = application_instance
 
-        self.applications[app_key] = application_instance
-
-    def start_business_applications(self, args=None):
+    def start_business_applications(self, cli_args=None):
         """
         Starts all business related applications of the HUME system. Transport
         applications are defined under .../hume/business.
 
-        :param args: arguments intended for a business application.
+        :param cli_args: arguments intended for a business application.
         :return: N/A
         """
+        for application in self.business_applications:
+            self.start_business_application(application, cli_args=cli_args)
 
-        business_application_modules = [(defs.APPL_BUSIN_DEVICE, device),
-                                        (defs.APPL_BUSIN_HINT, hint)]
-
-        utility_applications = {
-            defs.APPL_UTIL_LOG:
-                self.applications[defs.APPL_UTIL_LOG],
-            defs.APPL_UTIL_BROKER:
-                self.applications[defs.APPL_UTIL_BROKER],
-            defs.APPL_UTIL_STORAGE:
-                self.applications[defs.APPL_UTIL_STORAGE],
-            defs.APPL_UTIL_SCHEDULER:
-                self.applications[defs.APPL_UTIL_SCHEDULER]
-        }
-
-        transport_applications = {
-            defs.APPL_TRANS_HTTP_COMMUNICATOR:
-                self.applications[defs.APPL_TRANS_HTTP_COMMUNICATOR],
-            defs.APPL_TRANS_HTTP_LISTENER:
-                self.applications[defs.APPL_TRANS_HTTP_LISTENER],
-            defs.APPL_TRANS_SERIAL_COMMUNICATOR:
-                self.applications[defs.APPL_TRANS_SERIAL_COMMUNICATOR],
-            defs.APPL_TRANS_SERIAL_LISTENER:
-                self.applications[defs.APPL_TRANS_SERIAL_LISTENER]
-        }
-
-        for key, module in business_application_modules:
-            self.start_business_application(
-                key,
-                module,
-                args=args,
-                utility_applications=utility_applications,
-                transport_applications=transport_applications
-            )
-
-    def start_business_application(self,
-                                   app_key,
-                                   module,
-                                   args=None,
-                                   utility_applications=None,
-                                   transport_applications=None):
+    def start_business_application(self, application, cli_args=None):
         """
         Start a single business application and register it with the
         application manager's register of applications.
 
-        :param app_key: identifier for the application about to be started, used
-                        for instant access to its instance in the application
-                        registry.
-        :param module:  module containing the application that is about to be
-                        started.
-        :param args:    arguments intended for a business application.
-        :param utility_applications:   a dict of all utility applications that
-                                       the business application is allowed to
-                                       use.
-        :param transport_applications: a dict of all transport applications that
-                                       the business application is allowed to
-                                       use.
+        :param application: Python class to instantiate
+        :param cli_args:    arguments intended for a business application.
         :return:        N/A
         """
-
-        if transport_applications is None:
-            transport_applications = []
-        if utility_applications is None:
-            utility_applications = []
-
-        application_instance = module.start(
-            args=args,
-            utility_applications=utility_applications,
-            transport_applications=transport_applications
+        application_instance = application()
+        application_instance.start(
+            cli_args=cli_args,
+            logger=self.applications[Logger.application_name],
+            scheduler=self.applications[Scheduler.application_name],
+            broker=self.applications[Broker.application_name],
+            storage=self.applications[Storage.application_name],
+            http_communicator=self.applications[HttpCommunicator.application_name],
+            serial_communicator=self.applications[SerialCommunicator.application_name]
         )
-
-        self.applications[app_key] = application_instance
+        self.applications[application.application_name] = application_instance
 
     def interrupt(self, signum, frame):
         """
@@ -306,7 +261,7 @@ class AppManager(ApplicationABC):
         :param frame:  <see python docs>
         :return:       N/A
         """
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_WARNING,
             self.application_name,
             "SIGINT was received, stopping system."

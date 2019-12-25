@@ -2,7 +2,7 @@ import os
 
 from datetime import datetime
 
-from .. import ApplicationABC
+from lib.application_base import ApplicationABC
 from .defs import *
 
 
@@ -12,26 +12,30 @@ def now():
     )
 
 
-class LogApplication(ApplicationABC):
+class Logger(ApplicationABC):
 
-    application_name = 'LogApplication'
+    application_name = 'Logger'
 
     log_directory = ''  # Initialized during start()
     master_log = 'hume.log'
 
-    def start(self, args=None):
+    def start(self, cli_args=None):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param args: arguments intended for an application.
+        :param cli_args: arguments intended for an application.
         :return: N/A
         """
         self.log_directory = \
             os.path.dirname(os.path.abspath(__file__)) + '/logfiles/'
 
-        self.clear_logs(args)
+        self.clear_logs(cli_args)
         self.create_log(self.master_log)
+
+        self.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Started."
+        )
 
     def stop(self):
         """
@@ -41,8 +45,9 @@ class LogApplication(ApplicationABC):
 
         :return: N/A
         """
-
-        pass
+        self.write_to_log(
+            LOG_LEVEL_INFO, self.application_name, "Stopped."
+        )
 
     def status(self):
         """
@@ -54,16 +59,16 @@ class LogApplication(ApplicationABC):
 
         pass
 
-    def clear_logs(self, args):
+    def clear_logs(self, cli_args):
         """
         Clears any previously existing logs, if the '--clear-logs' argument
         was provided upon startup.
 
-        :param args: arguments intended for an application.
+        :param cli_args: arguments intended for an application.
         :return:     N/A
         """
 
-        if args.clear_logs:
+        if cli_args.clear_logs:
             log_files = os.listdir(self.log_directory)
 
             filtered_log_files = [log_file for log_file in log_files

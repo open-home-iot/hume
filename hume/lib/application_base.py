@@ -25,7 +25,7 @@ class ApplicationABC(metaclass=ABCMeta):
     application_name = 'ApplicationABC'
 
     @abstractmethod
-    def start(self):
+    def start(self, *args, **kwargs):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
@@ -35,7 +35,7 @@ class ApplicationABC(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def stop(self):
+    def stop(self, *args, **kwargs):
         """
         Stop lifecycle hook for all applications following the simple
         lifecycle management pattern. This hook should ensure that all resources
@@ -46,7 +46,7 @@ class ApplicationABC(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def status(self):
+    def status(self, *args, **kwargs):
         """
         Status information for the application. This function should
         return information about the application's current state.

@@ -1,35 +1,24 @@
-from utility.log.application import LogApplication
-from utility.log.defs import LOG_LEVEL_INFO
-from .. import ApplicationABC
-from . import defs
+from operations.log.application import Logger, LOG_LEVEL_INFO
+from lib.application_base import ApplicationABC
 
 
-class DeviceApplication(ApplicationABC):
+class Device(ApplicationABC):
 
-    application_name = 'DeviceApplication'
+    application_name = 'Device'
 
-    log_application: LogApplication = None  # Typed for ease-of-access.
+    logger: Logger = None  # Typed for ease-of-access.
 
-    def start(self,
-              args=None,
-              utility_applications=None,
-              transport_applications=None):
+    def start(self, *args, logger=None, **kwargs):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param args: arguments intended for an application.
-        :param utility_applications:   a dict of all utility applications that
-                                       the device application is allowed to
-                                       use.
-        :param transport_applications: a dict of all transport applications that
-                                       the device application is allowed to
-                                       use.
+        :param logger: logging application
         :return: N/A
         """
-        self.log_application = utility_applications[defs.APPL_UTIL_LOG]
+        self.logger = logger
 
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO, self.application_name, "Started."
         )
 
@@ -41,7 +30,7 @@ class DeviceApplication(ApplicationABC):
 
         :return: N/A
         """
-        self.log_application.write_to_log(
+        self.logger.write_to_log(
             LOG_LEVEL_INFO, self.application_name, "Stopped."
         )
 

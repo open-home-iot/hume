@@ -1,11 +1,15 @@
-from transport import http
-from transport import serial
+from transport import http_listener
+from transport import http_communicator
+from transport import serial_listener
+from transport import serial_communicator
+
 from utility import broker
 from utility import log
 from utility.log.application import LogApplication, \
     LOG_LEVEL_INFO, LOG_LEVEL_WARNING
 from utility import scheduler
 from utility import storage
+
 from business import device
 from business import hint
 
@@ -13,7 +17,7 @@ from . import signal_handling
 from . import cli
 from . import arg_parser
 from . import defs
-from hume.lib.application_base import ApplicationABC
+from lib.application_base import ApplicationABC
 
 
 def initiate():
@@ -106,7 +110,7 @@ class AppManager(ApplicationABC):
         Status information for the application manager. This function should
         return information about the application manager's current state.
 
-        :return: N/A
+        :return: status integer
         """
 
         pass
@@ -154,8 +158,14 @@ class AppManager(ApplicationABC):
         :return: N/A
         """
 
-        transport_application_modules = [(defs.APPL_TRANS_HTTP, http),
-                                         (defs.APPL_TRANS_SERIAL, serial)]
+        transport_application_modules = [(defs.APPL_TRANS_HTTP_LISTENER,
+                                          http_listener),
+                                         (defs.APPL_TRANS_HTTP_COMMUNICATOR,
+                                          http_communicator),
+                                         (defs.APPL_TRANS_SERIAL_LISTENER,
+                                          serial_listener),
+                                         (defs.APPL_TRANS_SERIAL_COMMUNICATOR,
+                                          serial_communicator)]
 
         utility_applications = {
             defs.APPL_UTIL_LOG:
@@ -230,10 +240,14 @@ class AppManager(ApplicationABC):
         }
 
         transport_applications = {
-            defs.APPL_TRANS_HTTP:
-                self.applications[defs.APPL_TRANS_HTTP],
-            defs.APPL_TRANS_SERIAL:
-                self.applications[defs.APPL_TRANS_SERIAL]
+            defs.APPL_TRANS_HTTP_COMMUNICATOR:
+                self.applications[defs.APPL_TRANS_HTTP_COMMUNICATOR],
+            defs.APPL_TRANS_HTTP_LISTENER:
+                self.applications[defs.APPL_TRANS_HTTP_LISTENER],
+            defs.APPL_TRANS_SERIAL_COMMUNICATOR:
+                self.applications[defs.APPL_TRANS_SERIAL_COMMUNICATOR],
+            defs.APPL_TRANS_SERIAL_LISTENER:
+                self.applications[defs.APPL_TRANS_SERIAL_LISTENER]
         }
 
         for key, module in business_application_modules:

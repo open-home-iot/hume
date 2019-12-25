@@ -1,12 +1,12 @@
 from utility.log.application import LogApplication
 from utility.log.defs import LOG_LEVEL_INFO
-from .. import ApplicationABC
+from lib.application_base import ApplicationABC
 from . import defs
 
 
-class SerialApplication(ApplicationABC):
+class SerialCommunicator(ApplicationABC):
 
-    application_name = 'SerialApplication'
+    application_name = 'SerialCommunicator'
 
     log_application: LogApplication = None  # Typed for ease-of-access.
 
@@ -17,8 +17,7 @@ class SerialApplication(ApplicationABC):
 
         :param args: arguments intended for an application.
         :param utility_applications: a dict of all utility applications that
-                                     the serial application is allowed to
-                                     use.
+                                     the application is allowed to use.
         :return: N/A
         """
         self.log_application = utility_applications[defs.APPL_UTIL_LOG]

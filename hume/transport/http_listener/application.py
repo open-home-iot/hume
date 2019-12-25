@@ -1,18 +1,17 @@
 import subprocess
 import os
 import psutil
-import threading
 
 from utility.log.application import LogApplication, \
     LOG_LEVEL_INFO, LOG_LEVEL_ERROR
-from . import server_handler
-from . import defs
-from .. import ApplicationABC
+
+from transport.http_listener import defs
+from lib.application_base import ApplicationABC
 
 
-class HttpApplication(ApplicationABC):
+class HttpListener(ApplicationABC):
 
-    application_name = 'HttpApplication'
+    application_name = 'HttpListener'
 
     log_application: LogApplication = None  # Typed for ease-of-access.
 
@@ -26,7 +25,7 @@ class HttpApplication(ApplicationABC):
 
         :param args: arguments intended for an application.
         :param utility_applications: a dict of all utility applications that
-                                     the http application is allowed to
+                                     the application is allowed to
                                      use.
         :return: N/A
         """
@@ -34,8 +33,13 @@ class HttpApplication(ApplicationABC):
 
         self.check_for_started_servers()
 
-        self.gunicorn_root_path = \
-            os.path.dirname(os.path.abspath(__file__)) + '/server/'
+        self.gunicorn_root_path = os.path.dirname(os.path.abspath(__file__))
+
+        self.log_application.write_to_log(
+            LOG_LEVEL_INFO,
+            self.application_name,
+            "Gunicorn root path: {}".format(self.gunicorn_root_path)
+        )
 
         self.clear_gunicorn_logs(args)
 
@@ -46,9 +50,6 @@ class HttpApplication(ApplicationABC):
              '--error-logfile', defs.GUNICORN_ERROR_LOGFILE,
              'http_django_server.wsgi']
         )
-
-        thread = threading.Thread(target=server_handler.start, daemon=True)
-        thread.start()
 
         self.log_application.write_to_log(
             LOG_LEVEL_INFO, self.application_name, "Started."
@@ -122,12 +123,12 @@ class HttpApplication(ApplicationABC):
             self.log_application.write_to_log(
                 LOG_LEVEL_ERROR,
                 self.application_name,
-                "An instance of the HTTP application's server exists already, "
+                "An instance of the HTTP application's http_listener exists already, "
                 "please kill the process before re-starting. The following "
                 "process IDs need to be terminated: {}".format(gunicorn_pids)
             )
 
-            raise SystemError("An instance of the HTTP application's server "
+            raise SystemError("An instance of the HTTP application's http_listener "
                               "exists already, please kill the process before "
                               "re-starting. See the 'hume.log' for more "
                               "information.")

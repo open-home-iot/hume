@@ -1,7 +1,9 @@
 # Application instance tags
 # Transport
-APPL_TRANS_HTTP = 'http'
-APPL_TRANS_SERIAL = 'serial'
+APPL_TRANS_HTTP_LISTENER = 'http_listener'
+APPL_TRANS_HTTP_COMMUNICATOR = 'http_communicator'
+APPL_TRANS_SERIAL_LISTENER = 'serial_listener'
+APPL_TRANS_SERIAL_COMMUNICATOR = 'serial_communicator'
 
 # Utility
 APPL_UTIL_LOG = 'log'

@@ -1,1 +1,1 @@
-from app_manager.application_abc import ApplicationABC  # noqa
+from lib.application_base import ApplicationABC  # noqa

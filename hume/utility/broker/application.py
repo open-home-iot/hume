@@ -1,5 +1,6 @@
 from lib.application_base import ApplicationABC
-from operations.log.application import Logger, LOG_LEVEL_INFO
+from operations.log.application import Logger, LOG_LEVEL_INFO, LOG_LEVEL_DEBUG
+from utility.broker.rabbitmq_handler.application import RabbitMQHandler
 
 
 class Broker(ApplicationABC):
@@ -7,6 +8,7 @@ class Broker(ApplicationABC):
     application_name = 'Broker'
 
     logger: Logger = None
+    rabbitmq_handler = None
 
     def start(self, *args, logger=None, **kwargs):
         """
@@ -18,10 +20,13 @@ class Broker(ApplicationABC):
         """
         self.logger = logger
         # Establish connection to RabbitMQ server
+        rabbitmq_handler = RabbitMQHandler()
+        rabbitmq_handler.start(*args, logger=logger, **kwargs)
+        self.rabbitmq_handler = rabbitmq_handler
 
         # Verify that queues that should be declared are declared
         self.logger.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Started."
+            LOG_LEVEL_DEBUG, self.application_name, "Started."
         )
 
     def stop(self):
@@ -33,7 +38,7 @@ class Broker(ApplicationABC):
         :return: N/A
         """
         self.logger.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Stopped."
+            LOG_LEVEL_DEBUG, self.application_name, "Stopped."
         )
 
     def status(self):

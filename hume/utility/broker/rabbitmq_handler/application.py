@@ -1,19 +1,25 @@
 from lib.application_base import ApplicationABC
+from operations.log.application import Logger, LOG_LEVEL_DEBUG
 
 
 class RabbitMQHandler(ApplicationABC):
 
     application_name = 'RabbitMQHandler'
 
-    def start(self, args=None):
+    logger: Logger = None
+
+    def start(self, *args, logger=None, **kwargs):
         """
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param args: arguments intended for an application.
+        :param logger: logging application.
         :return: N/A
         """
-        pass
+        self.logger = logger
+        self.logger.write_to_log(
+            LOG_LEVEL_DEBUG, self.application_name, "Started."
+        )
 
     def stop(self):
         """
@@ -23,7 +29,9 @@ class RabbitMQHandler(ApplicationABC):
 
         :return: N/A
         """
-        pass
+        self.logger.write_to_log(
+            LOG_LEVEL_DEBUG, self.application_name, "Stopped."
+        )
 
     def status(self):
         """

@@ -18,6 +18,7 @@ class Logger(ApplicationABC):
 
     log_directory = ''  # Initialized during start()
     master_log = 'hume.log'
+    debug = False
 
     def start(self, cli_args=None):
         """
@@ -30,11 +31,11 @@ class Logger(ApplicationABC):
         self.log_directory = \
             os.path.dirname(os.path.abspath(__file__)) + '/logfiles/'
 
-        self.clear_logs(cli_args)
+        self.handle_cli_args(cli_args)
         self.create_log(self.master_log)
 
         self.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Started."
+            LOG_LEVEL_DEBUG, self.application_name, "Started."
         )
 
     def stop(self):
@@ -46,7 +47,7 @@ class Logger(ApplicationABC):
         :return: N/A
         """
         self.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Stopped."
+            LOG_LEVEL_DEBUG, self.application_name, "Stopped."
         )
 
     def status(self):
@@ -59,16 +60,20 @@ class Logger(ApplicationABC):
 
         pass
 
-    def clear_logs(self, cli_args):
+    def handle_cli_args(self, cli_args):
+        self.clear_logs(cli_args.clear_logs)
+        self.debug = cli_args.debug
+
+    def clear_logs(self, clear_logs: bool):
         """
         Clears any previously existing logs, if the '--clear-logs' argument
         was provided upon startup.
 
-        :param cli_args: arguments intended for an application.
+        :param clear_logs: True if logs should be cleared.
         :return:     N/A
         """
 
-        if cli_args.clear_logs:
+        if clear_logs:
             log_files = os.listdir(self.log_directory)
 
             filtered_log_files = [log_file for log_file in log_files
@@ -119,6 +124,10 @@ class Logger(ApplicationABC):
                         by a call to create_log(<log file name>)
         :return:
         """
+        # If log level debug but debugging is not enabled.
+        if level == LOG_LEVEL_DEBUG and not self.debug:
+            return
+
         if log is None:
             log = self.master_log
 

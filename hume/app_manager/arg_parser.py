@@ -10,6 +10,9 @@ def parse_args():
                             help="Clear out all logs produced by the logging "
                                  "application.",
                             action='store_true')
+    arg_parser.add_argument('--debug',
+                            help="Enables debugging log entries.",
+                            action='store_true')
 
     args = arg_parser.parse_args()
 

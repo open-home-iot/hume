@@ -5,7 +5,7 @@ from transport.serial_communicator.application import SerialCommunicator
 
 from utility.broker.application import Broker
 from operations.log.application import Logger, \
-    LOG_LEVEL_INFO, LOG_LEVEL_WARNING
+    LOG_LEVEL_INFO, LOG_LEVEL_WARNING, LOG_LEVEL_DEBUG
 from utility.scheduler.application import Scheduler
 from utility.storage.application import Storage
 
@@ -126,7 +126,7 @@ class AppManager(ApplicationABC):
 
         for key, application in self.applications.items():
             self.logger.write_to_log(
-                LOG_LEVEL_INFO,
+                LOG_LEVEL_DEBUG,
                 self.application_name,
                 "Stopping {}.".format(application.application_name)
             )
@@ -177,7 +177,7 @@ class AppManager(ApplicationABC):
         :return:        N/A
         """
         self.logger.write_to_log(
-            LOG_LEVEL_INFO,
+            LOG_LEVEL_DEBUG,
             self.application_name,
             "Starting {}.".format(application.application_name)
         )
@@ -209,6 +209,11 @@ class AppManager(ApplicationABC):
         :param cli_args:    arguments intended for a transport application.
         :return:        N/A
         """
+        self.logger.write_to_log(
+            LOG_LEVEL_DEBUG,
+            self.application_name,
+            "Starting {}.".format(application.application_name)
+        )
 
         application_instance = application()
         application_instance.start(
@@ -240,6 +245,12 @@ class AppManager(ApplicationABC):
         :param cli_args:    arguments intended for a business application.
         :return:        N/A
         """
+        self.logger.write_to_log(
+            LOG_LEVEL_DEBUG,
+            self.application_name,
+            "Starting {}.".format(application.application_name)
+        )
+
         application_instance = application()
         application_instance.start(
             cli_args=cli_args,

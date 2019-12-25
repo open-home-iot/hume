@@ -3,7 +3,7 @@ import os
 import psutil
 
 from operations.log.application import Logger, \
-    LOG_LEVEL_INFO, LOG_LEVEL_ERROR
+    LOG_LEVEL_INFO, LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG
 
 from transport.http_listener import defs
 from lib.application_base import ApplicationABC
@@ -34,7 +34,7 @@ class HttpListener(ApplicationABC):
         self.gunicorn_root_path = os.path.dirname(os.path.abspath(__file__))
 
         self.logger.write_to_log(
-            LOG_LEVEL_INFO,
+            LOG_LEVEL_DEBUG,
             self.application_name,
             "Gunicorn root path: {}".format(self.gunicorn_root_path)
         )
@@ -50,7 +50,7 @@ class HttpListener(ApplicationABC):
         )
 
         self.logger.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Started."
+            LOG_LEVEL_DEBUG, self.application_name, "Started."
         )
 
     def stop(self):
@@ -66,7 +66,7 @@ class HttpListener(ApplicationABC):
             self.server_process.terminate()
 
         self.logger.write_to_log(
-            LOG_LEVEL_INFO, self.application_name, "Stopped."
+            LOG_LEVEL_DEBUG, self.application_name, "Stopped."
         )
 
     def status(self):

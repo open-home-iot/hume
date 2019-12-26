@@ -2,7 +2,8 @@ from multiprocessing import Process
 
 from lib.application_base import ApplicationABC
 from operations.log.application import Logger, LOG_LEVEL_DEBUG
-from utility.broker.rabbitmq_handler.AsyncConsumer import AsyncConsumer
+from utility.broker.rabbitmq_handler.async_consumer import AsyncConsumer
+from utility.broker.rabbitmq_handler.producer import Producer
 from utility.broker.topics import *
 
 
@@ -11,6 +12,7 @@ class RabbitMQHandler(ApplicationABC):
     application_name = 'RabbitMQHandler'
 
     _consumer_process = None
+    _producer_process = None
 
     logger: Logger = None
 
@@ -33,6 +35,10 @@ class RabbitMQHandler(ApplicationABC):
         self._consumer_process = Process(target=async_consumer.run)
         self._consumer_process.start()
 
+        producer = Producer(logger=self.logger)
+        self._producer_process = Process(target=producer.run)
+        self._producer_process.start()
+
         self.logger.write_to_log(
             LOG_LEVEL_DEBUG, self.application_name, "Started."
         )
@@ -47,6 +53,9 @@ class RabbitMQHandler(ApplicationABC):
         """
         self._consumer_process.terminate()
         self._consumer_process.join()
+
+        self._producer_process.terminate()
+        self._producer_process.join()
 
         self.logger.write_to_log(
             LOG_LEVEL_DEBUG, self.application_name, "Stopped."

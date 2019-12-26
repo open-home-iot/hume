@@ -15,16 +15,16 @@ class Broker(ApplicationABC):
         Start lifecycle hook for all applications following the simple
         lifecycle management pattern.
 
-        :param logger: logging application
+        :param logger:     logging application
+        :param rmq_queues: a list of queues to create in RabbitMQ
         :return: N/A
         """
         self.logger = logger
-        # Establish connection to RabbitMQ server
-        rabbitmq_handler = RabbitMQHandler()
-        rabbitmq_handler.start(*args, logger=logger, **kwargs)
+
+        rabbitmq_handler = RabbitMQHandler(logger=logger)
+        rabbitmq_handler.start()
         self.rabbitmq_handler = rabbitmq_handler
 
-        # Verify that queues that should be declared are declared
         self.logger.write_to_log(
             LOG_LEVEL_DEBUG, self.application_name, "Started."
         )
@@ -37,6 +37,8 @@ class Broker(ApplicationABC):
 
         :return: N/A
         """
+        self.rabbitmq_handler.stop()
+
         self.logger.write_to_log(
             LOG_LEVEL_DEBUG, self.application_name, "Stopped."
         )
@@ -48,4 +50,10 @@ class Broker(ApplicationABC):
 
         :return: N/A
         """
+        pass
+
+    def announce_local(self, queue, message):
+        pass
+
+    def announce_global(self, queue, message):
         pass

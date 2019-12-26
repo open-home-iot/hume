@@ -16,7 +16,6 @@ class Broker(ApplicationABC):
         lifecycle management pattern.
 
         :param logger:     logging application
-        :param rmq_queues: a list of queues to create in RabbitMQ
         :return: N/A
         """
         self.logger = logger
@@ -52,8 +51,26 @@ class Broker(ApplicationABC):
         """
         pass
 
-    def announce_local(self, queue, message):
+    def produce_local(self, queue, message):
+        """
+        Produces a message in the core Python process only. This can be used to
+        announce happenings or distribute updates. Topics are not created
+        dynamically, but are statically defined in topics.py
+
+        :param queue: states which queue the message should be published to
+        :param message: message content to publish
+        """
         pass
 
-    def announce_global(self, queue, message):
+    def produce_global(self, queue, message):
+        """
+        As opposed to produce_local, produce_global sends a message on a
+        machine global message queue, using RabbitMQ. The message queue does not
+        have to be local to the HUME's core process and can be used by any
+        program running on the same machine. Topics are not created
+        dynamically, but are statically defined in topics.py
+
+        :param queue: states which queue the message should be published to
+        :param message: message content to publish
+        """
         pass

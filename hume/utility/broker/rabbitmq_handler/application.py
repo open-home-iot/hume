@@ -46,6 +46,7 @@ class RabbitMQHandler(ApplicationABC):
         :return: N/A
         """
         self._consumer_process.terminate()
+        self._consumer_process.join()
 
         self.logger.write_to_log(
             LOG_LEVEL_DEBUG, self.application_name, "Stopped."

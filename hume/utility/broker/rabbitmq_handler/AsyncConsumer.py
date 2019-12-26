@@ -163,7 +163,7 @@ class AsyncConsumer:
 
     def terminate(self, signum, frame):
         """
-        Used to handle the SIGINT signal, so that the consumer system can be
+        Used to handle the SIGTERM signal, so that the consumer system can be
         shut down gracefully, even after an interrupt.
 
         :param signum: <see python docs>
@@ -171,15 +171,10 @@ class AsyncConsumer:
         :return:       N/A
         """
         self.logger.write_to_log(
-            LOG_LEVEL_WARNING,
-            self.consumer_name,
-            "SIGTERM was received, stopping."
+            LOG_LEVEL_WARNING, self.consumer_name, "SIGTERM was received, stopping."
         )
 
         self.stop()
-
-        # TODO Do NOT NOT NOT remove this exception raise.
-        raise SystemExit("Shutting down {}".format(self.consumer_name))
 
     def stop(self):
         """
@@ -188,3 +183,6 @@ class AsyncConsumer:
         """
         self._connection.close()
         self._connection.ioloop.stop()
+        self.logger.write_to_log(
+            LOG_LEVEL_DEBUG, self.consumer_name, "Stopped."
+        )

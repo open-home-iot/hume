@@ -7,8 +7,9 @@ class Broker(ApplicationABC):
 
     application_name = 'Broker'
 
-    logger: Logger = None
     rabbitmq_handler = None
+
+    logger: Logger = None
 
     def start(self, *args, logger=None, **kwargs):
         """

@@ -1,6 +1,0 @@
-# Gunicorn specific
-*.access.log
-*.error.log
-
-# Django specific
-*.sqlite3

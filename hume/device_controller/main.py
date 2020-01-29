@@ -1,25 +1,21 @@
-import logging
-import sys
-import os
-# To be able to import from the lib package
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import argparse
 
-from lib import RMQClient
+from root_app.root import RootApp
 
 
-def callback(message: bytes):
-    print("Got message: {}".format(message))
+def parse_args():
+    """
+    Parse arguments provided at running the python program.
+    """
+    parser = argparse.ArgumentParser(description="HUME device controller")
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
-    print("Starting")
+    args = parse_args()
 
-    client = RMQClient(log_level=logging.INFO)
-    client.start()
-    client.subscribe("test1", callback)
+    root_app = RootApp(cli_args=args)
+    root_app.start()
 
-    while True:
-        inp = input()
-
-        if inp == "1":
-            client.publish("test1", b'messaging the test1 topic')
+    # To block on start to test
+    inp = input()

@@ -21,7 +21,7 @@ class Broker:
         Starts the Broker, initializing the RMQ client. Enables RPC client
         capabilities by default.
         """
-        print("broker start")
+        print("utility start")
         self.rmq_client.start()
         self.rmq_client.enable_rpc_client()
 
@@ -29,11 +29,14 @@ class Broker:
         """
         Stops the Broker, releasing its resources.
         """
-        print("broker stop")
+        print("utility stop")
+        self.rmq_client.stop()
 
     def subscribe_global(self, topic, callback):
         """
         Subscribes to a RMQ topic using the RMQClient.
+
+        callback(message: bytes)
 
         :param str topic: topic to listen on
         :param callable callback: callback on message to the topic
@@ -43,6 +46,8 @@ class Broker:
     def subscribe_local(self, topic, callback):
         """
         Subscribes in the local python process to a topic.
+
+        callback(message: str)
 
         :param topic: topic to listen on
         :param callback: callback on message to the topic

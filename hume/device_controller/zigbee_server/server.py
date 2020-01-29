@@ -1,4 +1,4 @@
-from broker.broker import Broker
+from utility.broker import Broker
 
 
 DEVICE_EVENT_TOPIC = "device_events"
@@ -12,7 +12,7 @@ class ZigbeeServer:
 
     def __init__(self, broker=None):
         """
-        :param broker: broker instance shared among applications.
+        :param broker: utility instance shared among applications.
         """
         self.broker = broker
 

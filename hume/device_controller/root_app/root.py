@@ -1,5 +1,5 @@
-from broker.broker import Broker
-from procedure_handler.handler import ProcedureHandler
+from utility.broker import Broker
+from device_procedures.handler import ProcedureHandler
 from zigbee_server.server import ZigbeeServer
 
 

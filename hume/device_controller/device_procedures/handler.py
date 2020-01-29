@@ -1,4 +1,4 @@
-from broker.broker import Broker
+from utility.broker import Broker
 from zigbee_server.server import DEVICE_EVENT_TOPIC
 
 
@@ -16,7 +16,7 @@ class ProcedureHandler:
 
     def __init__(self, broker=None):
         """
-        :param broker: broker instance shared among applications
+        :param broker: utility instance shared among applications
         """
         self.broker = broker
 
@@ -50,6 +50,15 @@ class ProcedureHandler:
         ZigbeeServer.
 
         :param headers:
+        :param message:
+        """
+        pass
+
+    @staticmethod
+    def send_device_message(message):
+        """
+        Static function to send a message to a device.
+
         :param message:
         """
         pass

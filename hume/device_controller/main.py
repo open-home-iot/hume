@@ -1,13 +1,13 @@
 import argparse
 
-from root_app.root import RootApp
+from device_controller.root import RootApp
 
 
 def parse_args():
     """
     Parse arguments provided at running the python program.
     """
-    parser = argparse.ArgumentParser(description="HUME device controller")
+    parser = argparse.ArgumentParser(description="HUME device_controller controller")
     return parser.parse_args()
 
 

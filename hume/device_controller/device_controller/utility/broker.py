@@ -1,6 +1,17 @@
 import logging
 
+from abc import ABC, abstractmethod
+
 from rabbitmq_client.client import RMQClient
+
+
+class Dispatch(ABC):
+    """
+    Interface for dispatch receivers.
+    """
+    @abstractmethod
+    def dispatch(self, message: dict):
+        pass
 
 
 class Broker:
@@ -49,8 +60,8 @@ class Broker:
 
         callback(message: str)
 
-        :param topic: topic to listen on
-        :param callback: callback on message to the topic
+        :param str topic: topic to listen on
+        :param callable callback: callback on message to the topic
         """
         subscriptions = self.internal_subscriptions.get(topic)
 
@@ -69,8 +80,8 @@ class Broker:
         will ensure that messages sent to <queue_name> will result in an
         invocation of callback(message: bytes).
 
-        :param queue_name: queue name of the RPC server
-        :param callback: callback on message to the RPC queue
+        :param str queue_name: queue name of the RPC server
+        :param callable callback: callback on message to the RPC queue
         """
         self.rmq_client.enable_rpc_server(queue_name, callback)
 
@@ -99,3 +110,16 @@ class Broker:
             for subscription in subscriptions:
                 subscription(message)
 
+    def register_dispatch(self, receiver):
+        """
+        Receivers that register must implement the dispatch interface:
+
+        receiver.dispatch(message: dict)
+
+        :param receiver: receiver of future dispatches
+        :return:
+        """
+        pass
+
+    def dispatch(self, to, message):
+        pass

@@ -1,4 +1,5 @@
-# Decoding fun!
+import json
 
-def decode_message(message: bytes):
-    pass
+
+def decode(message: bytes):
+    return json.loads(message.decode('utf-8'))

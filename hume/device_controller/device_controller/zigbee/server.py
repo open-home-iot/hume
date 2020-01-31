@@ -1,7 +1,9 @@
 from device_controller.procedures.handler import ProcedureHandler
 from device_controller.utility.broker import Broker
-from device_controller.zigbee.handler import ZigbeeHandler
+from device_controller.zigbee import decoder
 
+
+DEVICE_ACTION_DISPATCH = "device_action_dispatch"
 DEVICE_EVENT_TOPIC = "device_events"
 
 
@@ -12,8 +14,6 @@ class ZigbeeServer:
     broker: Broker
     procedure_handler: ProcedureHandler
 
-    zigbee_handler: ZigbeeHandler
-
     def __init__(self, broker=None, procedure_handler=None):
         """
         :param broker: utility instance shared among applications.
@@ -21,20 +21,26 @@ class ZigbeeServer:
         self.broker = broker
         self.procedure_handler = procedure_handler
 
-        self.zigbee_handler = ZigbeeHandler(
-            broker=self.broker, procedure_handler=self.procedure_handler
-        )
-
     def start(self):
         """
         Starts the ZigbeeServer.
         """
         print("ZigbeeServer start")
-        self.zigbee_handler.start()
+        self.broker.register_dispatch(self, DEVICE_ACTION_DISPATCH)
 
     def stop(self):
         """
         Stops the ZigbeeServer and releases its resources.
         """
         print("ZigbeeServer stop")
-        self.zigbee_handler.stop()
+
+    def on_device_event(self, message: bytes):
+        """
+        Handler function for incoming device events.
+
+        :param bytes message: message sent from a device
+        """
+        # Decode message
+        decoded_message = decoder.decode(message)
+
+        # Determine which procedure shall be started

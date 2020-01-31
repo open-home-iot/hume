@@ -80,10 +80,22 @@ class Broker:
         will ensure that messages sent to <queue_name> will result in an
         invocation of callback(message: bytes).
 
+        Callback must return bytes.
+
         :param str queue_name: queue name of the RPC server
         :param callable callback: callback on message to the RPC queue
         """
         self.rmq_client.enable_rpc_server(queue_name, callback)
+
+    def rpc_call(self, receiver, message):
+        """
+        Sends a synchronous RPC call to the receiver queue name.
+
+        :param str receiver: receiver queue name for the RPC call
+        :param bytes message: message to send to the receiver
+        :return bytes answer: answer to RPC call operation
+        """
+        return self.rmq_client.rpc_call(receiver, message)
 
     def publish_global(self, topic, message):
         """
@@ -110,16 +122,19 @@ class Broker:
             for subscription in subscriptions:
                 subscription(message)
 
-    def register_dispatch(self, receiver):
+    def register_dispatch(self, receiver, identifier):
         """
         Receivers that register must implement the dispatch interface:
 
         receiver.dispatch(message: dict)
 
         :param receiver: receiver of future dispatches
-        :return:
+        :param identifier: identifier for this dispatch
         """
-        pass
+        if issubclass(receiver, Dispatch):
+            print("yes")
+        else:
+            print("no")
 
     def dispatch(self, to, message):
         pass

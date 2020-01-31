@@ -11,6 +11,11 @@ class Dispatch(ABC):
     """
     @abstractmethod
     def dispatch(self, message: dict):
+        """
+        Handles a message dispatch.
+
+        :param dict message: message to dispatch
+        """
         pass
 
 
@@ -20,6 +25,7 @@ class Broker:
     (to the entire host) message dispatching capabilities.
     """
     internal_subscriptions = dict()
+    registered_dispatchers = dict()
 
     rmq_client: RMQClient
 
@@ -131,10 +137,17 @@ class Broker:
         :param receiver: receiver of future dispatches
         :param identifier: identifier for this dispatch
         """
-        if issubclass(receiver, Dispatch):
-            print("yes")
-        else:
-            print("no")
+        assert issubclass(receiver.__class__, Dispatch)
+
+        self.registered_dispatchers[identifier] = receiver
 
     def dispatch(self, to, message):
-        pass
+        """
+        Dispatches a message to a registered dispatch.
+
+        :param to: specify which registered dispatch shall get the message
+        :param dict message: message to dispatch
+        """
+        assert to in self.registered_dispatchers.keys()
+
+        self.registered_dispatchers[to].dispatch(message)

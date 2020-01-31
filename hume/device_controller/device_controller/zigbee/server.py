@@ -1,5 +1,5 @@
 from device_controller.procedures.handler import ProcedureHandler
-from device_controller.utility.broker import Broker
+from device_controller.utility.broker import Broker, Dispatch
 from device_controller.zigbee import decoder
 
 
@@ -7,7 +7,7 @@ DEVICE_ACTION_DISPATCH = "device_action_dispatch"
 DEVICE_EVENT_TOPIC = "device_events"
 
 
-class ZigbeeServer:
+class ZigbeeServer(Dispatch):
     """
     ZigbeeServer listens for device_controller messages on the ZigBee network.
     """
@@ -44,3 +44,11 @@ class ZigbeeServer:
         decoded_message = decoder.decode(message)
 
         # Determine which procedure shall be started
+
+    def dispatch(self, message: dict):
+        """
+        Handles a message dispatch.
+
+        :param dict message: message to dispatch
+        """
+        pass

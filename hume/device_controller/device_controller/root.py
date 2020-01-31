@@ -49,7 +49,7 @@ class RootApp:
 
         # application start
         self.zigbee_server.start()
-        self.rpc_handler.start()
+        self.rpc_server.start()
         self.config_server.start()
 
     def stop(self):
@@ -59,7 +59,7 @@ class RootApp:
         print("RootApp stop")
         # application stop
         self.zigbee_server.stop()
-        self.rpc_handler.stop()
+        self.rpc_server.stop()
         self.config_server.stop()
 
         # core stop

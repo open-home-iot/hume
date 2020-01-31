@@ -1,4 +1,3 @@
-from device_controller.procedures.handler import ProcedureHandler
 from device_controller.rpc import decoder
 from device_controller.utility.broker import Broker
 from device_controller.utility.server_base import ServerBase
@@ -12,15 +11,13 @@ class RPCServer(ServerBase):
     """
 
     broker: Broker
-    procedure_handler: ProcedureHandler
 
-    def __init__(self, broker=None, procedure_handler=None):
+    def __init__(self, broker=None):
         """
         :param broker: application wide broker instance
         :param procedure_handler: application wide procedure handler instance
         """
         self.broker = broker
-        self.procedure_handler = procedure_handler
 
     def start(self):
         """

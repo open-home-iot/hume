@@ -1,0 +1,2 @@
+class HintRequest:
+    pass

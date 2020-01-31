@@ -8,3 +8,7 @@ class DeviceEvent:
 
 class DeviceHeartbeat:
     pass
+
+
+class DeviceActionResponse:
+    pass

@@ -1,11 +1,12 @@
 from device_controller.utility.broker import Broker
 from device_controller.procedures.handler import ProcedureHandler
+from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee.server import ZigbeeServer
 from device_controller.rpc.server import RPCServer
 from device_controller.configuration.server import ConfigServer
 
 
-class RootApp:
+class RootApp(ServerBase):
     """
     A wrapping class for all HUME sub-applications, ensures start order and
     initial dependency injections.

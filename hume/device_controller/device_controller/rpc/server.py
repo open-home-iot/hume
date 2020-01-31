@@ -1,12 +1,12 @@
 from device_controller.procedures.handler import ProcedureHandler
 from device_controller.rpc import decoder
 from device_controller.utility.broker import Broker
-
+from device_controller.utility.server_base import ServerBase
 
 DEVICE_CONTROLLER_QUEUE = "device_controller"
 
 
-class RPCServer:
+class RPCServer(ServerBase):
     """
     Takes care of RPC actions, both incoming and outgoing.
     """

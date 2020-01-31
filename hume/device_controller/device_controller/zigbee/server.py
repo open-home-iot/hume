@@ -1,5 +1,6 @@
 from device_controller.procedures.handler import ProcedureHandler
 from device_controller.utility.broker import Broker, Dispatch
+from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee import decoder
 
 
@@ -7,7 +8,7 @@ DEVICE_ACTION_DISPATCH = "device_action_dispatch"
 DEVICE_EVENT_TOPIC = "device_events"
 
 
-class ZigbeeServer(Dispatch):
+class ZigbeeServer(ServerBase, Dispatch):
     """
     ZigbeeServer listens for device_controller messages on the ZigBee network.
     """
@@ -16,7 +17,8 @@ class ZigbeeServer(Dispatch):
 
     def __init__(self, broker=None, procedure_handler=None):
         """
-        :param broker: utility instance shared among applications.
+        :param broker: application wide broker instance
+        :param procedure_handler: application wide procedure handler instance
         """
         self.broker = broker
         self.procedure_handler = procedure_handler

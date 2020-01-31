@@ -1,6 +1,7 @@
 from device_controller.utility.broker import Broker
 from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee import decoder
+from device_controller.zigbee.messages import ZBIn
 
 
 DEVICE_EVENT_TOPIC = "device_events"
@@ -40,3 +41,15 @@ class ZigbeeServer(ServerBase):
         decoded_message = decoder.decode(message)
 
         # Determine which message was received
+        if isinstance(decoded_message, ZBIn.DeviceCapabilities):
+            # TODO cast to local subscriptions
+            pass
+        elif isinstance(decoded_message, ZBIn.DeviceEvent):
+            # TODO cast to local subscriptions
+            pass
+        elif isinstance(decoded_message, ZBIn.DeviceActionResponse):
+            # TODO notify RPC that a response has been received
+            pass
+        elif isinstance(decoded_message, ZBIn.DeviceHeartbeat):
+            # TODO cast to local subscriptions
+            pass

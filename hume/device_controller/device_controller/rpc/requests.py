@@ -1,16 +1,17 @@
+class BaseDeviceProperties:
+    id: int
+
+
 # IN
 class RPCIn:
 
-    class DeviceAttach:
+    class DeviceAttach(BaseDeviceProperties):
         pass
 
-    class DeviceAction:
+    class DeviceAction(BaseDeviceProperties):
         pass
 
-    class DeviceConfiguration:
-        pass
-
-    class DeviceHeartbeat:
+    class DeviceConfiguration(BaseDeviceProperties):
         pass
 
 

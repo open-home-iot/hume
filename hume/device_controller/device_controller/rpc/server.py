@@ -1,6 +1,8 @@
 from device_controller.rpc import decoder
+from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
 from device_controller.utility.server_base import ServerBase
+
 
 DEVICE_CONTROLLER_QUEUE = "device_controller"
 
@@ -9,13 +11,11 @@ class RPCServer(ServerBase):
     """
     Takes care of RPC actions, both incoming and outgoing.
     """
-
     broker: Broker
 
     def __init__(self, broker=None):
         """
         :param broker: application wide broker instance
-        :param procedure_handler: application wide procedure handler instance
         """
         self.broker = broker
 
@@ -45,5 +45,17 @@ class RPCServer(ServerBase):
         decoded_message = decoder.decode(message)
 
         # Determine which request was received
+        if isinstance(decoded_message, RPCIn.DeviceAttach):
+            # TODO cast to local subscriptions or direct call, depends on
+            # TODO where the RPC calls will be blocked waiting for a response
+            pass
+        elif isinstance(decoded_message, RPCIn.DeviceAction):
+            # TODO cast to local subscriptions or direct call, depends on
+            # TODO where the RPC calls will be blocked waiting for a response
+            pass
+        elif isinstance(decoded_message, RPCIn.DeviceConfiguration):
+            # TODO cast to local subscriptions or direct call, depends on
+            # TODO where the RPC calls will be blocked waiting for a response
+            pass
 
         return  # response

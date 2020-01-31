@@ -1,5 +1,4 @@
 from device_controller.utility.broker import Broker
-from device_controller.procedures.handler import ProcedureHandler
 from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee.server import ZigbeeServer
 from device_controller.rpc.server import RPCServer
@@ -14,7 +13,6 @@ class RootApp(ServerBase):
     cli_args = None
 
     broker: Broker
-    procedure_handler: ProcedureHandler
 
     zigbee_server: ZigbeeServer
     rpc_server: RPCServer
@@ -28,17 +26,9 @@ class RootApp(ServerBase):
 
         self.broker = Broker()
 
-        self.procedure_handler = ProcedureHandler()
-
-        self.zigbee_server = ZigbeeServer(
-            broker=self.broker, procedure_handler=self.procedure_handler
-        )
-        self.rpc_server = RPCServer(
-            broker=self.broker, procedure_handler=self.procedure_handler
-        )
-        self.config_server = ConfigServer(
-            broker=self.broker, procedure_handler=self.procedure_handler
-        )
+        self.zigbee_server = ZigbeeServer(broker=self.broker)
+        self.rpc_server = RPCServer(broker=self.broker)
+        self.config_server = ConfigServer(broker=self.broker)
 
     def start(self):
         """

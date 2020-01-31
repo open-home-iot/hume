@@ -1,24 +1,28 @@
+class BaseDeviceProperties:
+    id: int
+
+
 # IN
 class ZBIn:
 
-    class DeviceCapabilities:
+    class DeviceCapabilities(BaseDeviceProperties):
         pass
 
-    class DeviceEvent:
+    class DeviceEvent(BaseDeviceProperties):
         pass
 
-    class DeviceHeartbeat:
+    class DeviceHeartbeat(BaseDeviceProperties):
         pass
 
-    class DeviceActionResponse:
+    class DeviceActionResponse(BaseDeviceProperties):
         pass
 
 
 # OUT
 class ZBOut:
 
-    class DeviceAction:
+    class DeviceAction(BaseDeviceProperties):
         pass
 
-    class DeviceHeartbeat:
+    class DeviceHeartbeat(BaseDeviceProperties):
         pass

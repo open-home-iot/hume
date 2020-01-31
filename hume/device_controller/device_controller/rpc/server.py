@@ -47,5 +47,5 @@ class RPCServer(ServerBase):
         # Decode the JSON formatted message
         decoded_message = decoder.decode(message)
 
-        # Determine which procedure shall be invoked and dispatch the operation
+        # Determine which procedure shall be invoked
 

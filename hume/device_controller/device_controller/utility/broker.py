@@ -5,27 +5,12 @@ from abc import ABC, abstractmethod
 from rabbitmq_client.client import RMQClient
 
 
-class Dispatch(ABC):
-    """
-    Interface for dispatch receivers.
-    """
-    @abstractmethod
-    def dispatch(self, message: dict):
-        """
-        Handles a message dispatch.
-
-        :param dict message: message to dispatch
-        """
-        pass
-
-
 class Broker:
     """
     The Broker provides both an internal (to the Python Process) and external
     (to the entire host) message dispatching capabilities.
     """
     internal_subscriptions = dict()
-    registered_dispatchers = dict()
 
     rmq_client: RMQClient
 
@@ -127,27 +112,3 @@ class Broker:
         else:
             for subscription in subscriptions:
                 subscription(message)
-
-    def register_dispatch(self, receiver, identifier):
-        """
-        Receivers that register must implement the dispatch interface:
-
-        receiver.dispatch(message: dict)
-
-        :param receiver: receiver of future dispatches
-        :param identifier: identifier for this dispatch
-        """
-        assert issubclass(receiver.__class__, Dispatch)
-
-        self.registered_dispatchers[identifier] = receiver
-
-    def dispatch(self, to, message):
-        """
-        Dispatches a message to a registered dispatch.
-
-        :param to: specify which registered dispatch shall get the message
-        :param dict message: message to dispatch
-        """
-        assert to in self.registered_dispatchers.keys()
-
-        self.registered_dispatchers[to].dispatch(message)

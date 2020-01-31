@@ -8,9 +8,11 @@ class ConfigServer(ServerBase):
     This server handles configuration scheduling, any conditions (such as state-
     dependent schedules actions), and limit-triggering.
     """
-
     broker: Broker
     procedure_handler: ProcedureHandler
+
+    # TODO load configuration from storage into memory on start
+    _active_configuration = None
 
     def __init__(self, broker=None, procedure_handler=None):
         """
@@ -22,12 +24,13 @@ class ConfigServer(ServerBase):
 
     def start(self):
         """
-        Starts the configuration server.
+        Starts up the configuration server.
         """
+        # TODO get configuration from storage and load it into memory
         pass
 
     def stop(self):
         """
-        Stops the configuration server and releases all its resources.
+        Not needed for now.
         """
         pass

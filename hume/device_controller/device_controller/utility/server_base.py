@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class ServerBase(ABC):
+    """
+    Base class for servers.
+    """
 
     @abstractmethod
     def start(self):

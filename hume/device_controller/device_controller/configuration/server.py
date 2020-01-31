@@ -10,12 +10,11 @@ class ConfigServer(ServerBase):
     broker: Broker
 
     # TODO load configuration from storage into memory on start
-    _active_configuration = None
+    _device_config = None
 
     def __init__(self, broker=None):
         """
         :param broker: application wide broker instance
-        :param procedure_handler: application wide procedure handler instance
         """
         self.broker = broker
 
@@ -24,6 +23,7 @@ class ConfigServer(ServerBase):
         Starts up the configuration server.
         """
         # TODO get configuration from storage and load it into memory
+        # TODO create base configuration for the device_controller
         pass
 
     def stop(self):

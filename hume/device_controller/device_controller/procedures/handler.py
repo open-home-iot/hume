@@ -1,10 +1,5 @@
-from queue import Queue
+_ongoing = []
 
 
-class ProcedureHandler:
-
-    _queued = Queue()
-    _ongoing = list()
-
-    def __init__(self):
-        pass
+def run():
+    pass

@@ -30,13 +30,13 @@ class ZigbeeServer(ServerBase):
         """
         print("ZigbeeServer stop")
 
-    def on_device_event(self, message: bytes):
+    def on_device_message(self, message: bytes):
         """
-        Handler function for incoming device events.
+        Handler function for messages sent from a device.
 
         :param bytes message: message sent from a device
         """
         # Decode message
         decoded_message = decoder.decode(message)
 
-        # Determine which procedure shall be started
+        # Determine which message was received

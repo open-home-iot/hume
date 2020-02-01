@@ -1,16 +1,20 @@
 from device_controller.rpc import decoder
 from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
+from device_controller.utility.dispatch.dispatcher import Dispatch
 from device_controller.utility.server_base import ServerBase
 
 
 DEVICE_CONTROLLER_QUEUE = "device_controller"
 
 
-class RPCServer(ServerBase):
+class RPCServer(ServerBase, Dispatch):
     """
     Takes care of RPC actions, both incoming and outgoing.
     """
+    dispatch_id = "RPCServer"
+    dispatch_tier: str
+
     broker: Broker
 
     def __init__(self, broker=None):
@@ -38,8 +42,8 @@ class RPCServer(ServerBase):
         """
         Handler function for incoming RPC requests. Must always return.
 
-        :param bytes message:
-        :return: bytes
+        :param bytes message: incoming message
+        :return bytes response: response to the RPC request
         """
         # Decode the JSON formatted message
         decoded_message = decoder.decode(message)
@@ -59,3 +63,11 @@ class RPCServer(ServerBase):
             pass
 
         return  # response
+
+    def on_dispatch(self, message):
+        print("RPC server got dispatch: {}".format(message))
+
+    def set_dispatch_tier(self, dispatch_tier: str) -> str:
+        print("RPC server setting dispatch tier: {}".format(dispatch_tier))
+        self.dispatch_tier = dispatch_tier
+        return self.dispatch_tier

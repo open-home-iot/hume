@@ -1,4 +1,5 @@
 from device_controller.utility.broker import Broker
+from device_controller.utility.dispatch.dispatcher import Dispatch
 from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee import decoder
 from device_controller.zigbee.messages import ZBIn
@@ -7,10 +8,13 @@ from device_controller.zigbee.messages import ZBIn
 DEVICE_EVENT_TOPIC = "device_events"
 
 
-class ZigbeeServer(ServerBase):
+class ZigbeeServer(ServerBase, Dispatch):
     """
     ZigbeeServer listens for device_controller messages on the ZigBee network.
     """
+    dispatch_id = "ZigbeeServer"
+    dispatch_tier: str
+
     broker: Broker
 
     def __init__(self, broker=None):
@@ -53,3 +57,11 @@ class ZigbeeServer(ServerBase):
         elif isinstance(decoded_message, ZBIn.DeviceHeartbeat):
             # TODO cast to local subscriptions
             pass
+
+    def on_dispatch(self, message):
+        print("Zigbee server got dispatch: {}".format(message))
+
+    def set_dispatch_tier(self, dispatch_tier: str) -> str:
+        print("Zigbee server setting dispatch tier: {}".format(dispatch_tier))
+        self.dispatch_tier = dispatch_tier
+        return self.dispatch_tier

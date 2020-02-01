@@ -1,3 +1,4 @@
+from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
 from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee.server import ZigbeeServer
@@ -12,6 +13,7 @@ class RootApp(ServerBase):
     """
     cli_args = None
 
+    # Pub/Sub (global or local) and RPC.
     broker: Broker
 
     zigbee_server: ZigbeeServer
@@ -42,6 +44,11 @@ class RootApp(ServerBase):
         self.zigbee_server.start()
         self.rpc_server.start()
         self.config_server.start()
+
+        # register to dispatcher
+        dispatcher.register(self.dispatch_tier, self.zigbee_server)
+        dispatcher.register(self.dispatch_tier, self.rpc_server)
+        dispatcher.register(self.dispatch_tier, self.config_server)
 
     def stop(self):
         """

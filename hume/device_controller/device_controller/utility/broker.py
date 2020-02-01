@@ -1,7 +1,5 @@
 import logging
 
-from abc import ABC, abstractmethod
-
 from rabbitmq_client.client import RMQClient
 
 

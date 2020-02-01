@@ -13,7 +13,6 @@ class ZigbeeServer(ServerBase, Dispatch):
     ZigbeeServer listens for device_controller messages on the ZigBee network.
     """
     dispatch_id = "ZigbeeServer"
-    dispatch_tier: str
 
     broker: Broker
 

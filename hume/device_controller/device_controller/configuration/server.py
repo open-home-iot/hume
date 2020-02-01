@@ -9,7 +9,6 @@ class ConfigServer(ServerBase, Dispatch):
     dependent schedules actions), and limit-triggering.
     """
     dispatch_id = "ConfigServer"
-    dispatch_tier: str
 
     broker: Broker
 

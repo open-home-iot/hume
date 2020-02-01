@@ -1,8 +1,6 @@
 import argparse
 
-from device_controller.configuration.server import ConfigServer
 from device_controller.root import RootApp
-from device_controller.rpc.server import RPCServer
 from device_controller.utility.dispatch import dispatcher
 from device_controller.zigbee.server import ZigbeeServer
 
@@ -24,9 +22,9 @@ if __name__ == "__main__":
     # To block on start to test
     inp = input()
 
-    dispatcher.dispatch(ZigbeeServer.dispatch_id,
+    dispatcher.dispatch((root_app.dispatch_tier, ZigbeeServer.dispatch_id),
                         "message for the zigbee server")
-    dispatcher.dispatch(ConfigServer.dispatch_id,
+    dispatcher.dispatch((root_app.dispatch_tier, ZigbeeServer.dispatch_id),
                         "message for the config server")
-    dispatcher.dispatch(RPCServer.dispatch_id,
+    dispatcher.dispatch((root_app.dispatch_tier, ZigbeeServer.dispatch_id),
                         "message for the config server")

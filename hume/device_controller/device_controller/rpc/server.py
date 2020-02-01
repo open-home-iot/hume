@@ -13,7 +13,6 @@ class RPCServer(ServerBase, Dispatch):
     Takes care of RPC actions, both incoming and outgoing.
     """
     dispatch_id = "RPCServer"
-    dispatch_tier: str
 
     broker: Broker
 

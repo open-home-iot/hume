@@ -1,16 +1,14 @@
 from abc import ABC, abstractmethod
 
+NO_TIER_DEFINED = "NONE"
+
 
 class Dispatch(ABC):
     """
     Abstract class used as an interface for services that want to provide their
     service to other services.
     """
-    @property
-    @abstractmethod
-    def dispatch_tier(self) -> str:
-        """Set at registration of a service."""
-        ...
+    dispatch_tier = NO_TIER_DEFINED
 
     @property
     @abstractmethod
@@ -31,6 +29,14 @@ class Dispatch(ABC):
         """
         ...
 
+    def get_dispatch_address(self) -> tuple:
+        """
+        Getter for the fully qualified dispatch address.
+
+        :return: tuple with (tier, dispatch id)
+        """
+        return self.dispatch_tier, self.dispatch_id
+
 
 _dispatch_registry = dict()
 
@@ -44,17 +50,25 @@ def register(tier, service):
     :param str tier:
     :param class service:
     """
-    assert issubclass(service, Dispatch)
+    assert issubclass(service.__class__, Dispatch)
 
     service.set_dispatch_tier(tier)
+
+    print("Initial dispatch registry:")
+    print(_dispatch_registry)
 
     tier_dict = _dispatch_registry.get(tier)
     tier_update = {service.dispatch_id: service}
 
+    # Nothing exists for this tier yet
     if tier_dict is None:
+        # Set brand new tier info
+        print("Tier was empty, setting: {}".format(tier_update))
+
         _dispatch_registry.update({tier: tier_update})
     else:
-        _dispatch_registry.update({tier: tier_dict.update(tier_update)})
+        # Update what is already in the tier
+        tier_dict.update(tier_update)
 
     print("Updated dispatch registry:")
     print(_dispatch_registry)

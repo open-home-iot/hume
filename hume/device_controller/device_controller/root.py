@@ -16,6 +16,8 @@ class RootApp(ServerBase):
     # Pub/Sub (global or local) and RPC.
     broker: Broker
 
+    dispatch_tier = "root_app"
+
     zigbee_server: ZigbeeServer
     rpc_server: RPCServer
     config_server: ConfigServer

@@ -8,7 +8,20 @@ class Dispatch(ABC):
     Abstract class used as an interface for services that want to provide their
     service to other services.
     """
-    dispatch_tier = NO_TIER_DEFINED
+    _dispatch_tier = NO_TIER_DEFINED
+
+    @property
+    def dispatch_tier(self) -> str:
+        return self._dispatch_tier
+
+    @dispatch_tier.setter
+    def dispatch_tier(self, dispatch_tier: str):
+        """
+        Setter for dispatch_tier as this is not determined by the service
+        itself, but provided by the administrating application.
+        """
+        print("calling setter for dispatch tier")
+        self._dispatch_tier = dispatch_tier
 
     @property
     @abstractmethod
@@ -20,22 +33,6 @@ class Dispatch(ABC):
     def on_dispatch(self, message):
         """Called when dispatching a message from another service."""
         ...
-
-    @abstractmethod
-    def set_dispatch_tier(self, dispatch_tier: str) -> str:
-        """
-        Setter for dispatch_tier as this is not determined by the service
-        itself, but provided by the administrating application.
-        """
-        ...
-
-    def get_dispatch_address(self) -> tuple:
-        """
-        Getter for the fully qualified dispatch address.
-
-        :return: tuple with (tier, dispatch id)
-        """
-        return self.dispatch_tier, self.dispatch_id
 
 
 _dispatch_registry = dict()
@@ -52,7 +49,7 @@ def register(tier, service):
     """
     assert issubclass(service.__class__, Dispatch)
 
-    service.set_dispatch_tier(tier)
+    service.dispatch_tier = tier
 
     print("Initial dispatch registry:")
     print(_dispatch_registry)

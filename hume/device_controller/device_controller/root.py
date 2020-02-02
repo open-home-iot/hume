@@ -42,15 +42,15 @@ class RootApp(ServerBase):
         # core start
         self.broker.start()
 
-        # application start
-        self.zigbee_server.start()
-        self.rpc_server.start()
-        self.config_server.start()
-
         # register to dispatcher
         dispatcher.register(self.dispatch_tier, self.zigbee_server)
         dispatcher.register(self.dispatch_tier, self.rpc_server)
         dispatcher.register(self.dispatch_tier, self.config_server)
+
+        # application start
+        self.zigbee_server.start()
+        self.rpc_server.start()
+        self.config_server.start()
 
     def stop(self):
         """

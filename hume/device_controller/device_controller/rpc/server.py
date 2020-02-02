@@ -65,8 +65,3 @@ class RPCServer(ServerBase, Dispatch):
 
     def on_dispatch(self, message):
         print("RPC server got dispatch: {}".format(message))
-
-    def set_dispatch_tier(self, dispatch_tier: str) -> str:
-        print("RPC server setting dispatch tier: {}".format(dispatch_tier))
-        self.dispatch_tier = dispatch_tier
-        return self.dispatch_tier

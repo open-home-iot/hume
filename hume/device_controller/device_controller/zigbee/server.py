@@ -1,4 +1,6 @@
+from device_controller.rpc.server import RPCServer
 from device_controller.utility.broker import Broker
+from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.dispatch.dispatcher import Dispatch
 from device_controller.utility.server_base import ServerBase
 from device_controller.zigbee import decoder
@@ -27,6 +29,8 @@ class ZigbeeServer(ServerBase, Dispatch):
         Starts the ZigbeeServer.
         """
         print("ZigbeeServer start")
+        dispatcher.dispatch((self.dispatch_tier, RPCServer.dispatch_id),
+                            "message from ZB server to RPC server")
 
     def stop(self):
         """
@@ -59,8 +63,3 @@ class ZigbeeServer(ServerBase, Dispatch):
 
     def on_dispatch(self, message):
         print("Zigbee server got dispatch: {}".format(message))
-
-    def set_dispatch_tier(self, dispatch_tier: str) -> str:
-        print("Zigbee server setting dispatch tier: {}".format(dispatch_tier))
-        self.dispatch_tier = dispatch_tier
-        return self.dispatch_tier

@@ -20,7 +20,6 @@ class Dispatch(ABC):
         Setter for dispatch_tier as this is not determined by the service
         itself, but provided by the administrating application.
         """
-        print("calling setter for dispatch tier")
         self._dispatch_tier = dispatch_tier
 
     @property

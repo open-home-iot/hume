@@ -1,14 +1,15 @@
 from device_controller.rpc import decoder
 from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
-from device_controller.utility.dispatch.dispatcher import Dispatch
+from device_controller.utility.dispatch import Dispatch
+from device_controller.utility.procedures import run_in_procedure, Procedure
 from device_controller.utility.server_base import ServerBase
 
 
 DEVICE_CONTROLLER_QUEUE = "device_controller"
 
 
-class RPCServer(ServerBase, Dispatch):
+class RPCServer(ServerBase, Dispatch, Procedure):
     """
     Takes care of RPC actions, both incoming and outgoing.
     """
@@ -30,6 +31,7 @@ class RPCServer(ServerBase, Dispatch):
             DEVICE_CONTROLLER_QUEUE,
             self.on_rpc_request
         )
+        run_in_procedure(self, "yee haaaaa")
 
     def stop(self):
         """
@@ -65,3 +67,6 @@ class RPCServer(ServerBase, Dispatch):
 
     def on_dispatch(self, message):
         print("RPC server got dispatch: {}".format(message))
+
+    def start_procedure(self, *args):
+        print("rpc server procedure started with args: {}".format(args))

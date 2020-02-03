@@ -1,1 +1,2 @@
-from .dispatcher import Dispatch, dispatch
+from .dispatch import Dispatch
+from .dispatcher import dispatch

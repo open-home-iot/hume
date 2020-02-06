@@ -6,7 +6,7 @@ from device_controller.utility.procedures import run_in_procedure, Procedure
 from device_controller.utility.server_base import ServerBase
 
 
-DEVICE_CONTROLLER_QUEUE = "device_controller"
+DEVICE_CONTROLLER_QUEUE = "rpc_device_controller"
 
 
 class RPCServer(ServerBase, Dispatch, Procedure):

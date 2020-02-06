@@ -7,7 +7,7 @@ from device_controller.zigbee import decoder
 from device_controller.zigbee.messages import ZBIn
 
 
-DEVICE_EVENT_TOPIC = "device_events"
+TOPIC_DEVICE_EVENTS = "local_topic_device_events"
 
 
 class ZigbeeServer(ServerBase, Dispatch, Procedure):

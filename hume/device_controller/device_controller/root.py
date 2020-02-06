@@ -1,3 +1,4 @@
+from device_controller.utility import storage
 from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
 from device_controller.utility.server_base import ServerBase
@@ -29,6 +30,8 @@ class RootApp(ServerBase):
         self.cli_args = cli_args
 
         self.broker = Broker()
+
+        storage.initialize(self.broker)
 
         self.zigbee_server = ZigbeeServer(broker=self.broker)
         self.rpc_server = RPCServer(broker=self.broker)

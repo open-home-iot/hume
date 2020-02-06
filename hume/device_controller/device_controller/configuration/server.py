@@ -6,7 +6,7 @@ from device_controller.utility.server_base import ServerBase
 
 class ConfigServer(ServerBase, Dispatch, Procedure):
     """
-    This server handles configuration scheduling, any conditions (such as state-
+    This server handles configuration scheduling, any conditions (such as storage-
     dependent schedules actions), and limit-triggering.
     """
 

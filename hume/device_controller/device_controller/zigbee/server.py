@@ -2,7 +2,7 @@ from device_controller.rpc.server import RPCServer
 from device_controller.utility.broker import Broker
 from device_controller.utility.dispatch import dispatch, Dispatch
 from device_controller.utility.procedures import Procedure, run_in_procedure
-from device_controller.utility.server_base import ServerBase
+from device_controller.lib.server_base import ServerBase
 from device_controller.zigbee import decoder
 from device_controller.zigbee.messages import ZBIn
 

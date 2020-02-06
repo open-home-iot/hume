@@ -3,7 +3,7 @@ from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
 from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.procedures import run_in_procedure, Procedure
-from device_controller.utility.server_base import ServerBase
+from device_controller.lib.server_base import ServerBase
 
 
 DEVICE_CONTROLLER_QUEUE = "rpc_device_controller"

@@ -1,18 +1,17 @@
-from device_controller.configuration.model import DeviceConfiguration
-
-from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.broker import Broker
-from device_controller.utility.procedures import run_in_procedure, Procedure
+from device_controller.utility.procedures import run_in_procedure
+from device_controller.utility.procedures import Procedure
+from device_controller.utility.dispatch import Dispatch
+
 from device_controller.library.server_base import ServerBase
 
 
-class ConfigServer(ServerBase, Dispatch, Procedure):
+class DeviceServer(ServerBase, Dispatch, Procedure):
     """
     This server handles configuration scheduling, any conditions (such as
     storage-dependent scheduler actions), and limit-triggering.
     """
-
-    dispatch_id = "ConfigServer"
+    dispatch_id = "DeviceServer"
 
     broker: Broker
 
@@ -31,7 +30,7 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         """
         # TODO get configuration from storage and load it into memory
         # TODO create base configuration for the device_controller
-        run_in_procedure(self, "yee haaaaa")
+        run_in_procedure(self, "device server bitches!")
 
     def stop(self):
         """
@@ -40,7 +39,7 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         pass
 
     def on_dispatch(self, message):
-        print("Config server got dispatch: {}".format(message))
+        print("Device server got dispatch: {}".format(message))
 
     def start_procedure(self, *args):
-        print("config server start_procedure called with args: {}".format(args))
+        print("device server start_procedure called with args: {}".format(args))

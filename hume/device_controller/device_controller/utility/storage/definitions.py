@@ -1,6 +1,9 @@
 from abc import abstractmethod
 
 
+PRIMARY_KEY = 1
+
+
 class DataModel:
 
     @abstractmethod

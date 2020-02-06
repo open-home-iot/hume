@@ -2,6 +2,8 @@ from device_controller.utility import storage
 from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
 from device_controller.library.server_base import ServerBase
+
+from device_controller.device.server import DeviceServer
 from device_controller.zigbee.server import ZigbeeServer
 from device_controller.rpc.server import RPCServer
 from device_controller.configuration.server import ConfigServer
@@ -36,6 +38,7 @@ class RootApp(ServerBase):
         self.zigbee_server = ZigbeeServer(broker=self.broker)
         self.rpc_server = RPCServer(broker=self.broker)
         self.config_server = ConfigServer(broker=self.broker)
+        self.device_server = DeviceServer(broker=self.broker)
 
     def start(self):
         """
@@ -49,11 +52,13 @@ class RootApp(ServerBase):
         dispatcher.register(self.dispatch_tier, self.zigbee_server)
         dispatcher.register(self.dispatch_tier, self.rpc_server)
         dispatcher.register(self.dispatch_tier, self.config_server)
+        dispatcher.register(self.dispatch_tier, self.device_server)
 
         # application start
         self.zigbee_server.start()
         self.rpc_server.start()
         self.config_server.start()
+        self.device_server.start()
 
     def stop(self):
         """
@@ -64,6 +69,7 @@ class RootApp(ServerBase):
         self.zigbee_server.stop()
         self.rpc_server.stop()
         self.config_server.stop()
+        self.device_server.stop()
 
         # core stop
         self.broker.stop()

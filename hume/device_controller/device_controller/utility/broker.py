@@ -8,7 +8,7 @@ class Broker:
     The Broker provides both an internal (to the Python Process) and external
     (to the entire host) message dispatching capabilities.
     """
-    internal_subscriptions = dict()
+    _internal_subscriptions = dict()
 
     rmq_client: RMQClient
 
@@ -52,16 +52,41 @@ class Broker:
         :param str topic: topic to listen on
         :param callable callback: callback on message to the topic
         """
-        subscriptions = self.internal_subscriptions.get(topic)
+        subscriptions = self._internal_subscriptions.get(topic)
 
         if subscriptions is not None:
             # Exists, add callback to list of callbacks
-            self.internal_subscriptions.update(
+            self._internal_subscriptions.update(
                 {topic: subscriptions.append(callback)}
             )
         else:
             # Empty, create new list of callbacks
-            self.internal_subscriptions[topic] = [callback]
+            self._internal_subscriptions[topic] = [callback]
+
+    def publish_global(self, topic, message):
+        """
+        Publishes a message on the given topic, using the RMQ client.
+
+        :param str topic: topic to publish on
+        :param bytes message: message to publish
+        """
+        self.rmq_client.publish(topic, message)
+
+    def publish_local(self, topic, message):
+        """
+        Publishes a message on the given topic, using a process-local
+        dictionary-mapping between topics and callbacks.
+
+        :param str topic: topic to publish on
+        :param str message:
+        """
+        subscriptions = self._internal_subscriptions.get(topic)
+
+        if subscriptions is None:
+            raise Exception("That subscription does not exist")
+        else:
+            for subscription in subscriptions:
+                subscription(message)
 
     def enable_rpc_server(self, queue_name, callback):
         """
@@ -85,28 +110,3 @@ class Broker:
         :return bytes answer: answer to RPC call operation
         """
         return self.rmq_client.rpc_call(receiver, message)
-
-    def publish_global(self, topic, message):
-        """
-        Publishes a message on the given topic, using the RMQ client.
-
-        :param str topic: topic to publish on
-        :param bytes message: message to publish
-        """
-        self.rmq_client.publish(topic, message)
-
-    def publish_local(self, topic, message):
-        """
-        Publishes a message on the given topic, using a process-local
-        dictionary-mapping between topics and callbacks.
-
-        :param str topic: topic to publish on
-        :param str message:
-        """
-        subscriptions = self.internal_subscriptions.get(topic)
-
-        if subscriptions is None:
-            raise Exception("That subscription does not exist")
-        else:
-            for subscription in subscriptions:
-                subscription(message)

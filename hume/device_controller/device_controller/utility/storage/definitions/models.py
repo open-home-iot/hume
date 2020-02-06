@@ -1,10 +1,7 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 
-PRIMARY_KEY = 1
-
-
-class DataModel:
+class DataModel(ABC):
 
     @abstractmethod
     def local(self):

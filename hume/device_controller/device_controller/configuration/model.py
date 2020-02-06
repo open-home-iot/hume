@@ -1,9 +1,11 @@
-from device_controller.utility.storage.definitions import DataModel
+from device_controller.utility.storage.definitions import DataModel, ForeignKey
+
+from device_controller.device.model import Device
 
 
 class DeviceConfiguration(DataModel):
 
-    device_id = int()
+    device_id = ForeignKey(Device)
 
     # Timing
     interval = int()

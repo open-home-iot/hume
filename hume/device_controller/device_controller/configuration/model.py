@@ -3,10 +3,13 @@ from device_controller.utility.storage.definitions import DataModel
 
 class DeviceConfiguration(DataModel):
 
-    id = int()
+    device_id = int()
+
+    # Timing
+    interval = int()
 
     def local(self):
         pass
 
     def persistent(self):
-        return self.id,
+        return self.device_id,

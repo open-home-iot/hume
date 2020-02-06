@@ -3,7 +3,7 @@ from device_controller.configuration.model import DeviceConfiguration
 from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import run_in_procedure, Procedure
-from device_controller.lib.server_base import ServerBase
+from device_controller.library.server_base import ServerBase
 
 
 class ConfigServer(ServerBase, Dispatch, Procedure):
@@ -34,8 +34,8 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         run_in_procedure(self, "yee haaaaa")
 
         config = DeviceConfiguration()
-        print(config.id)
-        print(type(config.id))
+        print(config.device_id)
+        print(type(config.device_id))
 
     def stop(self):
         """

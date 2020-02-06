@@ -14,3 +14,13 @@ class ForeignKey:
     @property
     def is_primary_key(self):
         return self._is_primary_key
+
+
+class Enum:
+
+    def __init__(self, *options):
+        self._options = options
+
+    @property
+    def options(self):
+        return self._options

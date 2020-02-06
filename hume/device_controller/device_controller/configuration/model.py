@@ -5,7 +5,7 @@ from device_controller.device.model import Device
 
 class DeviceConfiguration(DataModel):
 
-    device_id = ForeignKey(Device)
+    id = ForeignKey(Device)
 
     # Timing
     interval = int()
@@ -14,4 +14,4 @@ class DeviceConfiguration(DataModel):
         pass
 
     def persistent(self):
-        return self.device_id,
+        return self.id,

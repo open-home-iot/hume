@@ -23,8 +23,8 @@ class DataStore:
         #    TODO least one field is marked persistent
 
         model_instance = model()
-        print("model key: ".format(model_instance.key()))
-
+        print("model key field: {}".format(model_instance.key()))
+        print("model _store key: {}".format(model.__name__))
         self._store[str(model.__name__)] = dict()
 
 

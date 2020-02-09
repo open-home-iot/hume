@@ -1,12 +1,12 @@
 from device_controller.utility.storage.definitions import DataModel, \
-    ForeignKey, Schedule, PRIMARY_KEY
+    ForeignKey, Schedule, PrimaryKey
 
 from device_controller.device.model import Device, DeviceAction
 
 
 class DeviceConfiguration(DataModel):
 
-    id = int(PRIMARY_KEY)
+    id = PrimaryKey()
     # One device could have many configurations
     device = ForeignKey(Device, primary_key=False)  # May not be unique if multiple configurations
 

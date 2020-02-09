@@ -1,4 +1,5 @@
-PRIMARY_KEY = 1
+class PrimaryKey:
+    pass
 
 
 class ForeignKey:

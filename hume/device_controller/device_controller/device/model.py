@@ -1,5 +1,5 @@
 from device_controller.utility.storage.definitions import DataModel, \
-    PRIMARY_KEY, ForeignKey, Enum, Timestamp, OneToOne
+    ForeignKey, Enum, Timestamp, OneToOne, PrimaryKey
 
 ACTUATOR = 0
 SENSOR = 1
@@ -15,7 +15,7 @@ TYPE_ENUM = Enum(TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING, TYPE_NONE)
 
 class Device(DataModel):
 
-    id = int(PRIMARY_KEY)
+    id = PrimaryKey()
 
     name = str()
     type = Enum(ACTUATOR, SENSOR, COMBINED)
@@ -29,7 +29,7 @@ class Device(DataModel):
 
 class DeviceAction(DataModel):
 
-    id = int(PRIMARY_KEY)
+    id = PrimaryKey()
     device = ForeignKey(Device, primary_key=False)
 
     name = str()

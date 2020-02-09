@@ -24,3 +24,7 @@ class Enum:
     @property
     def options(self):
         return self._options
+
+
+class Timestamp:
+    pass

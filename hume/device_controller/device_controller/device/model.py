@@ -1,6 +1,5 @@
 from device_controller.utility.storage.definitions import DataModel, \
-    PRIMARY_KEY, ForeignKey, Enum, Timestamp
-
+    PRIMARY_KEY, ForeignKey, Enum, Timestamp, OneToOne
 
 ACTUATOR = 0
 SENSOR = 1
@@ -17,14 +16,15 @@ TYPE_ENUM = Enum(TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING, TYPE_NONE)
 class Device(DataModel):
 
     id = int(PRIMARY_KEY)
+
     name = str()
     type = Enum(ACTUATOR, SENSOR, COMBINED)
 
     def local(self):
-        return None
+        return ()
 
     def persistent(self):
-        return self.id, self.name, self.type,
+        return self.name, self.type,
 
 
 class DeviceAction(DataModel):
@@ -41,22 +41,22 @@ class DeviceAction(DataModel):
     return_type = TYPE_ENUM
 
     def local(self):
-        return None
+        return ()
 
     def persistent(self):
-        return self.id, self.device, self.name, self.type, self.parameter_type,\
-               self.parameter_description, self.return_type
+        return self.device, self.name, self.type, self.parameter_type, \
+               self.parameter_description, self.return_type,
 
 
 class DeviceState(DataModel):
 
-    device = ForeignKey(Device)
+    device = OneToOne(Device)
 
     heartbeat = Timestamp()
     state = str()
 
     def local(self):
-        return self.device, self.heartbeat, self.state,
+        return self.heartbeat, self.state,
 
     def persistent(self):
-        return None
+        return ()

@@ -1,4 +1,4 @@
-from device_controller.utility.storage import persistent, local
+from device_controller.utility.storage import persistent, local, data_store
 
 
 def initialize(broker):
@@ -6,13 +6,6 @@ def initialize(broker):
     local.initialize(broker)
 
 
-def get(name, id):
-    ...
-
-
-def set(name, id, new):
-    ...
-
-
-def notify(name, callback):
-    ...
+def register(model):
+    print("storage interface register model: {}".format(model))
+    data_store.register(model)

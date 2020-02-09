@@ -1,5 +1,3 @@
-from device_controller.configuration.model import DeviceConfiguration
-
 from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import run_in_procedure, Procedure

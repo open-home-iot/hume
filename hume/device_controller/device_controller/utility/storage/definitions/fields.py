@@ -16,6 +16,16 @@ class ForeignKey:
         return self._is_primary_key
 
 
+class OneToOne:
+
+    def __init__(self, cls):
+        self._key = cls
+
+    @property
+    def key(self):
+        return self._key
+
+
 class Enum:
 
     def __init__(self, *options):
@@ -28,16 +38,6 @@ class Enum:
 
 class Timestamp:
     pass
-
-
-class Pattern:
-
-    def __init__(self, pattern):
-        self._pattern = pattern
-
-    @property
-    def pattern(self):
-        return self._pattern
 
 
 class Schedule:

@@ -3,6 +3,9 @@ from device_controller.utility.procedures import run_in_procedure
 from device_controller.utility.procedures import Procedure
 from device_controller.utility.dispatch import Dispatch
 
+from device_controller.device.model import Device, DeviceAction, DeviceState
+from device_controller.utility import storage
+
 from device_controller.library.server_base import ServerBase
 
 
@@ -31,6 +34,9 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         # TODO get configuration from storage and load it into memory
         # TODO create base configuration for the device_controller
         run_in_procedure(self, "device server bitches!")
+        storage.register(Device)
+        storage.register(DeviceAction)
+        storage.register(DeviceState)
 
     def stop(self):
         """

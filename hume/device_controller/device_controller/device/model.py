@@ -2,27 +2,26 @@ from device_controller.utility.storage.definitions import DataModel, \
     PRIMARY_KEY, ForeignKey, Enum, Timestamp
 
 
-DEVICE_TYPE_ACTUATOR = 0
-DEVICE_TYPE_SENSOR = 1
-DEVICE_TYPE_COMBINED = 2
+ACTUATOR = 0
+SENSOR = 1
+COMBINED = 2
 
-DEVICE_ACTION_TYPE_SENSOR = 0
-DEVICE_ACTION_TYPE_ACTUATOR = 1
+TYPE_INTEGER = 0
+TYPE_BOOLEAN = 1
+TYPE_STRING = 2
+TYPE_NONE = 3
 
-DEVICE_ACTION_PARAMETER_TYPE_INTEGER = 0
-DEVICE_ACTION_PARAMETER_TYPE_BOOLEAN = 1
-DEVICE_ACTION_PARAMETER_TYPE_STRING = 2
-DEVICE_ACTION_PARAMETER_TYPE_NONE = 3
+TYPE_ENUM = Enum(TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING, TYPE_NONE)
 
 
 class Device(DataModel):
 
     id = int(PRIMARY_KEY)
     name = str()
-    type = Enum(DEVICE_TYPE_ACTUATOR, DEVICE_TYPE_SENSOR, DEVICE_TYPE_COMBINED)
+    type = Enum(ACTUATOR, SENSOR, COMBINED)
 
     def local(self):
-        pass
+        return None
 
     def persistent(self):
         return self.id, self.name, self.type,
@@ -34,20 +33,19 @@ class DeviceAction(DataModel):
     device = ForeignKey(Device, primary_key=False)
 
     name = str()
-    type = Enum(DEVICE_ACTION_TYPE_ACTUATOR, DEVICE_ACTION_TYPE_SENSOR)
+    type = Enum(ACTUATOR, SENSOR)
 
-    parameter_type = Enum(DEVICE_ACTION_PARAMETER_TYPE_INTEGER,
-                          DEVICE_ACTION_PARAMETER_TYPE_BOOLEAN,
-                          DEVICE_ACTION_PARAMETER_TYPE_STRING,
-                          DEVICE_ACTION_PARAMETER_TYPE_NONE)
+    parameter_type = TYPE_ENUM
     parameter_description = str()
 
+    return_type = TYPE_ENUM
+
     def local(self):
-        pass
+        return None
 
     def persistent(self):
         return self.id, self.device, self.name, self.type, self.parameter_type,\
-               self.parameter_description,
+               self.parameter_description, self.return_type
 
 
 class DeviceState(DataModel):
@@ -58,7 +56,7 @@ class DeviceState(DataModel):
     state = str()
 
     def local(self):
-        return self.state
+        return self.device, self.heartbeat, self.state,
 
     def persistent(self):
-        return self.device, self.heartbeat,
+        return None

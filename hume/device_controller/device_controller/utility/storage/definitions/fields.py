@@ -28,3 +28,17 @@ class Enum:
 
 class Timestamp:
     pass
+
+
+class Pattern:
+
+    def __init__(self, pattern):
+        self._pattern = pattern
+
+    @property
+    def pattern(self):
+        return self._pattern
+
+
+class Schedule:
+    pass

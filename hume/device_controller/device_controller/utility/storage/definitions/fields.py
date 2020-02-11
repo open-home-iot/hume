@@ -1,3 +1,7 @@
+import inspect
+import sys
+
+
 class PrimaryKey:
     pass
 
@@ -43,3 +47,12 @@ class Timestamp:
 
 class Schedule:
     pass
+
+
+class String:
+    pass
+
+
+SUPPORTED_FIELDS = [name for name, cls in
+                    inspect.getmembers(sys.modules[__name__], inspect.isclass)]
+print("ACCEPTED FIELDS: %s" % SUPPORTED_FIELDS)

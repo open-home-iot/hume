@@ -9,6 +9,9 @@ from device_controller.rpc.server import RPCServer
 from device_controller.configuration.server import ConfigServer
 
 
+SERVICE_NAME = "device_controller"
+
+
 class RootApp(ServerBase):
     """
     A wrapping class for all HUME sub-applications, ensures start order and
@@ -33,7 +36,7 @@ class RootApp(ServerBase):
 
         self.broker = Broker()
 
-        storage.initialize(self.broker)
+        storage.initialize(self.broker, SERVICE_NAME)
 
         self.zigbee_server = ZigbeeServer(broker=self.broker)
         self.rpc_server = RPCServer(broker=self.broker)

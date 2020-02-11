@@ -1,7 +1,44 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from device_controller.utility.storage.definitions import PrimaryKey, \
-    ForeignKey, OneToOne
+    ForeignKey, OneToOne, SUPPORTED_FIELDS
+
+
+class DataModel(ABC):
+
+    persistent = True
+    _key: str = None
+
+    singleton = False
+
+    def key(self):
+        if self._key:
+            return self._key
+
+        key_count = 0
+        fields = vars(self.__class__)
+        for k, v in fields.items():
+            if is_key(v):
+                key_count += 1
+                self._key = k
+
+        if key_count == 1:
+            return self._key
+
+        self._key = None
+        raise KeyError("Make sure there is exactly one key for the model: {}"
+                       .format(self.__class__.__name__))
+
+    def get_model_fields(self):
+        fields = vars(self.__class__)
+        print("model_instance.__class__ vars() result: {}".format(fields))
+
+        filtered_fields = [field for key, field in fields.items()
+                           if field.__class__.__name__ in SUPPORTED_FIELDS]
+        print("filtered out model fields from model_instance.__class__: {}"
+              .format(filtered_fields))
+
+        return filtered_fields
 
 
 def is_key(field_value):
@@ -13,31 +50,3 @@ def is_key(field_value):
         return True
     else:
         return False
-
-
-class DataModel(ABC):
-
-    singleton = False
-
-    @abstractmethod
-    def local(self):
-        """
-        :return: local attributes
-        """
-        ...
-
-    @abstractmethod
-    def persistent(self):
-        """
-        :return: persistent attributes
-        """
-        ...
-
-    def key(self):
-        fields = vars(self.__class__)
-        for k, v in fields.items():
-            if is_key(v):
-                return k
-
-        raise KeyError("There is no unique key for the model: {}"
-                       .format(self.__class__.__name__))

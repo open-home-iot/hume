@@ -33,8 +33,8 @@ class DataModel(ABC):
         fields = vars(self.__class__)
         print("model_instance.__class__ vars() result: {}".format(fields))
 
-        filtered_fields = [field for key, field in fields.items()
-                           if field.__class__.__name__ in SUPPORTED_FIELDS]
+        filtered_fields = [(key, value) for key, value in fields.items()
+                           if value.__class__.__name__ in SUPPORTED_FIELDS]
         print("filtered out model fields from model_instance.__class__: {}"
               .format(filtered_fields))
 

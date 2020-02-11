@@ -35,8 +35,8 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         # TODO create base configuration for the device_controller
         run_in_procedure(self, "device server bitches!")
         storage.register(Device)
-        #storage.register(DeviceAction)
-        #storage.register(DeviceState)
+        storage.register(DeviceAction)
+        storage.register(DeviceState)
 
     def stop(self):
         """

@@ -13,10 +13,17 @@ def create_table_message(service_name, model_instance: DataModel):
     :return:
     """
     message = {
-        "owner": service_name
+        "owner": service_name,
+        "table_name": model_instance.__class__.__name__,
+        "fields": {}
     }
 
     fields = model_instance.get_model_fields()
     print("Fields are: {}".format(fields))
+
+    for name, field in fields:
+        message["fields"].update({name: field.__class__.__name__})
+
+    print("CAN THIS BE JSON: {}".format(message))
 
     return json.dumps(message).encode('utf-8')

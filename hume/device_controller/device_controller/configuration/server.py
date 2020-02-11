@@ -32,7 +32,7 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         # TODO get configuration from storage and load it into memory
         # TODO create base configuration for the device_controller
         run_in_procedure(self, "yee haaaaa")
-        #storage.register(DeviceConfiguration)
+        storage.register(DeviceConfiguration)
 
     def stop(self):
         """

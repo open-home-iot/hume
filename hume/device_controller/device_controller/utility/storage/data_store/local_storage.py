@@ -1,9 +1,9 @@
 from device_controller.utility.broker import Broker
 
 
-_broker: Broker
+class LocalStorage:
 
+    _broker: Broker
 
-def initialize(broker):
-    global _broker
-    _broker = broker
+    def __init__(self, broker):
+        self._broker = broker

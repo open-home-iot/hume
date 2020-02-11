@@ -1,4 +1,6 @@
 from device_controller.utility.broker import Broker
+from device_controller.utility.storage.data_store.local_storage import \
+    LocalStorage
 from device_controller.utility.storage.data_store.storage_service import \
     StorageService
 from device_controller.utility.storage.definitions import DataModel
@@ -22,12 +24,14 @@ class DataStore:
     _store: dict
 
     _storage_service: StorageService
+    _local_storage: LocalStorage
 
     def __init__(self, broker, service_name):
         self._broker = broker
         self._service_name = service_name
         self._store = dict()
         self._storage_service = StorageService(self._broker, self._service_name)
+        self._local_storage = LocalStorage(self._broker)
 
     def register(self, model):
         # Registration process:

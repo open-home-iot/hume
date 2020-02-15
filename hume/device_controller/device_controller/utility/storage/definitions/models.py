@@ -9,7 +9,9 @@ class DataModel(ABC):
     persistent = True
     _key: str = None
 
-    singleton = False
+    def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            self.__setattr__(key, val)
 
     def key(self):
         if self._key:

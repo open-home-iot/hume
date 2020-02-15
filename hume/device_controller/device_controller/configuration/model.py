@@ -38,3 +38,17 @@ class DeviceConfiguration(DataModel):
     # Actuators
     on_action = ForeignKey(DeviceAction, primary_key=False)
     on_action_state = String()
+
+    @classmethod
+    def create(cls,
+               action,
+               interval=None,
+               schedule=None,
+               watch_device=None,
+               on_state=None,
+               on_action=None,
+               on_action_state=None):
+        instance = cls(action=action, interval=interval, schedule=schedule,
+                       watch_device=watch_device, on_state=on_state,
+                       on_action=on_action, on_action_state=on_action_state)
+        return instance

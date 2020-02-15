@@ -80,13 +80,17 @@ class DataStore:
         pass
 
     def get_one(self, cls, key):
-        pass
+        self._store.get(cls.__name__).get(key)
 
     def set_all(self, cls, new_data):
-        pass
+        self._store.get(cls.__name__).update(new_data)
 
     def set_one(self, cls, instance):
-        pass
+        self._store.get(cls.__name__).update(
+            {
+                getattr(instance, instance.key()): instance
+            }
+        )
 
 
 _store = None

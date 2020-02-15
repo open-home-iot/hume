@@ -4,6 +4,7 @@ from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import run_in_procedure, Procedure
 from device_controller.library.server_base import ServerBase
 from device_controller.utility import storage
+from device_controller.utility.storage.definitions import Schedule
 
 
 class ConfigServer(ServerBase, Dispatch, Procedure):
@@ -33,6 +34,8 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         # TODO create base configuration for the device_controller
         run_in_procedure(self, "yee haaaaa")
         storage.register(DeviceConfiguration)
+
+        instance = DeviceConfiguration.create(2, interval=10, schedule=Schedule())
 
     def stop(self):
         """

@@ -2,6 +2,15 @@ import inspect
 import sys
 
 
+class Field:
+
+    _value = None
+
+    @property
+    def value(self):
+        return self._value
+
+
 class PrimaryKey:
     pass
 

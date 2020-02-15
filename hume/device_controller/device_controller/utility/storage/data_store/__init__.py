@@ -1,1 +1,1 @@
-from .data_store import initialize, register
+from .data_store import initialize, register, get, get_all

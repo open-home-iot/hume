@@ -17,6 +17,14 @@ def register(model):
     _store.register(model)
 
 
+def get_all(type):
+    _store.get_all(type)
+
+
+def get(cls, key):
+    _store.get(cls, key)
+
+
 class DataStore:
 
     _broker: Broker
@@ -59,6 +67,12 @@ class DataStore:
                 self._storage_service.get_persistent_data(
                     model_instance.__class__
                 )
+
+    def get(self, cls, key):
+        pass
+
+    def get_all(self, cls):
+        pass
 
 
 _store = None

@@ -22,11 +22,8 @@ class StorageService:
     def define_table(self, model_instance: DataModel):
         message = create_table_message(self._service_name, model_instance)
 
-        print("GONNA SEND THIS MESSAGE: {}".format(message))
+        # TODO call storage service to register tables
         #response = self._broker.rpc_call(STORAGE_SERVICE_RPC_QUEUE, message)
-        #print(response)
-
-        #print(decode_response(response))
 
     def get_persistent_data(self, query):
         pass

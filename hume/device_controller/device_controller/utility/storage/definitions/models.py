@@ -1,7 +1,7 @@
 from abc import ABC
 
 from device_controller.utility.storage.definitions import PrimaryKey, \
-    ForeignKey, OneToOne, SUPPORTED_FIELDS
+    ForeignKey, OneToOne, SUPPORTED_FIELDS, ManyToMany, Enum
 
 
 class DataModel(ABC):
@@ -41,12 +41,22 @@ class DataModel(ABC):
         return filtered_fields
 
 
-def is_key(field_value):
-    if isinstance(field_value, PrimaryKey):
+def has_relation(field):
+    return isinstance(field, ForeignKey) or \
+           isinstance(field, OneToOne) or \
+           isinstance(field, ManyToMany)
+
+
+def is_enum(field):
+    return isinstance(field, Enum)
+
+
+def is_key(field):
+    if isinstance(field, PrimaryKey):
         return True
-    elif isinstance(field_value, ForeignKey):
-        return field_value.is_primary_key
-    elif isinstance(field_value, OneToOne):
+    elif isinstance(field, ForeignKey):
+        return field.is_primary_key
+    elif isinstance(field, OneToOne):
         return True
     else:
         return False

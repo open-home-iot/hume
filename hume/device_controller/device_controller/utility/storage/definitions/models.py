@@ -31,12 +31,12 @@ class DataModel(ABC):
 
     def get_model_fields(self):
         fields = vars(self.__class__)
-        print("model_instance.__class__ vars() result: {}".format(fields))
+        #print("model_instance.__class__ vars() result: {}".format(fields))
 
         filtered_fields = [(key, value) for key, value in fields.items()
                            if value.__class__.__name__ in SUPPORTED_FIELDS]
-        print("filtered out model fields from model_instance.__class__: {}"
-              .format(filtered_fields))
+        #print("filtered out model fields from model_instance.__class__: {}"
+        #      .format(filtered_fields))
 
         return filtered_fields
 

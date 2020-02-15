@@ -1,30 +1,40 @@
 from device_controller.utility.storage.definitions import DataModel, \
-    ForeignKey, Schedule, PrimaryKey
+    ForeignKey, Schedule, PrimaryKey, Integer, String
 
 from device_controller.device.model import Device, DeviceAction
+
+
+# TODO How can we make guards work? It's nice to guard some actions from being
+# TODO executed automatically, perhaps from a configuration interval timing out.
+# TODO Have to evaluate usability and have a clear use-case before implementing
+# TODO because it will become quite tricky, and should not be done for nothing.
+#class Guard(DataModel):
+
+    #id = PrimaryKey()
+
+    #device = ForeignKey(Device, primary_key=False)
+
+    #watch_device = ForeignKey(Device, primary_key=False)
+    #watch_value = String()
 
 
 class DeviceConfiguration(DataModel):
 
     id = PrimaryKey()
-    # One device could have many configurations
-    device = ForeignKey(Device, primary_key=False)  # May not be unique if multiple configurations
 
-    # Timing, perform action every X seconds/minutes...
-    interval = int()
+    # The action tied to this configuration
+    action = ForeignKey(DeviceAction, primary_key=False)
 
-    # Follows the schedule pattern, adds ability to set weekdays
+    # Perform 'action' at set interval/schedule
+    interval = Integer()
     schedule = Schedule()
 
-    # Trigger -> perform action
-    # Is this supposed to be a foreign key?
-    trigger_device = ForeignKey(Device, primary_key=False)  # Device to watch, cannot be self
-    trigger_string = str()  # Trigger level to watch for, must be some sort of pattern
-    trigger_action = ForeignKey(DeviceAction, primary_key=False)  # Must be own device action!
+    # Perform 'action' when...
+    watch_device = ForeignKey(Device, primary_key=False)
 
-    def local(self):
-        return ()
+    # Events and sensors
+    on_state = String()
 
-    def persistent(self):
-        return self.device, self.interval, self.schedule, self.trigger_device, \
-               self.trigger_string, self.trigger_action,
+    # Actuators
+    on_action = ForeignKey(DeviceAction, primary_key=False)
+    on_action_state = String()

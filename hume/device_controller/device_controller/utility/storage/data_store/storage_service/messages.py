@@ -3,6 +3,10 @@ import json
 from device_controller.utility.storage.definitions import DataModel
 
 
+def decode_response(response):
+    return response.decode('utf-8')
+
+
 def create_table_message(service_name, model_instance: DataModel):
     """
     Creates a message to be sent to the storage service used to define tables
@@ -19,11 +23,11 @@ def create_table_message(service_name, model_instance: DataModel):
     }
 
     fields = model_instance.get_model_fields()
-    print("Fields are: {}".format(fields))
+    #print("Fields are: {}".format(fields))
 
     for name, field in fields:
         message["fields"].update({name: field.__class__.__name__})
 
-    print("CAN THIS BE JSON: {}".format(message))
+    #print("CAN THIS BE JSON: {}".format(message))
 
     return json.dumps(message).encode('utf-8')

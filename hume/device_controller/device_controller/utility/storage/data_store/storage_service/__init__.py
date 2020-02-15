@@ -1,1 +1,2 @@
 from .storage_service import StorageService
+from .storage_service import PERSISTENT_TABLE_ALREADY_DEFINED

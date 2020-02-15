@@ -3,7 +3,8 @@ from device_controller.utility.storage.definitions import DataModel, \
 
 ACTUATOR = 0
 SENSOR = 1
-COMBINED = 2
+EVENT = 2
+COMBINED = 3
 
 TYPE_INTEGER = 0
 TYPE_BOOLEAN = 1
@@ -18,7 +19,7 @@ class Device(DataModel):
     id = PrimaryKey()
 
     name = String()
-    type = Enum(ACTUATOR, SENSOR, COMBINED)
+    type = Enum(ACTUATOR, SENSOR, EVENT, COMBINED)
 
 
 class DeviceAction(DataModel):
@@ -41,5 +42,13 @@ class DeviceState(DataModel):
 
     device = OneToOne(Device)
 
-    heartbeat = Timestamp()
     state = String()
+
+
+class DeviceStatus(DataModel):
+
+    persistent = False
+
+    device = OneToOne(Device)
+
+    heartbeat = Timestamp()

@@ -3,7 +3,8 @@ from device_controller.utility.procedures import run_in_procedure
 from device_controller.utility.procedures import Procedure
 from device_controller.utility.dispatch import Dispatch
 
-from device_controller.device.model import Device, DeviceAction, DeviceState
+from device_controller.device.model import Device, DeviceAction, DeviceState, \
+    DeviceStatus
 from device_controller.utility import storage
 
 from device_controller.library.server_base import ServerBase
@@ -37,6 +38,7 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         storage.register(Device)
         storage.register(DeviceAction)
         storage.register(DeviceState)
+        storage.register(DeviceStatus)
 
     def stop(self):
         """

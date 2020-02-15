@@ -1,10 +1,13 @@
 from device_controller.utility.broker import Broker
-from device_controller.utility.storage.data_store.storage_service.message_gen import \
-    create_table_message
+from device_controller.utility.storage.data_store.storage_service.messages import \
+    create_table_message, decode_response
 from device_controller.utility.storage.definitions import DataModel
 
 
 STORAGE_SERVICE_RPC_QUEUE = "rpc_storage_service"
+
+# HTTP code corresponding to: Conflict
+PERSISTENT_TABLE_ALREADY_DEFINED = 409
 
 
 class StorageService:
@@ -20,5 +23,10 @@ class StorageService:
         message = create_table_message(self._service_name, model_instance)
 
         print("GONNA SEND THIS MESSAGE: {}".format(message))
-        response = self._broker.rpc_call(STORAGE_SERVICE_RPC_QUEUE, message)
-        print(response)
+        #response = self._broker.rpc_call(STORAGE_SERVICE_RPC_QUEUE, message)
+        #print(response)
+
+        #print(decode_response(response))
+
+    def get_persistent_data(self, query):
+        pass

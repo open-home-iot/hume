@@ -9,12 +9,12 @@ class PrimaryKey:
 class ForeignKey:
 
     def __init__(self, cls, primary_key=True):
-        self._key = cls
+        self._cls = cls
         self._is_primary_key = primary_key
 
     @property
-    def key(self):
-        return self._key
+    def cls(self):
+        return self._cls
 
     @property
     def is_primary_key(self):
@@ -24,11 +24,11 @@ class ForeignKey:
 class OneToOne:
 
     def __init__(self, cls):
-        self._key = cls
+        self._cls = cls
 
     @property
-    def key(self):
-        return self._key
+    def cls(self):
+        return self._cls
 
 
 class Enum:
@@ -51,6 +51,20 @@ class Schedule:
 
 class String:
     pass
+
+
+class Integer:
+    pass
+
+
+class ManyToMany:
+
+    def __init__(self, cls):
+        self._cls = cls
+
+    @property
+    def cls(self):
+        return self._cls
 
 
 SUPPORTED_FIELDS = [name for name, cls in

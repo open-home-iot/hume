@@ -2,7 +2,7 @@ from device_controller.utility.broker import Broker
 from device_controller.utility.storage.data_store.local_storage import \
     LocalStorage
 from device_controller.utility.storage.data_store.storage_service import \
-    StorageService
+    StorageService, PERSISTENT_TABLE_ALREADY_DEFINED
 from device_controller.utility.storage.definitions import DataModel
 
 
@@ -37,13 +37,13 @@ class DataStore:
         # Registration process:
         # 1. Instantiate model class
         # 2. Define storage space in _store, named same as model class
-        # 3. TODO Call storage service to define table(s)
+        # 3. Call storage service to define table(s)
         # 4. TODO Get data from storage if tables were already defined and at
         #    TODO least one field is marked persistent
 
         model_instance = model()
-        print("model key field: {}".format(model_instance.key()))
         print("model _store key: {}".format(model.__name__))
+        print("model key field: {}".format(model_instance.key()))
         self.define_storage(model_instance)
 
     def define_storage(self, model_instance: DataModel):
@@ -52,7 +52,13 @@ class DataStore:
         print("_store state: {}".format(self._store))
 
         if model_instance.persistent:
-            self._storage_service.define_table(model_instance)
+            result = self._storage_service.define_table(model_instance)
+
+            if result == PERSISTENT_TABLE_ALREADY_DEFINED:
+                # Get data as we have been alive before
+                self._storage_service.get_persistent_data(
+                    model_instance.__class__
+                )
 
 
 _store = None

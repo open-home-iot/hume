@@ -17,8 +17,8 @@ def register(tier, service):
 
     service.dispatch_tier = tier
 
-    print("Initial dispatch registry:")
-    print(_dispatch_registry)
+    #print("Initial dispatch registry:")
+    #print(_dispatch_registry)
 
     tier_dict = _dispatch_registry.get(tier)
     tier_update = {service.dispatch_id: service}
@@ -26,15 +26,15 @@ def register(tier, service):
     # Nothing exists for this tier yet
     if tier_dict is None:
         # Set brand new tier info
-        print("Tier was empty, setting: {}".format(tier_update))
+        #print("Tier was empty, setting: {}".format(tier_update))
 
         _dispatch_registry.update({tier: tier_update})
     else:
         # Update what is already in the tier
         tier_dict.update(tier_update)
 
-    print("Updated dispatch registry:")
-    print(_dispatch_registry)
+    #print("Updated dispatch registry:")
+    #print(_dispatch_registry)
 
 
 def dispatch(to, message):
@@ -44,7 +44,7 @@ def dispatch(to, message):
     :param tuple to:
     :param message:
     """
-    print("dispatching to: {} message: {}".format(to, message))
+    #print("dispatching to: {} message: {}".format(to, message))
     (tier, dispatch_id) = to
 
     tier_dict = _dispatch_registry.get(tier)

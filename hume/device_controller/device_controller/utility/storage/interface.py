@@ -14,5 +14,13 @@ def get_all(cls):
     data_store.get_all(cls)
 
 
-def get(cls, key):
-    data_store.get(cls, key)
+def get_one(cls, key):
+    data_store.get_one(cls, key)
+
+
+def set_all(cls, new_data):
+    data_store.set_all(cls, new_data)
+
+
+def set_one(cls, instance):
+    data_store.set_one(cls, instance)

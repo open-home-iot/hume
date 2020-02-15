@@ -17,12 +17,20 @@ def register(model):
     _store.register(model)
 
 
-def get_all(type):
-    _store.get_all(type)
+def get_all(cls):
+    _store.get_all(cls)
 
 
-def get(cls, key):
+def get_one(cls, key):
     _store.get(cls, key)
+
+
+def set_all(cls, new_data):
+    _store.set_all(cls, new_data)
+
+
+def set_one(cls, instance):
+    _store.set(cls, instance)
 
 
 class DataStore:
@@ -68,10 +76,16 @@ class DataStore:
                     model_instance.__class__
                 )
 
-    def get(self, cls, key):
+    def get_all(self, cls):
         pass
 
-    def get_all(self, cls):
+    def get_one(self, cls, key):
+        pass
+
+    def set_all(self, cls, new_data):
+        pass
+
+    def set_one(self, cls, instance):
         pass
 
 

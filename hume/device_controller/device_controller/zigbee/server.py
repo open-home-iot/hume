@@ -1,7 +1,6 @@
-from device_controller.rpc.server import RPCServer
 from device_controller.utility.broker import Broker
-from device_controller.utility.dispatch import dispatch, Dispatch
-from device_controller.utility.procedures import Procedure, run_in_procedure
+from device_controller.utility.dispatch import Dispatch
+from device_controller.utility.procedures import Procedure
 from device_controller.library.server_base import ServerBase
 from device_controller.zigbee import decoder
 from device_controller.zigbee.messages import ZBIn
@@ -29,9 +28,6 @@ class ZigbeeServer(ServerBase, Dispatch, Procedure):
         Starts the ZigbeeServer.
         """
         print("ZigbeeServer start")
-        dispatch((self.dispatch_tier, RPCServer.dispatch_id),
-                 "message from ZB server to RPC server")
-        run_in_procedure(self, "testing", "thiss", self.dispatch_id)
 
     def stop(self):
         """

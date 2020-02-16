@@ -79,3 +79,24 @@ class ManyToMany:
 SUPPORTED_FIELDS = [name for name, cls in
                     inspect.getmembers(sys.modules[__name__], inspect.isclass)]
 print("ACCEPTED FIELDS: %s" % SUPPORTED_FIELDS)
+
+
+def has_relation(field):
+    return isinstance(field, ForeignKey) or \
+           isinstance(field, OneToOne) or \
+           isinstance(field, ManyToMany)
+
+
+def is_enum(field):
+    return isinstance(field, Enum)
+
+
+def is_key(field):
+    if isinstance(field, PrimaryKey):
+        return True
+    elif isinstance(field, ForeignKey):
+        return field.is_primary_key
+    elif isinstance(field, OneToOne):
+        return True
+    else:
+        return False

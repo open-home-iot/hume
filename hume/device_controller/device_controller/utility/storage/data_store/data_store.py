@@ -77,7 +77,7 @@ class DataStore:
                 )
 
     def get_all(self, cls):
-        pass
+        self._store.get(cls.__name__)
 
     def get_one(self, cls, key):
         self._store.get(cls.__name__).get(key)

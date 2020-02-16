@@ -32,13 +32,11 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         """
         Starts up the configuration server.
         """
-        # TODO get configuration from storage and load it into memory
-        # TODO create base configuration for the device_controller
-        run_in_procedure(self, "device server bitches!")
         storage.register(Device)
         storage.register(DeviceAction)
         storage.register(DeviceState)
         storage.register(DeviceStatus)
+        # TODO get configuration from storage and load it into memory
 
     def stop(self):
         """

@@ -2,7 +2,7 @@ from device_controller.rpc import decoder
 from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
 from device_controller.utility.dispatch import Dispatch
-from device_controller.utility.procedures import run_in_procedure, Procedure
+from device_controller.utility.procedures import Procedure
 from device_controller.library.server_base import ServerBase
 
 
@@ -31,7 +31,6 @@ class RPCServer(ServerBase, Dispatch, Procedure):
             DEVICE_CONTROLLER_QUEUE,
             self.on_rpc_request
         )
-        run_in_procedure(self, "yee haaaaa")
 
     def stop(self):
         """

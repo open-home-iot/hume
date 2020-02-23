@@ -1,32 +1,26 @@
 import argparse
+import logging
 
-from device_controller.configuration.server import ConfigServer
 from device_controller.root import RootApp
-from device_controller.rpc.server import RPCServer
-from device_controller.utility.dispatch import dispatcher
-from device_controller.zigbee.server import ZigbeeServer
 
 
 def parse_args():
     """
     Parse arguments provided at running the python program.
     """
-    parser = argparse.ArgumentParser(description="HUME device_controller controller")
+    parser = argparse.ArgumentParser(
+        description="HUME device controller"
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
 
-    root_app = RootApp(cli_args=args)
+    root_app = RootApp(cli_args=args, log_level=logging.DEBUG)
     root_app.start()
 
     # To block on start to test
     inp = input()
 
-    dispatcher.dispatch((root_app.dispatch_tier, ZigbeeServer.dispatch_id),
-                        "message for the zigbee server")
-    dispatcher.dispatch((root_app.dispatch_tier, ConfigServer.dispatch_id),
-                        "message for the config server")
-    dispatcher.dispatch((root_app.dispatch_tier, RPCServer.dispatch_id),
-                        "message for the RPC server")
+

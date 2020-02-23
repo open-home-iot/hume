@@ -1,3 +1,5 @@
+import logging
+
 from device_controller.rpc import decoder
 from device_controller.rpc.requests import RPCIn
 from device_controller.utility.broker import Broker
@@ -5,6 +7,7 @@ from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.procedures import Procedure
 from device_controller.library.server_base import ServerBase
 
+LOGGER = logging.getLogger(__name__)
 
 DEVICE_CONTROLLER_QUEUE = "rpc_device_controller"
 
@@ -13,20 +16,23 @@ class RPCServer(ServerBase, Dispatch, Procedure):
     """
     Takes care of RPC actions, both incoming and outgoing.
     """
+
     dispatch_id = "RPCServer"
 
-    broker: Broker
-
-    def __init__(self, broker=None):
+    def __init__(self, broker: Broker = None):
         """
         :param broker: application wide broker instance
         """
+        LOGGER.debug("rpc server __init__")
+
         self.broker = broker
 
     def start(self):
         """
         Initializes any resources that the RPCHandler depends on.
         """
+        LOGGER.debug("rpc server start")
+
         self.broker.enable_rpc_server(
             DEVICE_CONTROLLER_QUEUE,
             self.on_rpc_request
@@ -45,6 +51,9 @@ class RPCServer(ServerBase, Dispatch, Procedure):
         :param bytes message: incoming message
         :return bytes response: response to the RPC request
         """
+        LOGGER.info("rpc request received")
+        LOGGER.debug(f"rpc request message: {message}")
+
         # Decode the JSON formatted message
         decoded_message = decoder.decode(message)
 
@@ -65,7 +74,17 @@ class RPCServer(ServerBase, Dispatch, Procedure):
         return  # response
 
     def on_dispatch(self, message):
-        print("RPC server got dispatch: {}".format(message))
+        """
+        Called on message dispatched to application.
+
+        :param message: dispatched message
+        """
+        LOGGER.debug(f"rpc server dispatched message: {message}")
 
     def start_procedure(self, *args):
-        print("rpc server procedure started with args: {}".format(args))
+        """
+        Start procedure with provided arguments.
+
+        :param args: arguments
+        """
+        LOGGER.debug(f"device server start procedure with arguments: {args}")

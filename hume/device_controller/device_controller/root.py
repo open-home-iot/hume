@@ -1,6 +1,9 @@
+import logging
+
 from device_controller.utility import storage
 from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
+from device_controller.utility import log
 from device_controller.library.server_base import ServerBase
 
 from device_controller.device.server import DeviceServer
@@ -10,6 +13,8 @@ from device_controller.configuration.server import ConfigServer
 
 
 SERVICE_NAME = "device_controller"
+
+LOGGER = logging.getLogger(__name__)
 
 
 class RootApp(ServerBase):
@@ -28,11 +33,15 @@ class RootApp(ServerBase):
     rpc_server: RPCServer
     config_server: ConfigServer
 
-    def __init__(self, cli_args=None):
+    def __init__(self, cli_args=None, log_level=logging.INFO):
         """
         :param cli_args: arguments provided on start
         """
+        LOGGER.debug("root __init__")
+
         self.cli_args = cli_args
+
+        log.set_up_logging(log_level)
 
         self.broker = Broker()
 
@@ -47,7 +56,7 @@ class RootApp(ServerBase):
         """
         Starts the RootApp and all its sub-applications.
         """
-        print("RootApp start")
+        LOGGER.debug("root start")
         # core start
         self.broker.start()
 
@@ -67,7 +76,7 @@ class RootApp(ServerBase):
         """
         Stops all RootApp sub-applications in order to clean up used resources.
         """
-        print("RootApp stop")
+        LOGGER.debug("root stop")
         # application stop
         self.zigbee_server.stop()
         self.rpc_server.stop()

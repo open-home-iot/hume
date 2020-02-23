@@ -1,9 +1,14 @@
+import logging
+
 from device_controller.configuration.model import DeviceConfiguration
-from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.broker import Broker
+from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.procedures import Procedure
 from device_controller.library.server_base import ServerBase
 from device_controller.utility import storage
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ConfigServer(ServerBase, Dispatch, Procedure):
@@ -14,21 +19,20 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
 
     dispatch_id = "ConfigServer"
 
-    broker: Broker
-
-    # TODO load configuration from storage into memory on start
-    _device_config = None
-
-    def __init__(self, broker=None):
+    def __init__(self, broker: Broker = None):
         """
         :param broker: application wide broker instance
         """
+        LOGGER.debug("configuration server __init__")
+
         self.broker = broker
 
     def start(self):
         """
         Starts up the configuration server.
         """
+        LOGGER.debug("configuration server start")
+
         storage.register(DeviceConfiguration)
         # TODO get configuration from storage and load it into memory
 
@@ -39,7 +43,17 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         pass
 
     def on_dispatch(self, message):
-        print("Config server got dispatch: {}".format(message))
+        """
+        Called on message dispatched to application.
+
+        :param message: dispatched message
+        """
+        LOGGER.debug(f"config server dispatched message: {message}")
 
     def start_procedure(self, *args):
-        print("config server start_procedure called with args: {}".format(args))
+        """
+        Start procedure with provided arguments.
+
+        :param args: arguments
+        """
+        LOGGER.debug(f"config server start procedure with arguments: {args}")

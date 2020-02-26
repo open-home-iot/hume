@@ -31,7 +31,7 @@ class RPCServer(ServerBase, Dispatch, Procedure):
         """
         Initializes any resources that the RPCHandler depends on.
         """
-        LOGGER.debug("rpc server start")
+        LOGGER.info("RPCServer start")
 
         self.broker.enable_rpc_server(
             DEVICE_CONTROLLER_QUEUE,

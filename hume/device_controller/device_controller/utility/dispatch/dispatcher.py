@@ -17,7 +17,7 @@ def register(tier, service):
     :param str tier: tier to register service with
     :param class service: service to register with dispatch tier
     """
-    LOGGER.debug(f"registering {service} to dispatch {tier}")
+    LOGGER.info(f"Registering {service} to tier {tier}")
 
     assert issubclass(service.__class__, Dispatch)
 

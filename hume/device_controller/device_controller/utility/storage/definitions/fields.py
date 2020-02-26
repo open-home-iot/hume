@@ -1,14 +1,11 @@
 import inspect
+import logging
+
 import sys
 
+"""Fields for data models"""
 
-class Field:
-
-    _value = None
-
-    @property
-    def value(self):
-        return self._value
+LOGGER = logging.getLogger(__name__)
 
 
 class PrimaryKey:
@@ -78,20 +75,38 @@ class ManyToMany:
 
 SUPPORTED_FIELDS = [name for name, cls in
                     inspect.getmembers(sys.modules[__name__], inspect.isclass)]
-print("ACCEPTED FIELDS: %s" % SUPPORTED_FIELDS)
+LOGGER.debug(f"Supported fields are: {SUPPORTED_FIELDS}")
 
 
 def has_relation(field):
+    """
+    Check for if a field has any relations.
+
+    :param field: .
+    :return: True | False
+    """
     return isinstance(field, ForeignKey) or \
            isinstance(field, OneToOne) or \
            isinstance(field, ManyToMany)
 
 
 def is_enum(field):
+    """
+    Check if a field is an enum.
+
+    :param field: .
+    :return: True | False
+    """
     return isinstance(field, Enum)
 
 
 def is_key(field):
+    """
+    Check if a field is the key of a model.
+
+    :param field: .
+    :return: True | False
+    """
     if isinstance(field, PrimaryKey):
         return True
     elif isinstance(field, ForeignKey):

@@ -33,7 +33,7 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         """
         Starts up the device server.
         """
-        LOGGER.debug("device server start")
+        LOGGER.info("DeviceServer start")
 
         storage.register(Device)
         storage.register(DeviceAction)

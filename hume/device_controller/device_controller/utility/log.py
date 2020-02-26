@@ -4,6 +4,9 @@ import logging
 TOP_LOGGER_NAME = "device_controller"
 
 
+# LOGGER = logging.getLogger(__name__)
+
+
 def set_up_logging(log_level):
     """
     Sets up the device controller's "root" logger with the starting log level.

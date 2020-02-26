@@ -22,20 +22,13 @@ class RootApp(ServerBase):
     A wrapping class for all HUME sub-applications, ensures start order and
     initial dependency injections.
     """
-    cli_args = None
-
-    # Pub/Sub (global or local) and RPC.
-    broker: Broker
 
     dispatch_tier = "root_app"
-
-    zigbee_server: ZigbeeServer
-    rpc_server: RPCServer
-    config_server: ConfigServer
 
     def __init__(self, cli_args=None, log_level=logging.INFO):
         """
         :param cli_args: arguments provided on start
+        :param log_level: log level of the device controller application
         """
         LOGGER.debug("root __init__")
 
@@ -56,7 +49,7 @@ class RootApp(ServerBase):
         """
         Starts the RootApp and all its sub-applications.
         """
-        LOGGER.debug("root start")
+        LOGGER.info("RootApp start")
         # core start
         self.broker.start()
 
@@ -76,7 +69,7 @@ class RootApp(ServerBase):
         """
         Stops all RootApp sub-applications in order to clean up used resources.
         """
-        LOGGER.debug("root stop")
+        LOGGER.info("RootApp stop")
         # application stop
         self.zigbee_server.stop()
         self.rpc_server.stop()

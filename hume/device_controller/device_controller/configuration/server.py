@@ -31,7 +31,7 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         """
         Starts up the configuration server.
         """
-        LOGGER.debug("configuration server start")
+        LOGGER.info("ConfigurationServer start")
 
         storage.register(DeviceConfiguration)
         # TODO get configuration from storage and load it into memory

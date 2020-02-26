@@ -1,54 +1,36 @@
-from device_controller.utility.storage.definitions import DataModel, \
-    ForeignKey, Enum, Timestamp, OneToOne, PrimaryKey, String
+import peewee
 
-ACTUATOR = 0
-SENSOR = 1
-EVENT = 2
-COMBINED = 3
-
-TYPE_INTEGER = 0
-TYPE_BOOLEAN = 1
-TYPE_STRING = 2
-TYPE_NONE = 3
-
-TYPE_ENUM = Enum(TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING, TYPE_NONE)
+from device_controller.utility.storage import PersistentModel
 
 
-class Device(DataModel):
+class Device(PersistentModel):
 
-    id = PrimaryKey()
-
-    name = String()
-    type = Enum(ACTUATOR, SENSOR, EVENT, COMBINED)
+    name = peewee.CharField()
+    type = peewee.SmallIntegerField()
 
 
-class DeviceAction(DataModel):
+class DeviceAction(PersistentModel):
 
-    id = PrimaryKey()
-    device = ForeignKey(Device, primary_key=False)
+    device = peewee.ForeignKeyField(Device, backref="device_actions")
 
-    name = String()
-    type = Enum(ACTUATOR, SENSOR)
+    name = peewee.CharField()
+    type = peewee.SmallIntegerField()
 
-    parameter_type = TYPE_ENUM
-    parameter_description = String()
+    parameter_type = peewee.SmallIntegerField()
+    parameter_description = peewee.CharField()
 
-    return_type = TYPE_ENUM
-
-
-class DeviceState(DataModel):
-
-    persistent = False
-
-    device = OneToOne(Device)
-
-    state = String()
+    return_type = peewee.SmallIntegerField()
 
 
-class DeviceStatus(DataModel):
+class DeviceState:
 
-    persistent = False
+    device = peewee.ForeignKeyField(Device)
 
-    device = OneToOne(Device)
+    state = peewee.CharField
 
-    heartbeat = Timestamp()
+
+class DeviceStatus:
+
+    device = peewee.ForeignKeyField(Device)
+
+    heartbeat = peewee.TimestampField()

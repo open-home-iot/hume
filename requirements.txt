@@ -1,2 +1,4 @@
+peewee==3.13.1
 pika==1.1.0
+psycopg2==2.8.4
 rabbitmq-client==0.2.0

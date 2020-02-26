@@ -1,9 +1,6 @@
-import inspect
 import logging
 
-import sys
-
-"""Fields for data models"""
+"""Fields for internal data models"""
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,26 +24,6 @@ class ForeignKey:
         return self._is_primary_key
 
 
-class OneToOne:
-
-    def __init__(self, cls):
-        self._cls = cls
-
-    @property
-    def cls(self):
-        return self._cls
-
-
-class Enum:
-
-    def __init__(self, *options):
-        self._options = options
-
-    @property
-    def options(self):
-        return self._options
-
-
 class Timestamp:
     pass
 
@@ -63,21 +40,6 @@ class Integer:
     pass
 
 
-class ManyToMany:
-
-    def __init__(self, cls):
-        self._cls = cls
-
-    @property
-    def cls(self):
-        return self._cls
-
-
-SUPPORTED_FIELDS = [name for name, cls in
-                    inspect.getmembers(sys.modules[__name__], inspect.isclass)]
-LOGGER.debug(f"Supported fields are: {SUPPORTED_FIELDS}")
-
-
 def has_relation(field):
     """
     Check for if a field has any relations.
@@ -85,19 +47,7 @@ def has_relation(field):
     :param field: .
     :return: True | False
     """
-    return isinstance(field, ForeignKey) or \
-           isinstance(field, OneToOne) or \
-           isinstance(field, ManyToMany)
-
-
-def is_enum(field):
-    """
-    Check if a field is an enum.
-
-    :param field: .
-    :return: True | False
-    """
-    return isinstance(field, Enum)
+    return isinstance(field, ForeignKey)
 
 
 def is_key(field):
@@ -111,7 +61,5 @@ def is_key(field):
         return True
     elif isinstance(field, ForeignKey):
         return field.is_primary_key
-    elif isinstance(field, OneToOne):
-        return True
     else:
         return False

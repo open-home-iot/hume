@@ -35,10 +35,6 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         """
         LOGGER.info("DeviceServer start")
 
-        storage.register(Device)
-        storage.register(DeviceAction)
-        storage.register(DeviceState)
-        storage.register(DeviceStatus)
         # TODO get configuration from storage and load it into memory
 
     def stop(self):

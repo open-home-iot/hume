@@ -1,12 +1,11 @@
 import logging
 
-from device_controller.utility.broker import Broker
-from device_controller.utility.storage.data_store.local_storage import \
-    LocalStorage
-from device_controller.utility.storage.data_store.storage_service import \
-    StorageService, PERSISTENT_TABLE_ALREADY_DEFINED
-from device_controller.utility.storage.definitions import DataModel
+import peewee
 
+from device_controller.utility.broker import Broker
+
+from .local.local_storage import LocalStorage
+from .persistent.persistent_storage import PersistentStorage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,59 +18,27 @@ def initialize(broker, service_name):
     :param broker: HUME broker instance
     :param service_name: service name of the data store user
     """
-    LOGGER.debug("Initialize data store")
+    LOGGER.info("Initialize data store")
 
     global _store
     _store = DataStore(broker, service_name)
 
 
-def register(model):
+def register(models):
     """
     Interface function to register a new data model
 
-    :param model: data model, descendant of DataModel
+    :param models: .
     """
-    LOGGER.debug("Register model")
+    LOGGER.info(f"Registering models {models}")
 
-    assert issubclass(model, DataModel)
-
-    _store.register(model)
-
-
-def get_all(cls):
-    """
-    TODO
-    """
-    _store.get_all(cls)
-
-
-def get_one(cls, key):
-    """
-    TODO
-    """
-    _store.get(cls, key)
-
-
-def set_all(cls, new_data):
-    """
-    TODO
-    """
-    _store.set_all(cls, new_data)
-
-
-def set_one(cls, instance):
-    """
-    TODO
-    """
-    _store.set(cls, instance)
+    _store.register(models)
 
 
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
-    persistent storage. Storage will be allocated using the register function,
-    each data model can mark if the model shall be persistent or local. Local
-    storage will not allocate space in the storage service.
+    persistent storage.
     """
 
     def __init__(self, broker, service_name):
@@ -83,78 +50,43 @@ class DataStore:
 
         self._broker: Broker = broker
         self._service_name: str = service_name
-        self._store: dict = dict()
-        self._storage_service: StorageService = \
-            StorageService(self._broker, self._service_name)
-        self._local_storage: LocalStorage = LocalStorage(self._broker)
 
-    def register(self, model):
+        self._persistent_storage: PersistentStorage = PersistentStorage()
+        self._local_storage: LocalStorage = LocalStorage()
+
+    def register(self, models):
         """
-        Register a data model with the DataStore. Will allocate space in the
-        storage service if model is marked as persistent.
+        Register models with the DataStore.
 
-        :param model: data model, descendant of DataModel
+        :param models: .
         """
         # Registration process:
-        # 1. Instantiate model class, but WHY!?
-        # 2. Define storage space in _store, named same as model class
-        # 3. Call storage service to define table(s)
-        # 4. TODO Get data from storage if tables were already defined and at
-        #    TODO least one field is marked persistent
-        LOGGER.debug(f"Register model")
+        # 1. Define storage space in _store, named same as model class
+        # 2. TODO Get data from storage if persistent
+        LOGGER.debug(f"Registering models")
 
-        model_instance = model()
-        self.define_storage(model_instance)
+        self.define_storage(models)
 
-    def define_storage(self, model_instance: DataModel):
+    def define_storage(self, models):
         """
-        Allocates storage both locally and towards the storage service, but
-        only if the model is marked persistent.
+        Allocates storage both locally and towards the database. Tables are
+        only created if the model is a descendant of peewee.Model
 
-        :param model_instance: instantiated data model
+        :param models: .
         """
+
+        p_models = []
+        l_models = []
+        for model in models:
+            if issubclass(model, peewee.Model):
+                p_models.append(model)
+            else:
+                l_models.append(model)
+
+        LOGGER.debug("Defining persistent storage")
+        self._persistent_storage.define_storage(p_models)
         LOGGER.debug("Defining local storage")
-        self._store[str(model_instance.__class__.__name__)] = dict()
-
-        if model_instance.persistent:
-            LOGGER.debug("Defining persistent storage")
-            result = self._storage_service.define_table(model_instance)
-
-            if result == PERSISTENT_TABLE_ALREADY_DEFINED:
-                LOGGER.debug("Table already defined, get persistent data from"
-                             "storage service")
-                # Get data as we have been alive before
-                self._storage_service.get_persistent_data(
-                    model_instance.__class__
-                )
-
-    def get_all(self, cls):
-        """
-        TODO
-        """
-        self._store.get(cls.__name__)
-
-    def get_one(self, cls, key):
-        """
-        TODO
-        """
-        self._store.get(cls.__name__).get(key)
-
-    def set_all(self, cls, new_data):
-        """
-        TODO
-        """
-        self._store.get(cls.__name__).update(new_data)
-
-    def set_one(self, cls, instance):
-        """
-        TODO
-        """
-        self._store.get(cls.__name__).update(
-            {
-                getattr(instance, instance.key()): instance
-            }
-        )
+        self._local_storage.define_storage(l_models)
 
 
 _store = None

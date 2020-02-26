@@ -1,5 +1,8 @@
 import logging
 
+from device_controller.configuration.model import DeviceConfiguration
+from device_controller.device.model import Device, DeviceAction, DeviceState, \
+    DeviceStatus
 from device_controller.utility import storage
 from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
@@ -30,15 +33,21 @@ class RootApp(ServerBase):
         :param cli_args: arguments provided on start
         :param log_level: log level of the device controller application
         """
-        LOGGER.debug("root __init__")
-
         self.cli_args = cli_args
 
         log.set_up_logging(log_level)
+        LOGGER.debug("RootApp __init__")
 
         self.broker = Broker()
 
         storage.initialize(self.broker, SERVICE_NAME)
+        storage.register([
+            Device,
+            DeviceAction,
+            DeviceState,
+            DeviceStatus,
+            DeviceConfiguration
+        ])
 
         self.zigbee_server = ZigbeeServer(broker=self.broker)
         self.rpc_server = RPCServer(broker=self.broker)

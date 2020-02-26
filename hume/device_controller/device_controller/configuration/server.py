@@ -33,7 +33,6 @@ class ConfigServer(ServerBase, Dispatch, Procedure):
         """
         LOGGER.info("ConfigurationServer start")
 
-        storage.register(DeviceConfiguration)
         # TODO get configuration from storage and load it into memory
 
     def stop(self):

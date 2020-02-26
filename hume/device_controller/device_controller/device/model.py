@@ -1,5 +1,7 @@
 import peewee
 
+from datetime import datetime
+
 from device_controller.utility.storage import PersistentModel
 
 
@@ -24,8 +26,13 @@ class DeviceAction(PersistentModel):
 
 class DeviceStatus:
 
-    device = peewee.ForeignKeyField(Device)
+    key: int  # Device ID
 
-    heartbeat = peewee.TimestampField()
-    state = peewee.CharField
+    heartbeat: datetime
+    state: str
+
+    def __init__(self, key, heartbeat=None, state=None):
+        self.key = key
+        self.heartbeat = heartbeat
+        self.state = state
 

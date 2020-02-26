@@ -36,6 +36,18 @@ def register(models):
     _store.register(models)
 
 
+def set_obj(obj):
+    """
+    Sets input object to storage. Input object must be a registered model
+    instance or this operation will fail.
+
+    :param obj: model instance
+    """
+    LOGGER.info(f"Setting object: {obj}")
+
+    _store.set_obj(obj)
+
+
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
@@ -88,6 +100,19 @@ class DataStore:
         self._persistent_storage.define_storage(p_models)
         LOGGER.debug("Defining local storage")
         self._local_storage.define_storage(l_models)
+
+    def set_obj(self, obj):
+        """
+        Checks if the object to be set it persistent or local and sets its
+        contents to the appropriate store.
+
+        :param obj:
+        """
+        LOGGER.debug("Setting object")
+
+        print(issubclass(obj.__class__, peewee.Model))
+
+        self._local_storage.set_obj(obj)
 
 
 _store = None

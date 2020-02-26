@@ -1,5 +1,8 @@
 import logging
+from datetime import datetime
 
+from device_controller.device.model import DeviceStatus
+from device_controller.utility import storage
 from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import Procedure
 from device_controller.utility.dispatch import Dispatch
@@ -30,6 +33,13 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         Starts up the device server.
         """
         LOGGER.info("DeviceServer start")
+
+        # Trying some queries to the storage
+        storage.set_obj(DeviceStatus(1, datetime.now(), "inactive"))
+        storage.set_obj(DeviceStatus(2, datetime.now(), "napping"))
+        storage.set_obj(DeviceStatus(1, datetime.now(), "active"))
+        storage.set_obj(DeviceStatus(4, datetime.now(), "took a nap"))
+        storage.set_obj(DeviceStatus(5, datetime.now(), "exploded"))
 
         # TODO get configuration from storage and load it into memory
 

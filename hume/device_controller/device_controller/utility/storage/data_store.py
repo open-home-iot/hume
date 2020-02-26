@@ -4,8 +4,9 @@ import peewee
 
 from device_controller.utility.broker import Broker
 
-from .local.local_storage import LocalStorage
-from .persistent.persistent_storage import PersistentStorage
+from device_controller.utility.storage.local import LocalStorage
+from device_controller.utility.storage.persistent import PersistentStorage
+
 
 LOGGER = logging.getLogger(__name__)
 

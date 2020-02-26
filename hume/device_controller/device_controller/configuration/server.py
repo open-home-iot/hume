@@ -1,11 +1,9 @@
 import logging
 
-from device_controller.configuration.model import DeviceConfiguration
 from device_controller.utility.broker import Broker
 from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.procedures import Procedure
 from device_controller.library.server_base import ServerBase
-from device_controller.utility import storage
 
 
 LOGGER = logging.getLogger(__name__)

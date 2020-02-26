@@ -1,8 +1,7 @@
 import logging
 
 from device_controller.configuration.model import DeviceConfiguration
-from device_controller.device.model import Device, DeviceAction, DeviceState, \
-    DeviceStatus
+from device_controller.device.model import Device, DeviceAction, DeviceStatus
 from device_controller.utility import storage
 from device_controller.utility.dispatch import dispatcher
 from device_controller.utility.broker import Broker
@@ -44,7 +43,6 @@ class RootApp(ServerBase):
         storage.register([
             Device,
             DeviceAction,
-            DeviceState,
             DeviceStatus,
             DeviceConfiguration
         ])

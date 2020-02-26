@@ -9,6 +9,9 @@ PSQL_DB = peewee.PostgresqlDatabase(PSQL_DB_NAME)
 
 
 class PersistentModel(peewee.Model):
+    """
+    Base class for all persistent models.
+    """
 
     class Meta:
         database = PSQL_DB

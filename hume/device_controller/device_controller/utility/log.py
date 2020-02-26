@@ -3,7 +3,7 @@ import logging
 
 TOP_LOGGER_NAME = "device_controller"
 
-
+# hmm?
 # LOGGER = logging.getLogger(__name__)
 
 

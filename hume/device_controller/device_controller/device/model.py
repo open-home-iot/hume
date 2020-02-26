@@ -22,15 +22,10 @@ class DeviceAction(PersistentModel):
     return_type = peewee.SmallIntegerField()
 
 
-class DeviceState:
-
-    device = peewee.ForeignKeyField(Device)
-
-    state = peewee.CharField
-
-
 class DeviceStatus:
 
     device = peewee.ForeignKeyField(Device)
 
     heartbeat = peewee.TimestampField()
+    state = peewee.CharField
+

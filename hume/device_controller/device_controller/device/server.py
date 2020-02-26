@@ -4,10 +4,6 @@ from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import Procedure
 from device_controller.utility.dispatch import Dispatch
 
-from device_controller.device.model import Device, DeviceAction, DeviceState, \
-    DeviceStatus
-from device_controller.utility import storage
-
 from device_controller.library.server_base import ServerBase
 
 

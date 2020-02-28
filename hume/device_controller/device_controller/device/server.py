@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from device_controller.device.model import DeviceStatus
+from device_controller.device.model import DeviceStatus, Device
 from device_controller.utility import storage
 from device_controller.utility.broker import Broker
 from device_controller.utility.procedures import Procedure
@@ -40,6 +40,8 @@ class DeviceServer(ServerBase, Dispatch, Procedure):
         storage.set_obj(DeviceStatus(1, datetime.now(), "active"))
         storage.set_obj(DeviceStatus(4, datetime.now(), "took a nap"))
         storage.set_obj(DeviceStatus(5, datetime.now(), "exploded"))
+        storage.set_obj(Device(name="temp", type=0))
+        storage.set_obj(Device(name="lamp", type=1))
 
         # TODO get configuration from storage and load it into memory
 

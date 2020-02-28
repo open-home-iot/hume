@@ -110,9 +110,10 @@ class DataStore:
         """
         LOGGER.debug("Setting object")
 
-        print(issubclass(obj.__class__, peewee.Model))
-
-        self._local_storage.set_obj(obj)
+        if issubclass(obj.__class__, peewee.Model):
+            self._persistent_storage.set_obj(obj)
+        else:
+            self._local_storage.set_obj(obj)
 
 
 _store = None

@@ -30,6 +30,11 @@ class LocalStorage:
         LOGGER.debug(f"Current local storage state: {self._data_dict}")
 
     def set_obj(self, obj):
+        """
+        Set an object to local storage, will override existing objects.
+
+        :param obj: .
+        """
         self._data_dict[obj.__class__.__name__].update({obj.key: obj})
 
         LOGGER.debug(f"New local storage state: {self._data_dict}")

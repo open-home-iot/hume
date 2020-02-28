@@ -33,3 +33,18 @@ class PersistentStorage:
         self._pg_proxy.define_tables(models)
 
         LOGGER.debug(f"Current persistent storage state: {self._data_dict}")
+
+    def set_obj(self, obj):
+        """
+        Set an object to persistent storage, will override existing objects and
+        sync with the DB.
+
+        :param obj: .
+        """
+        # Need to save first, don't want to accidentally end up in an
+        # inconsistent state. Saving also gets the object a PK, needed to update
+        # the dict.
+        obj.save()  # Enough to sync with db and get a PK? Yes!
+        self._data_dict[obj.__class__.__name__].update({obj.id: obj})
+
+        LOGGER.debug(f"New persistent storage state: {self._data_dict}")

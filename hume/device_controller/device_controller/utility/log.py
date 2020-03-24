@@ -3,9 +3,6 @@ import logging
 
 TOP_LOGGER_NAME = "device_controller"
 
-# hmm?
-# LOGGER = logging.getLogger(__name__)
-
 
 def set_up_logging(log_level):
     """
@@ -16,7 +13,7 @@ def set_up_logging(log_level):
     logger = logging.getLogger(TOP_LOGGER_NAME)
     logger.setLevel(log_level)
 
-    handler = logging.StreamHandler()
+    handler = logging.StreamHandler()  # Print logging messages
 
     formatter = logging.Formatter(fmt="{asctime} {levelname:^8} "
                                       "{module} {message}",

@@ -1,3 +1,4 @@
+import threading
 import argparse
 import logging
 
@@ -20,7 +21,4 @@ if __name__ == "__main__":
     root_app = RootApp(cli_args=args, log_level=logging.DEBUG)
     root_app.start()
 
-    # To block on start to test
-    inp = input()
-
-
+    threading.Event().wait()  # Blocks indefinitely

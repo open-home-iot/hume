@@ -1,4 +1,6 @@
 import logging
+import signal
+import sys
 
 from device_controller.configuration.model import DeviceConfiguration
 from device_controller.device.model import Device, DeviceAction, DeviceStatus
@@ -39,14 +41,6 @@ class RootApp(ServerBase):
 
         self.broker = Broker()
 
-        storage.initialize(self.broker, SERVICE_NAME)
-        storage.register([
-            Device,
-            DeviceAction,
-            DeviceStatus,
-            DeviceConfiguration
-        ])
-
         self.zigbee_server = ZigbeeServer(broker=self.broker)
         self.rpc_server = RPCServer(broker=self.broker)
         self.config_server = ConfigServer(broker=self.broker)
@@ -57,6 +51,12 @@ class RootApp(ServerBase):
         Starts the RootApp and all its sub-applications.
         """
         LOGGER.info("RootApp start")
+
+        # bind signal handlers
+        signal.signal(signal.SIGINT, self.interrupt)
+        signal.signal(signal.SIGTERM, self.terminate)
+        #signal.signal(signal.SIGKILL, self.stop)
+
         # core start
         self.broker.start()
 
@@ -66,11 +66,44 @@ class RootApp(ServerBase):
         dispatcher.register(self.dispatch_tier, self.config_server)
         dispatcher.register(self.dispatch_tier, self.device_server)
 
+        # initialize storage
+        storage.initialize(self.broker, SERVICE_NAME)
+        storage.register([
+            Device,
+            DeviceAction,
+            DeviceStatus,
+            DeviceConfiguration
+        ])
+
         # application start
         self.zigbee_server.start()
         self.rpc_server.start()
         self.config_server.start()
         self.device_server.start()
+
+    def interrupt(self, _signum, _frame):
+        """
+        Signal handler for signal.SIGINT
+
+        :param _signum: signal.SIGINT
+        :param _frame: N/A
+        """
+        LOGGER.info("RootApp interrupt")
+
+        self.stop()
+        sys.exit(0)
+
+    def terminate(self, _signum, _frame):
+        """
+        Signal handler for signal.SIGTERM
+
+        :param _signum: signal.SIGTERM
+        :param _frame: N/A
+        """
+        LOGGER.info("RootApp terminate")
+
+        self.stop()
+        sys.exit(0)
 
     def stop(self):
         """

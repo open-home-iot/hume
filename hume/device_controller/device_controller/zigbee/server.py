@@ -1,3 +1,5 @@
+import logging
+
 from device_controller.utility.broker import Broker
 from device_controller.utility.dispatch import Dispatch
 from device_controller.utility.procedures import Procedure
@@ -5,6 +7,7 @@ from device_controller.library.server_base import ServerBase
 from device_controller.zigbee import decoder
 from device_controller.zigbee.messages import ZBIn
 
+LOGGER = logging.getLogger(__name__)
 
 TOPIC_DEVICE_EVENTS = "local_topic_device_events"
 
@@ -21,19 +24,21 @@ class ZigbeeServer(ServerBase, Dispatch, Procedure):
         """
         :param broker: application wide broker instance
         """
+        LOGGER.debug("ZigbeeServer __init__")
+
         self.broker = broker
 
     def start(self):
         """
         Starts the ZigbeeServer.
         """
-        print("ZigbeeServer start")
+        LOGGER.info("ZigbeeServer start")
 
     def stop(self):
         """
         Stops the ZigbeeServer and releases its resources.
         """
-        print("ZigbeeServer stop")
+        LOGGER.info("ZigbeeServer stop")
 
     def on_device_message(self, message: bytes):
         """

@@ -23,7 +23,7 @@ class RPCServer(ServerBase, Dispatch, Procedure):
         """
         :param broker: application wide broker instance
         """
-        LOGGER.debug("rpc server __init__")
+        LOGGER.debug("RPCServer __init__")
 
         self.broker = broker
 
@@ -42,7 +42,7 @@ class RPCServer(ServerBase, Dispatch, Procedure):
         """
         Cleanup of any RPCHandler specific resources.
         """
-        pass
+        LOGGER.info("RPCServer stop")
 
     def on_rpc_request(self, message: bytes):
         """

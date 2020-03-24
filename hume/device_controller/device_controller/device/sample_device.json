@@ -1,0 +1,81 @@
+{
+  "name": "Greenhouse",
+  // Class shows which type of device this is, COMPOUND means it has more than
+  // one capability and has sub-devices.
+  "class": "COMPOUND",
+  // Spec can be used to specify exactly which type of device this is. If HINT
+  // can recognize the spec, then HINT can also show appropirate icons. If no
+  // spec is given, then HINT falls back on the class of the device.
+  "spec": "GREENHOUSE",
+  "devices": [
+    {
+      "name": "Lamp",
+      // Actuator class
+      "class": "ACTUATOR",
+      "spec": "LAMP",
+      "actions": [
+        {
+          "name": "Lamp Control",
+          // Stateful actuators are always in one state or the other
+          "type": "STATEFUL",
+          // states is a mandatory field for stateful actions, it lists all
+          // possible states
+          "states": [
+            "On",
+            "Off"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Water Pump",
+      // Actuator class
+      "class": "ACTUATOR",
+      "spec": "PUMP",
+      "actions": [
+        {
+          // This seemed like a clever way of controlling tide in an easy way
+          "name": "Water Level",
+          "type": "STATEFUL",
+          "states": [
+            "High",
+            "Low"
+          ]
+        },
+        {
+          // Also providing direct control of pump to allow for circulation of
+          // water.
+          "name": "Pump Control",
+          "type": "STATEFUL",
+          "states": [
+            "On",
+            "Off"
+          ]
+        }
+      ]
+    },
+    {
+      // Sensor class device
+      "name": "Thermometer",
+      "class": "SENSOR",
+      "spec": "THERMOMETER",
+      "actions": [
+        {
+          // Sensor class devices typically provide a READ action to get the
+          // sensor's current value, but it could also be a purely event-based
+          // device. Must specify return_type
+          "name": "Temperature",
+          "type": "READ",
+          "return_type": "float"
+        },
+        {
+          "name": "Temperature Warning",
+          "type": "EVENT",
+          // Can send a float to the device to set level to warn on, a float
+          // will be given on events.
+          "data_type": "float"
+        }
+      ]
+    }
+  ]
+}

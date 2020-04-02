@@ -2,12 +2,12 @@ import peewee
 
 from datetime import datetime
 
-from device_controller.utility.storage import PersistentModel
+from device_controller.util.storage import PersistentModel
 
 
 class Device(PersistentModel):
 
-    parent = peewee.ForeignKeyField('self', related_name="children")
+    parent = peewee.ForeignKeyField('self', related_name="children", null=True)
 
     # This information is not needed by HUME.
     # name = peewee.CharField()

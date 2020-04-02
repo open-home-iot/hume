@@ -6,9 +6,9 @@ TOP_LOGGER_NAME = "device_controller"
 
 def set_up_logging(log_level):
     """
-    Sets up the device controller's "root" logger with the starting log level.
+    Sets up the messages controller's "root" logger with the starting log level.
 
-    :param log_level: min log level to use for the device controller
+    :param log_level: min log level to use for the messages controller
     """
     logger = logging.getLogger(TOP_LOGGER_NAME)
     logger.setLevel(log_level)

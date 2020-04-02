@@ -2,10 +2,10 @@ import logging
 
 import peewee
 
-from device_controller.utility.broker import Broker
+from device_controller.util.broker import Broker
 
-from device_controller.utility.storage.local import LocalStorage
-from device_controller.utility.storage.persistent import PersistentStorage
+from device_controller.util.storage.local import LocalStorage
+from device_controller.util.storage.persistent import PersistentStorage
 
 
 LOGGER = logging.getLogger(__name__)

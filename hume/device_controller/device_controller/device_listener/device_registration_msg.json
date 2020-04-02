@@ -1,11 +1,11 @@
 {
   "name": "Greenhouse",
-  // Class shows which type of device this is, COMPOUND means it has more than
+  // Class shows which type of messages this is, COMPOUND means it has more than
   // one capability and has sub-devices.
   "class": "COMPOUND",
-  // Spec can be used to specify exactly which type of device this is. If HINT
+  // Spec can be used to specify exactly which type of messages this is. If HINT
   // can recognize the spec, then HINT can also show appropirate icons. If no
-  // spec is given, then HINT falls back on the class of the device.
+  // spec is given, then HINT falls back on the class of the messages.
   "spec": "GREENHOUSE",
   "devices": [
     {
@@ -55,7 +55,7 @@
       ]
     },
     {
-      // Sensor class device
+      // Sensor class messages
       "name": "Thermometer",
       "class": "SENSOR",
       "spec": "THERMOMETER",
@@ -63,7 +63,7 @@
         {
           // Sensor class devices typically provide a READ action to get the
           // sensor's current value, but it could also be a purely event-based
-          // device. Must specify return_type
+          // messages. Must specify return_type
           "name": "Temperature",
           "type": "READ",
           "return_type": "float"
@@ -71,7 +71,7 @@
         {
           "name": "Temperature Warning",
           "type": "EVENT",
-          // Can send a float to the device to set level to warn on, a float
+          // Can send a float to the messages to set level to warn on, a float
           // will be given on events.
           "data_type": "float"
         }

@@ -2,119 +2,86 @@ import logging
 import signal
 import sys
 
-from device_controller.configuration.model import DeviceConfiguration
-from device_controller.device.model import Device, DeviceAction, DeviceStatus
-from device_controller.utility import storage
-from device_controller.utility.dispatch import dispatcher
-from device_controller.utility.broker import Broker
-from device_controller.utility import log
-from device_controller.library.server_base import ServerBase
+from device_controller.util import broker
+from device_controller.util.log import set_up_logging
 
-from device_controller.device.server import DeviceServer
-from device_controller.zigbee.server import ZigbeeServer
-from device_controller.rpc.server import RPCServer
-from device_controller.configuration.server import ConfigServer
+from device_controller.config import application as config
+from device_controller.device_listener import application as device_listener
+from device_controller.messages import application as messages
+from device_controller.rpc import application as rpc
 
-
-SERVICE_NAME = "device_controller"
 
 LOGGER = logging.getLogger(__name__)
 
+UTIL = [
+    broker
+]
 
-class RootApp(ServerBase):
+APPLICATIONS = [
+    config, device_listener, messages, rpc
+]
+
+
+def start(cli_args=None, log_level=None):
     """
-    A wrapping class for all HUME sub-applications, ensures start order and
-    initial dependency injections.
+    Starts the RootApp and all its sub-applications.
+
+    :param cli_args: CLI arguments from argparse
+    :param log_level: log level...
     """
+    set_up_logging(log_level)
 
-    dispatch_tier = "root_app"
+    LOGGER.info("root start")
 
-    def __init__(self, cli_args=None, log_level=logging.INFO):
-        """
-        :param cli_args: arguments provided on start
-        :param log_level: log level of the device controller application
-        """
-        self.cli_args = cli_args
+    # bind signal handlers
+    signal.signal(signal.SIGINT, interrupt)
+    signal.signal(signal.SIGTERM, terminate)
 
-        log.set_up_logging(log_level)
-        LOGGER.debug("RootApp __init__")
+    # core start
+    for app in UTIL:
+        app.start()
 
-        self.broker = Broker()
+    # application start
+    for app in APPLICATIONS:
+        app.start()
 
-        self.zigbee_server = ZigbeeServer(broker=self.broker)
-        self.rpc_server = RPCServer(broker=self.broker)
-        self.config_server = ConfigServer(broker=self.broker)
-        self.device_server = DeviceServer(broker=self.broker)
 
-    def start(self):
-        """
-        Starts the RootApp and all its sub-applications.
-        """
-        LOGGER.info("RootApp start")
+def interrupt(_signum, _frame):
+    """
+    Signal handler for signal.SIGINT
 
-        # bind signal handlers
-        signal.signal(signal.SIGINT, self.interrupt)
-        signal.signal(signal.SIGTERM, self.terminate)
-        #signal.signal(signal.SIGKILL, self.stop)
+    :param _signum: signal.SIGINT
+    :param _frame: N/A
+    """
+    LOGGER.info("root interrupt")
 
-        # core start
-        self.broker.start()
+    stop()
+    sys.exit(0)
 
-        # register to dispatcher
-        dispatcher.register(self.dispatch_tier, self.zigbee_server)
-        dispatcher.register(self.dispatch_tier, self.rpc_server)
-        dispatcher.register(self.dispatch_tier, self.config_server)
-        dispatcher.register(self.dispatch_tier, self.device_server)
 
-        # initialize storage
-        storage.initialize(self.broker, SERVICE_NAME)
-        storage.register([
-            Device,
-            DeviceAction,
-            DeviceStatus,
-            DeviceConfiguration
-        ])
+def terminate(_signum, _frame):
+    """
+    Signal handler for signal.SIGTERM
 
-        # application start
-        self.zigbee_server.start()
-        self.rpc_server.start()
-        self.config_server.start()
-        self.device_server.start()
+    :param _signum: signal.SIGTERM
+    :param _frame: N/A
+    """
+    LOGGER.info("root terminate")
 
-    def interrupt(self, _signum, _frame):
-        """
-        Signal handler for signal.SIGINT
+    stop()
+    sys.exit(0)
 
-        :param _signum: signal.SIGINT
-        :param _frame: N/A
-        """
-        LOGGER.info("RootApp interrupt")
 
-        self.stop()
-        sys.exit(0)
+def stop():
+    """
+    Stops all RootApp sub-applications in order to clean up used resources.
+    """
+    LOGGER.info("root stop")
 
-    def terminate(self, _signum, _frame):
-        """
-        Signal handler for signal.SIGTERM
+    # application stop
+    for app in APPLICATIONS:
+        app.stop()
 
-        :param _signum: signal.SIGTERM
-        :param _frame: N/A
-        """
-        LOGGER.info("RootApp terminate")
-
-        self.stop()
-        sys.exit(0)
-
-    def stop(self):
-        """
-        Stops all RootApp sub-applications in order to clean up used resources.
-        """
-        LOGGER.info("RootApp stop")
-        # application stop
-        self.zigbee_server.stop()
-        self.rpc_server.stop()
-        self.config_server.stop()
-        self.device_server.stop()
-
-        # core stop
-        self.broker.stop()
+    # core stop
+    for app in UTIL:
+        app.stop()

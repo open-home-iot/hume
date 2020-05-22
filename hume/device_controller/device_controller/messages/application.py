@@ -1,6 +1,6 @@
 import logging
 
-from device_controller.messages.handlers import device_msg_handler, rpc_msg_handler
+from .handlers import device_msg_handler, rpc_msg_handler
 
 
 LOGGER = logging.getLogger(__name__)

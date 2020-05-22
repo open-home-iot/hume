@@ -1,11 +1,11 @@
 import logging
 
-from device_controller.messages.handlers import device_msg_handler, rpc_msg_handler
+from .handlers import rpc_msg_handler, hint_msg_handler
 
 
 LOGGER = logging.getLogger(__name__)
 
-DEVICE_MESSAGE_ATTACH = 0
+HINT_MESSAGE_CONFIRM_ATTACH = 0
 
 
 def start():
@@ -43,4 +43,7 @@ def hint_message(message_type, message_content):
     """
     LOGGER.info("got new message from HINT")
 
-    return {"error": "does not exist"}
+    if message_type == HINT_MESSAGE_CONFIRM_ATTACH:
+        return hint_msg_handler.confirm_attach(message_content)
+    else:
+        return {"error": "does not exist"}

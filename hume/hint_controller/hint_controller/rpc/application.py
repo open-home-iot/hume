@@ -1,7 +1,7 @@
 import logging
 
-from device_controller.util import broker
-from device_controller.messages import application as messages
+from hint_controller.util import broker
+from hint_controller.messages import application as messages
 
 
 LOGGER = logging.getLogger(__name__)

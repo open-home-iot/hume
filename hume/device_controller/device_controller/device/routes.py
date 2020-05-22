@@ -1,7 +1,10 @@
 from bottle import request, route, template
 
+from device_controller.messages.application import device_message
+
 
 @route('/attach')
 def attach():
-    print(request.json)
-    # return template('<b>Hello {{name}}</b>!', id=id)
+    device_message(request.json)
+
+    return {"result": "ok"}

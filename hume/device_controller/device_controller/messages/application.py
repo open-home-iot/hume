@@ -35,7 +35,7 @@ def device_message(message):
     """
     Called on incoming device messages.
 
-    :param bytes message: incoming device message
+    :param dict message: incoming device message
     :return: may return an answer
     """
     LOGGER.info("messages got new device message")

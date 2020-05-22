@@ -8,7 +8,7 @@ def handle_device_message(message):
     """
     Starting point for device originated messages.
 
-    :param bytes message: incoming device message
+    :param dict message: incoming device message
     :return: may return an answer
     """
-    LOGGER.info("device in handler for device messages")
+    LOGGER.debug("device in handler for device messages")

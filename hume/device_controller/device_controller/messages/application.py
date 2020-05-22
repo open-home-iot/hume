@@ -1,9 +1,11 @@
 import logging
 
-from device_controller.messages.handlers import device, rpc
+from device_controller.messages.handlers import device_msg_handler, rpc_msg_handler
 
 
 LOGGER = logging.getLogger(__name__)
+
+DEVICE_MESSAGE_ATTACH = 0
 
 
 def start():
@@ -28,15 +30,20 @@ def rpc_request(rpc_req):
     :return bytes: rpc response
     """
     LOGGER.info("messages got new rpc request")
-    return rpc.handle_rpc_request(rpc_req)
+    return rpc_msg_handler.handle_rpc_request(rpc_req)
 
 
-def device_message(message):
+def device_message(message_type, message_content):
     """
     Called on incoming device messages.
 
-    :param dict message: incoming device message
-    :return: may return an answer
+    :param int message_type: type of message
+    :param dict message_content: message content
+    :return dict | None: may return an answer in dict form
     """
     LOGGER.info("messages got new device message")
-    return device.handle_device_message(message)
+
+    if message_type == DEVICE_MESSAGE_ATTACH:
+        return device_msg_handler.attach(message_content)
+    else:
+        return {"error": "does not exist"}

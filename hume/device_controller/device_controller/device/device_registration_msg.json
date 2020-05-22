@@ -2,11 +2,11 @@
   "name": "Greenhouse",
   // UUID to be able to differentiate between different devices, needed as unique
   // key
-  "id": "UUID",
+  "uuid": "UUID",
   // Class shows which type of messages this is, COMPOUND means it has more than
   // one capability and has sub-devices.
   "class": "COMPOUND",
-  // Spec can be used to specify exactly which type of messages this is. If HINT
+  // Spec can be used to specify exactly which type of device this is. If HINT
   // can recognize the spec, then HINT can also show appropirate icons. If no
   // spec is given, then HINT falls back on the class of the messages.
   "spec": "GREENHOUSE",
@@ -101,12 +101,14 @@
       "actions": [
         {
           "name": "Water Level",
+          "id": 1,
           "type": "READ",
           "return_type": "float",
           "max_return_value": 100.0
         },
         {
           "name": "Water Level Warning",
+          "id": 2,
           "type": "EVENT",
           // Can send a float to the messages to set level to warn on, a float
           // will be given on events.

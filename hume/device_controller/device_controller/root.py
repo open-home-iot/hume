@@ -6,7 +6,7 @@ from device_controller.util import broker
 from device_controller.util.log import set_up_logging
 
 from device_controller.config import application as config
-from device_controller.device import application as device_listener
+from device_controller.device import application as device
 from device_controller.messages import application as messages
 from device_controller.rpc import application as rpc
 
@@ -18,7 +18,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    config, device_listener, messages, rpc
+    config, device, messages, rpc
 ]
 
 

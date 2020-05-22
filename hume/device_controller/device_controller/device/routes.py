@@ -11,6 +11,11 @@ LOGGER = logging.getLogger(__name__)
 
 @route('/attach')
 def attach():
+    """
+    A device sends an attach message.
+
+    :return:
+    """
     LOGGER.info("device attach received")
 
     device_ip = request.environ.get("REMOTE_ADDR")

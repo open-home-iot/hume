@@ -1,3 +1,4 @@
+import json
 import logging
 
 
@@ -13,7 +14,7 @@ def handle_rpc_request(rpc_req):
     """
     LOGGER.debug(f"RPC request received: {rpc_req}")
 
-    return b'Device controller got the message!'
+    return json.dumps({"result": "OK"}).encode('utf-8')
 
 
 class BaseDeviceProperties:

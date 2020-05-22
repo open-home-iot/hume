@@ -1,3 +1,4 @@
+import json
 import logging
 
 from hint_controller.util import broker
@@ -7,6 +8,7 @@ from hint_controller.messages import application as messages
 LOGGER = logging.getLogger(__name__)
 
 HINT_CONTROLLER_QUEUE = "rpc_hint_controller"
+DEVICE_CONTROLLER_QUEUE = "rpc_device_controller"
 
 
 def start():
@@ -23,3 +25,14 @@ def stop():
     Stops the RPC application
     """
     LOGGER.info("rpc stop")
+
+
+def send_device_controller_message(message):
+    """
+    Sends a message to the device controller, collocated on the HUME.
+
+    :param dict message: message content
+    :return dict: result of device controller message
+    """
+    return json.loads(broker.rpc_call(DEVICE_CONTROLLER_QUEUE,
+                      json.dumps(message).encode('utf-8')).decode('utf-8'))

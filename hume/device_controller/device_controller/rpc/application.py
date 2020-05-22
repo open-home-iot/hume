@@ -33,8 +33,7 @@ def send_hint_controller_message(message):
     Sends a message to the HINT controller, collocated on the HUME.
 
     :param dict message: message content
-    :return bytes: result of HINT controller message
+    :return dict: result of HINT controller message
     """
     return json.loads(broker.rpc_call(HINT_CONTROLLER_QUEUE,
                       json.dumps(message).encode('utf-8')).decode('utf-8'))
-

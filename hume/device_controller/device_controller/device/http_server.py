@@ -20,7 +20,7 @@ class MyServer(WSGIRefServer):
                 return self.client_address[0]
 
             def log_request(*args, **kw):
-                LOGGER.debug("got device message")
+                pass
                 # if not self.quiet:
                 #    return WSGIRequestHandler.log_request(*args, **kw)
 

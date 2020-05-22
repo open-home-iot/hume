@@ -37,3 +37,14 @@ class PersistentStorage:
         LOGGER.debug("saving to database")
 
         obj.save()
+
+    def get_all(self, cls):
+        """
+        Get all data associated with the model class cls.
+
+        :param cls: class to get data for
+        :return: all data for model class
+        """
+        LOGGER.debug(f"getting all records for class: {cls}")
+
+        return cls.select()

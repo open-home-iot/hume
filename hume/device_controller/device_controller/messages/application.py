@@ -1,3 +1,4 @@
+import json
 import logging
 
 from .handlers import device_msg_handler, rpc_msg_handler
@@ -29,7 +30,14 @@ def incoming_rpc_request(rpc_req):
     :return bytes: rpc response
     """
     LOGGER.info("messages got new rpc request")
-    return rpc_msg_handler.handle_rpc_request(rpc_req)
+
+    decoded_req = json.loads(rpc_req.decode('utf-8'))
+
+    if decoded_req["message_type"] == HINT_MESSAGE_CONFIRM_ATTACH:
+        rpc_msg_handler.confirm_attach(decoded_req["message_content"])
+
+    # TODO, result should depend on outcome
+    return json.dumps({"result": "OK"}).encode('utf-8')
 
 
 def incoming_device_message(message_type, message_content):

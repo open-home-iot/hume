@@ -1,20 +1,28 @@
-import json
 import logging
 
+from device_controller.device.model import Device
+from device_controller.util import storage
 
 LOGGER = logging.getLogger(__name__)
 
 
-def handle_rpc_request(rpc_req):
+def confirm_attach(message_content):
     """
-    Called on incoming RPC requests
+    Called on HINT controller confirming an attached device.
 
-    :param bytes rpc_req: incoming rpc request
-    :return bytes: rpc response
+    :param dict message_content:
+    :return:
     """
-    LOGGER.debug(f"RPC request received: {rpc_req}")
+    LOGGER.debug(f"RPC request received: {message_content}")
 
-    return json.dumps({"result": "OK"}).encode('utf-8')
+    # Resolve device
+    uuid = message_content["uuid"]
+    device = storage.get(Device, uuid)
+    LOGGER.debug(f"found device with properties: {device}")
+
+    # Mark device as attached
+    device.attached = True
+    storage.save(device)
 
 
 class BaseDeviceProperties:

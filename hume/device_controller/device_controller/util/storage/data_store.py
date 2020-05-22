@@ -45,6 +45,18 @@ def save(obj):
     _store.save(obj)
 
 
+def get(cls, key):
+    """
+    Get a single object matching the provided key. Will always check local
+    storage only as it should be up to date with persistent storage.
+
+    :param cls: class
+    :param key: key
+    :return: class object matching key
+    """
+    return _store.get(cls, key)
+
+
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
@@ -74,8 +86,8 @@ class DataStore:
 
         if issubclass(model, PersistentModel):
             # load data into state
-            LOGGER.debug("persistent model, loading DB data")
-            pass
+            model_data = self._persistent_storage.get_all(model)
+            self._local_storage.save_all(model_data)
 
     def define_storage(self, model):
         """
@@ -105,6 +117,17 @@ class DataStore:
 
         LOGGER.debug("saving locally")
         self._local_storage.save(obj)
+
+    def get(self, cls, key):
+        """
+        Get a single object matching the provided key. Will always check local
+        storage only as it should be up to date with persistent storage.
+
+        :param cls: class
+        :param key: key
+        :return: class object matching key
+        """
+        return self._local_storage.get(cls, key)
 
 
 _store = DataStore()

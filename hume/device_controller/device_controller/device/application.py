@@ -2,8 +2,12 @@ import threading
 import logging
 
 from bottle import run
-from . import routes  # To load routes
+
+from device_controller.util import storage
+
 from .http_server import MyServer
+from .model import *
+from . import routes  # To load routes
 
 LOGGER = logging.getLogger(__name__)
 
@@ -14,6 +18,7 @@ def start():
     """
     Starts up the HTTP listener.
     """
+    storage.register(Device)
 
     def start_http_server():
         """

@@ -11,7 +11,7 @@ def handle_rpc_request(rpc_req):
     :param bytes rpc_req: incoming rpc request
     :return bytes: rpc response
     """
-    LOGGER.debug("rpc in message handler for rpc request")
+    LOGGER.debug("RPC request received")
 
     return b'some reply'
 

@@ -2,13 +2,11 @@ import logging
 import signal
 import sys
 
-from device_controller.util import broker, data_store
-from device_controller.util.log import set_up_logging
+from hint_controller.util import broker, data_store
+from hint_controller.util.log import set_up_logging
 
-from device_controller.config import application as config
-from device_controller.device import application as device
-from device_controller.messages import application as messages
-from device_controller.rpc import application as rpc
+from hint_controller.messages import application as messages
+from hint_controller.rpc import application as rpc
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,7 +16,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    config, device, messages, rpc
+    messages, rpc
 ]
 
 

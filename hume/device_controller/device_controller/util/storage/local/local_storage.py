@@ -35,5 +35,6 @@ class LocalStorage:
         """
         LOGGER.debug("saving to in memory dictionary")
 
-        self._data_dict[obj.__class__.__name__][obj.local_key_field()] = obj
+        table = self._data_dict[obj.__class__.__name__]
+        table.update({getattr(obj, obj.local_key_field()): obj})
         LOGGER.debug(f"Current local storage state: {self._data_dict}")

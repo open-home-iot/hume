@@ -98,7 +98,6 @@ class DataStore:
 
         :param obj: object to save
         """
-        LOGGER.debug(f"saving object: {obj}")
 
         if issubclass(obj.__class__, PersistentModel):
             LOGGER.debug("saving persistently")

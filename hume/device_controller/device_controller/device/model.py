@@ -10,7 +10,8 @@ class Device(PersistentModel):
     # validating incoming requests, but if proper authentication and
     # authorization is in place, each request should anyway come from a solid
     # source with enough knowledge about device structures.
-    uuid = peewee.CharField()
+    uuid = peewee.CharField(unique=True)
+    # Would like to have this unique as well, but IP recycling prevents it.
     ip_address = peewee.CharField()
 
     attached = peewee.BooleanField(default=False)

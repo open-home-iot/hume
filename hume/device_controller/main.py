@@ -10,7 +10,7 @@ def parse_args():
     Parse arguments provided at running the python program.
     """
     parser = argparse.ArgumentParser(
-        description="HUME messages controller"
+        description="HUME device controller"
     )
     return parser.parse_args()
 

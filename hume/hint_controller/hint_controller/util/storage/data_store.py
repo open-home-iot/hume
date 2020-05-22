@@ -1,9 +1,8 @@
 import logging
-
 import peewee
 
-from device_controller.util.storage.local import LocalStorage
-from device_controller.util.storage.persistent import PersistentStorage
+from .local import LocalStorage
+from .persistent import PersistentStorage
 
 
 LOGGER = logging.getLogger(__name__)

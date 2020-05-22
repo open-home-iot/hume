@@ -3,7 +3,7 @@ import logging
 from device_controller.device.model import Device
 from device_controller.util import storage
 from device_controller.rpc import application as rpc
-from device_controller.messages.application import DEVICE_MESSAGE_ATTACH
+from ..definitions import DEVICE_MESSAGE_ATTACH
 
 
 LOGGER = logging.getLogger(__name__)

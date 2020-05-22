@@ -2,8 +2,8 @@ import logging
 
 from bottle import request, route
 
-from device_controller.messages.application import incoming_device_message, \
-    DEVICE_MESSAGE_ATTACH
+from device_controller.messages.application import incoming_device_message
+from device_controller.messages.definitions import *
 
 
 LOGGER = logging.getLogger(__name__)

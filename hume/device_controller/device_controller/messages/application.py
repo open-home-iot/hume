@@ -1,11 +1,10 @@
 import logging
 
 from .handlers import device_msg_handler, rpc_msg_handler
+from .definitions import *
 
 
 LOGGER = logging.getLogger(__name__)
-
-DEVICE_MESSAGE_ATTACH = 0
 
 
 def start():

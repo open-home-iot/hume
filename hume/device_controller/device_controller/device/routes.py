@@ -13,7 +13,12 @@ LOGGER = logging.getLogger(__name__)
 def attach():
     LOGGER.info("device attach received")
 
+    device_ip = request.environ.get("REMOTE_ADDR")
+    LOGGER.debug(f"device IP: {device_ip}")
+
+    request.json["device_ip"] = device_ip
     LOGGER.debug(f"attach content: {request.json}")
+
     result = device_message(DEVICE_MESSAGE_ATTACH, request.json)
 
     return {"result": "ok"}

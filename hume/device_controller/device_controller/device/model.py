@@ -9,6 +9,9 @@ class Device(PersistentModel):
 
     parent = peewee.ForeignKeyField('self', related_name="children", null=True)
 
+    uuid = peewee.CharField()
+    ip_address = peewee.CharField()
+
     # This information is not needed by HUME.
     # name = peewee.CharField()
     # cls = peewee.SmallIntegerField()

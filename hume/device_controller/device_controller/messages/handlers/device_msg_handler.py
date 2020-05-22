@@ -15,4 +15,5 @@ def attach(message_content):
     """
     LOGGER.debug("start handling device message")
 
+    # Save HUME specific parameters and forward rest to HINT.
 

@@ -26,3 +26,13 @@ class LocalStorage:
         self._data_dict[model.__name__] = dict()
 
         LOGGER.debug(f"Current local storage state: {self._data_dict}")
+
+    def save(self, obj):
+        """
+        Save an object to local storage dict.
+
+        :param obj: object to save
+        """
+        LOGGER.debug("saving to in memory dictionary")
+
+        self._data_dict[obj.__class__.__name__][obj.local_key_field()] = obj

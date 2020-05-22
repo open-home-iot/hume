@@ -1,7 +1,5 @@
 import peewee
 
-from datetime import datetime
-
 from device_controller.util.storage import PersistentModel
 
 
@@ -15,7 +13,14 @@ class Device(PersistentModel):
     uuid = peewee.CharField()
     ip_address = peewee.CharField()
 
-    attached = peewee.BooleanField()
+    attached = peewee.BooleanField(default=False)
+
+    @staticmethod
+    def local_key_field():
+        """
+        :return: name of local dict key field
+        """
+        return "uuid"
 
 
 # class DeviceStatus:

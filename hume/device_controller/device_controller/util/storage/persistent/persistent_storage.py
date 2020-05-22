@@ -27,3 +27,13 @@ class PersistentStorage:
         LOGGER.debug("Defining persistent storage")
 
         self._pg_proxy.define_table(model)
+
+    def save(self, obj):
+        """
+        Save an object persistently.
+
+        :param obj: object to save
+        """
+        LOGGER.debug("saving to database")
+
+        obj.save()

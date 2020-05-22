@@ -15,7 +15,7 @@ def start():
     """
     LOGGER.info("rpc start")
 
-    broker.enable_rpc_server(HINT_CONTROLLER_QUEUE, messages.rpc_request)
+    broker.enable_rpc_server(HINT_CONTROLLER_QUEUE, messages.incoming_rpc_request)
 
 
 def stop():

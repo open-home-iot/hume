@@ -22,7 +22,7 @@ def stop():
     LOGGER.info("messages stop")
 
 
-def rpc_request(rpc_req):
+def incoming_rpc_request(rpc_req):
     """
     Called on incoming RPC requests.
 
@@ -33,7 +33,7 @@ def rpc_request(rpc_req):
     return rpc_msg_handler.handle_rpc_request(rpc_req)
 
 
-def device_message(message_type, message_content):
+def incoming_device_message(message_type, message_content):
     """
     Called on incoming device messages.
 

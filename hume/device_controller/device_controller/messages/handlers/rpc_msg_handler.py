@@ -11,9 +11,9 @@ def handle_rpc_request(rpc_req):
     :param bytes rpc_req: incoming rpc request
     :return bytes: rpc response
     """
-    LOGGER.debug("rpc in message handler for rpc request")
+    LOGGER.debug(f"RPC request received: {rpc_req}")
 
-    return b'some reply'
+    return b'Device controller got the message!'
 
 
 class BaseDeviceProperties:

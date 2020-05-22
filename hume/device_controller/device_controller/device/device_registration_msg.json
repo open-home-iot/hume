@@ -1,5 +1,8 @@
 {
   "name": "Greenhouse",
+  // UUID to be able to differentiate between different devices, needed as unique
+  // key
+  "id": "UUID",
   // Class shows which type of messages this is, COMPOUND means it has more than
   // one capability and has sub-devices.
   "class": "COMPOUND",

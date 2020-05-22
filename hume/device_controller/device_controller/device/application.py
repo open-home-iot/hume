@@ -27,8 +27,9 @@ class MyServer(WSGIRefServer):
                 return self.client_address[0]
 
             def log_request(*args, **kw):
-                if not self.quiet:
-                    return WSGIRequestHandler.log_request(*args, **kw)
+                LOGGER.debug("got device message")
+                # if not self.quiet:
+                #    return WSGIRequestHandler.log_request(*args, **kw)
 
         handler_cls = self.options.get('handler_class', FixedHandler)
         server_cls = self.options.get('server_class', WSGIServer)

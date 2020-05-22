@@ -1,6 +1,7 @@
-from bottle import route, template
+from bottle import request, route, template
 
 
-@route('/hello/<name>')
-def index(name):
-    return template('<b>Hello {{name}}</b>!', name=name)
+@route('/attach')
+def attach():
+    print(request.json)
+    # return template('<b>Hello {{name}}</b>!', id=id)

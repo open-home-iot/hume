@@ -5,7 +5,6 @@ import sys
 from hint_controller.util import broker, data_store
 from hint_controller.util.log import set_up_logging
 
-from hint_controller.messages import application as messages
 from hint_controller.rpc import application as rpc
 from hint_controller.hint import application as hint
 
@@ -17,7 +16,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    messages, rpc, hint
+    rpc, hint
 ]
 
 

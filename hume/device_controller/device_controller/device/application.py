@@ -6,7 +6,7 @@ from bottle import run
 from device_controller.util import storage
 
 from .http_server import MyServer
-from .model import *
+from .models import *
 from . import routes  # To load routes
 
 LOGGER = logging.getLogger(__name__)

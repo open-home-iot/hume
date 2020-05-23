@@ -1,10 +1,20 @@
 import logging
 
 from hint_controller.rpc import application as rpc
-from hint_controller.messages.definitions import *
 
 
 LOGGER = logging.getLogger(__name__)
+
+# HINT ORIGINATED
+HINT_MESSAGE_CONFIRM_ATTACH = 1
+HINT_MESSAGE_DEVICE_CONFIGURATION = 2
+HINT_MESSAGE_DEVICE_ACTION = 3
+HINT_MESSAGE_SUB_DEVICE_ACTION = 4
+
+
+"""
+This module is the starting point of HINT originating request handling.
+"""
 
 
 def confirm_attach(uuid):

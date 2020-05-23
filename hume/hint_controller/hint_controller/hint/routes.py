@@ -2,8 +2,7 @@ import logging
 
 from bottle import request, route, put
 
-from hint_controller.messages.application import incoming_hint_message
-from hint_controller.messages.definitions import *
+from . import hint_req_handler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,8 +17,7 @@ def confirm_attach(uuid):
     """
     LOGGER.info("got message confirm attach from HINT")
 
-    result = incoming_hint_message(HINT_MESSAGE_CONFIRM_ATTACH,
-                                   uuid)
+    result = hint_req_handler.confirm_attach(uuid)
 
     # TODO make result depend on message handling outcome
     return {"result": "ok"}
@@ -36,9 +34,7 @@ def device_configuration(uuid):
     LOGGER.info("got device configuration request from HINT")
     LOGGER.debug(f"{request.json}")
 
-    result = incoming_hint_message(HINT_MESSAGE_DEVICE_CONFIGURATION,
-                                   request.json,
-                                   uuid)
+    result = hint_req_handler.device_configuration(request.json, uuid)
 
     # TODO make result depend on message handling outcome
     return {"result": "ok"}
@@ -56,9 +52,7 @@ def device_action(uuid, action_id: int):
     LOGGER.info("got device action invocation from HINT")
     LOGGER.debug(f"{uuid} {action_id}")
 
-    result = incoming_hint_message(HINT_MESSAGE_DEVICE_ACTION,
-                                   uuid,
-                                   action_id)
+    result = hint_req_handler.device_action(uuid, action_id)
 
     # TODO make result depend on message handling outcome
     return {"result": "ok"}
@@ -77,10 +71,7 @@ def sub_device_action(uuid, device_id: int, action_id: int):
     LOGGER.info("got sub device action invocation from HINT")
     LOGGER.debug(f"{uuid} {action_id}")
 
-    result = incoming_hint_message(HINT_MESSAGE_SUB_DEVICE_ACTION,
-                                   uuid,
-                                   device_id,
-                                   action_id)
+    result = hint_req_handler.sub_device_action(uuid, device_id, action_id)
 
     # TODO make result depend on message handling outcome
     return {"result": "ok"}

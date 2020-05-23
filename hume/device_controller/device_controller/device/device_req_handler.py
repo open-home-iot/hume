@@ -1,6 +1,6 @@
 import logging
 
-from device_controller.device.model import Device
+from device_controller.device.models import Device
 from device_controller.util import storage
 from device_controller.rpc import application as rpc
 

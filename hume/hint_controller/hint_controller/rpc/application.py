@@ -2,7 +2,7 @@ import json
 import logging
 
 from hint_controller.util import broker
-from hint_controller.messages import application as messages
+from . import rpc_req_handler
 
 
 LOGGER = logging.getLogger(__name__)
@@ -17,7 +17,8 @@ def start():
     """
     LOGGER.info("rpc start")
 
-    broker.enable_rpc_server(HINT_CONTROLLER_QUEUE, messages.incoming_rpc_request)
+    broker.enable_rpc_server(HINT_CONTROLLER_QUEUE,
+                             rpc_req_handler.incoming_rpc_request)
 
 
 def stop():

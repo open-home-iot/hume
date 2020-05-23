@@ -4,6 +4,7 @@ import logging
 from device_controller.device.models import Device
 from device_controller.util import storage
 from device_controller.config import application as config
+from device_controller.device import application as device_app
 
 LOGGER = logging.getLogger(__name__)
 
@@ -60,6 +61,8 @@ def confirm_attach(message_content):
     # Mark device as attached
     device.attached = True
     storage.save(device)
+
+    device_app.confirm_attach(device)
 
 
 def device_configuration(message_content):

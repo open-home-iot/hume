@@ -8,10 +8,17 @@ from device_controller.util import storage
 from .http_server import MyServer
 from .models import *
 from . import routes  # To load routes
+from . import device_req_lib
+
 
 LOGGER = logging.getLogger(__name__)
 
 server = MyServer(host='localhost', port=8081)
+
+# Override this module to insert mocking mods/simulators. It will make sure
+# outbound device traffic gets sent via the set module's implementation of the
+# device interface.
+device_req_mod = device_req_lib
 
 
 def start():
@@ -41,11 +48,12 @@ def stop():
     server.shutdown()
 
 
-def send_device_message(message):
+def confirm_attach(device):
     """
     Sends a device a message.
 
-    :param message:
+    :param device:
     :return:
     """
-    pass
+    # Send a confirmation to the device
+    device_req_mod.confirm_attach(device)

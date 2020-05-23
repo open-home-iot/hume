@@ -9,16 +9,12 @@ from .http_server import MyServer
 from .models import *
 from . import routes  # To load routes
 from . import device_req_lib
+from .settings import device_req_mod
 
 
 LOGGER = logging.getLogger(__name__)
 
 server = MyServer(host='localhost', port=8081)
-
-# Override this module to insert mocking mods/simulators. It will make sure
-# outbound device traffic gets sent via the set module's implementation of the
-# device interface.
-device_req_mod = device_req_lib
 
 
 def start():

@@ -87,7 +87,11 @@ def device_action(message_content):
     """
     LOGGER.debug(f"device action received: {message_content}")
 
-    # TODO forward action to the device
+    # TODO get device info from storage
+    storage.get(Device, message_content["uuid"])
+
+
+    device_app.device_action()
 
 
 def sub_device_action(message_content):

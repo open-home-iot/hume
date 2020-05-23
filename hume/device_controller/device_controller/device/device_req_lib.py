@@ -1,4 +1,8 @@
 import requests
+import logging
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 """
@@ -13,4 +17,4 @@ def confirm_attach(device):
     :param device:
     :return:
     """
-    pass
+    LOGGER.info(f"sending confirm attach request to device: {device.uuid}")

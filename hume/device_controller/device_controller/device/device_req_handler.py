@@ -5,7 +5,8 @@ from peewee import DoesNotExist
 from device_controller.device.models import Device
 from device_controller.util import storage
 from device_controller.rpc import application as rpc
-from .application import device_req_mod
+from .settings import device_req_mod
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +34,6 @@ def attach(message_content):
     try:
         device = Device.get(Device.uuid == uuid)
         LOGGER.debug("device was already attached, confirming back to device")
-        # TODO send device confirm attach request.
         device_req_mod.confirm_attach(device)
 
     except DoesNotExist:

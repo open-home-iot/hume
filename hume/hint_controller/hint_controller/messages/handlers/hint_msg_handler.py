@@ -40,3 +40,44 @@ def device_configuration(message_content, uuid):
     })
 
     LOGGER.debug(f"device controller responded: {response}")
+
+
+def device_action(uuid, action_id):
+    """
+    Handler function for device actions.
+
+    :param uuid:
+    :param action_id:
+    :return:
+    """
+    LOGGER.debug(f"device action handler {uuid} {action_id}")
+
+    response = rpc.send_device_controller_message({
+        "message_type": HINT_MESSAGE_DEVICE_ACTION,
+        "message_content": {"uuid": uuid, "action_id": action_id}
+    })
+
+    LOGGER.debug(f"device controller responded: {response}")
+
+
+def sub_device_action(uuid, device_id, action_id):
+    """
+    Handler function for sub device actions.
+
+    :param uuid:
+    :param device_id:
+    :param action_id:
+    :return:
+    """
+    LOGGER.debug(f"sub device action handler {uuid} {device_id} {action_id}")
+
+    response = rpc.send_device_controller_message({
+        "message_type": HINT_MESSAGE_SUB_DEVICE_ACTION,
+        "message_content": {
+            "uuid": uuid,
+            "device_id": device_id,
+            "action_id": action_id
+        }
+    })
+
+    LOGGER.debug(f"device controller responded: {response}")

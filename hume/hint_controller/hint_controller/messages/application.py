@@ -53,5 +53,9 @@ def incoming_hint_message(message_type, *args):
         return hint_msg_handler.confirm_attach(*args)
     elif message_type == HINT_MESSAGE_DEVICE_CONFIGURATION:
         return hint_msg_handler.device_configuration(*args)
+    elif message_type == HINT_MESSAGE_DEVICE_ACTION:
+        return hint_msg_handler.device_action(*args)
+    elif message_type == HINT_MESSAGE_SUB_DEVICE_ACTION:
+        return hint_msg_handler.sub_device_action(*args)
     else:
         return {"error": "does not exist"}

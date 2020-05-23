@@ -1,6 +1,6 @@
 import logging
 
-from bottle import request, route
+from bottle import request, route, put
 
 from hint_controller.messages.application import incoming_hint_message
 from hint_controller.messages.definitions import *
@@ -44,7 +44,7 @@ def device_configuration(uuid):
     return {"result": "ok"}
 
 
-@route('device/<uuid>/actions/<action_id:int>', method='PUT')
+@put('/device/<uuid>/actions/<action_id:int>')
 def device_action(uuid, action_id: int):
     """
     HINT sends an action invocation for a device action.
@@ -64,8 +64,7 @@ def device_action(uuid, action_id: int):
     return {"result": "ok"}
 
 
-@route('device/<uuid>/sub-devices/<device_id:int>/actions/<action_id:int>',
-       method='PUT')
+@put('/device/<uuid>/sub-devices/<device_id:int>/actions/<action_id:int>')
 def sub_device_action(uuid, device_id: int, action_id: int):
     """
     HINT sends an action invocation for a sub-device action.

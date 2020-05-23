@@ -37,3 +37,27 @@ def device_configuration(message_content):
 
     # Load into config application
     config.new_configuration(message_content["uuid"], message_content["config"])
+
+
+def device_action(message_content):
+    """
+    Called on HINT controller forwarding a device action.
+
+    :param message_content:
+    :return:
+    """
+    LOGGER.debug(f"device action received: {message_content}")
+
+    # TODO forward action to the device
+
+
+def sub_device_action(message_content):
+    """
+    Called on HINT controller forwarding a sub device action.
+
+    :param message_content:
+    :return:
+    """
+    LOGGER.debug(f"sub device action received: {message_content}")
+
+    # TODO forward action to the device

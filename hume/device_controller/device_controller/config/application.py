@@ -1,6 +1,5 @@
 import logging
 
-from . import config_server
 
 LOGGER = logging.getLogger(__name__)
 

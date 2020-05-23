@@ -15,6 +15,25 @@ def parse_args():
     return parser.parse_args()
 
 
+def test_start(log_level):
+    """
+    Used by testing tools to start DC.
+
+    :param log_level:
+    :return:
+    """
+    root.start(log_level=log_level)
+
+
+def test_stop():
+    """
+    Used by test tools to stop DC.
+
+    :return:
+    """
+    root.stop()
+
+
 if __name__ == "__main__":
     args = parse_args()
 

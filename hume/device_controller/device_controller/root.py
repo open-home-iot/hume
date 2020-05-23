@@ -21,7 +21,7 @@ APPLICATIONS = [
 ]
 
 
-def start(cli_args=None, log_level=None):
+def start(cli_args=None, log_level=logging.INFO):
     """
     Starts the RootApp and all its sub-applications.
 

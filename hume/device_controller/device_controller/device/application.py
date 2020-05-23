@@ -8,7 +8,6 @@ from device_controller.util import storage
 from .http_server import MyServer
 from .models import *
 from . import routes  # To load routes
-from . import device_req_lib
 from .settings import device_req_mod
 
 

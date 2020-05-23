@@ -1,6 +1,8 @@
 import json
 import logging
 
+from hint_controller.hint import application as hint
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,3 +38,4 @@ def attach(message_content):
     LOGGER.debug(f"device attach rpc message content: {message_content}")
 
     # TODO send HTTP request to HINT
+    hint.attach(message_content)

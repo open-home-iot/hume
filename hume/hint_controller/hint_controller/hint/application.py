@@ -5,6 +5,8 @@ from bottle import run
 
 from .http_server import MyServer
 from . import routes  # To load routes
+from .settings import hint_req_mod
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,11 +38,11 @@ def stop():
     server.shutdown()
 
 
-def send_hint_message(message):
+def attach(message_content):
     """
-    Sends a device a message.
+    Sends HINT an attach message.
 
-    :param message:
+    :param message_content:
     :return:
     """
-    pass
+    hint_req_mod.attach(message_content)

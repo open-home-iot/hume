@@ -9,7 +9,7 @@ from hint_controller.messages.application import incoming_hint_message, \
 LOGGER = logging.getLogger(__name__)
 
 
-@route('/attach/<uuid>')
+@route('/attach/<uuid>', method='PATCH')
 def confirm_attach(uuid):
     """
     HINT confirms the attach of a device.
@@ -24,3 +24,6 @@ def confirm_attach(uuid):
                                    uuid)
 
     return {"result": "ok"}
+
+
+#@route('/')

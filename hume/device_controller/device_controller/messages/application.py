@@ -35,6 +35,8 @@ def incoming_rpc_request(rpc_req):
 
     if decoded_req["message_type"] == HINT_MESSAGE_CONFIRM_ATTACH:
         rpc_msg_handler.confirm_attach(decoded_req["message_content"])
+    elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_CONFIGURATION:
+        rpc_msg_handler.device_configuration(decoded_req["message_content"])
 
     # TODO, result should depend on outcome
     return json.dumps({"result": "OK"}).encode('utf-8')

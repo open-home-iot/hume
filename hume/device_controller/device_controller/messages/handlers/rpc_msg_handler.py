@@ -2,6 +2,7 @@ import logging
 
 from device_controller.device.model import Device
 from device_controller.util import storage
+from device_controller.config import application as config
 
 LOGGER = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ def confirm_attach(message_content):
     :param dict message_content:
     :return:
     """
-    LOGGER.debug(f"RPC request received: {message_content}")
+    LOGGER.debug(f"confirm attach received: {message_content}")
 
     # Resolve device
     uuid = message_content["uuid"]
@@ -25,20 +26,14 @@ def confirm_attach(message_content):
     storage.save(device)
 
 
-class BaseDeviceProperties:
-    pass
+def device_configuration(message_content):
+    """
+    Called on HINT controller forwarding a device's new configuration data.
 
+    :param message_content:
+    :return:
+    """
+    LOGGER.debug(f"device configuration received: {message_content}")
 
-# IN
-class RPCIn:
-
-    class DeviceAction(BaseDeviceProperties):
-        pass
-
-    class DeviceConfiguration(BaseDeviceProperties):
-        pass
-
-
-# OUT
-class RPCOut:
-    pass  # Any at all?
+    # Load into config application
+    config.new_configuration(message_content["uuid"], message_content["config"])

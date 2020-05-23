@@ -1,5 +1,4 @@
 import logging
-import peewee
 
 from .local import LocalStorage
 from .persistent import PersistentStorage

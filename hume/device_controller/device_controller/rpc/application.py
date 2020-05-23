@@ -2,7 +2,7 @@ import json
 import logging
 
 from device_controller.util import broker
-from device_controller.messages import application as messages
+from . import rpc_req_handler
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def start():
     LOGGER.info("rpc start")
 
     broker.enable_rpc_server(DEVICE_CONTROLLER_QUEUE,
-                             messages.incoming_rpc_request)
+                             rpc_req_handler.incoming_rpc_request)
 
 
 def stop():

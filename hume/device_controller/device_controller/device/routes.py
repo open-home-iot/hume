@@ -1,9 +1,7 @@
 import logging
 
 from bottle import request, route
-
-from device_controller.messages.application import incoming_device_message
-from device_controller.messages.definitions import *
+from . import device_req_handler
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,6 +22,6 @@ def attach():
     request.json["device_ip"] = device_ip
     LOGGER.debug(f"attach content: {request.json}")
 
-    result = incoming_device_message(DEVICE_MESSAGE_ATTACH, request.json)
+    result = device_req_handler.attach(request.json)
 
     return {"result": "ok"}

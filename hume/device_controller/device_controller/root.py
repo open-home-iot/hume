@@ -7,7 +7,6 @@ from device_controller.util.log import set_up_logging
 
 from device_controller.config import application as config
 from device_controller.device import application as device
-from device_controller.messages import application as messages
 from device_controller.rpc import application as rpc
 
 
@@ -18,7 +17,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    config, device, messages, rpc
+    config, device, rpc
 ]
 
 

@@ -1,8 +1,8 @@
 import logging
-import peewee
 
 from .local import LocalStorage
 from .persistent import PersistentStorage
+from .persistent.postgres import PersistentModel
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,6 +33,29 @@ def register(model):
     _store.register(model)
 
 
+def save(obj):
+    """
+    Save an object.
+
+    :param obj: object to save
+    """
+    LOGGER.info("saving object")
+
+    _store.save(obj)
+
+
+def get(cls, key):
+    """
+    Get a single object matching the provided key. Will always check local
+    storage only as it should be up to date with persistent storage.
+
+    :param cls: class
+    :param key: key
+    :return: class object matching key
+    """
+    return _store.get(cls, key)
+
+
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
@@ -60,9 +83,10 @@ class DataStore:
 
         self.define_storage(model)
 
-        if issubclass(model, peewee.Model):
+        if issubclass(model, PersistentModel):
             # load data into state
-            pass
+            model_data = self._persistent_storage.get_all(model)
+            self._local_storage.save_all(model_data)
 
     def define_storage(self, model):
         """
@@ -72,12 +96,37 @@ class DataStore:
         :param model: model to define storage for
         """
 
-        if issubclass(model, peewee.Model):
+        if issubclass(model, PersistentModel):
             LOGGER.debug("Defining persistent storage")
             self._persistent_storage.define_storage(model)
 
         LOGGER.debug("Defining local storage")
         self._local_storage.define_storage(model)
+
+    def save(self, obj):
+        """
+        Save an object.
+
+        :param obj: object to save
+        """
+
+        if issubclass(obj.__class__, PersistentModel):
+            LOGGER.debug("saving persistently")
+            self._persistent_storage.save(obj)
+
+        LOGGER.debug("saving locally")
+        self._local_storage.save(obj)
+
+    def get(self, cls, key):
+        """
+        Get a single object matching the provided key. Will always check local
+        storage only as it should be up to date with persistent storage.
+
+        :param cls: class
+        :param key: key
+        :return: class object matching key
+        """
+        return self._local_storage.get(cls, key)
 
 
 _store = DataStore()

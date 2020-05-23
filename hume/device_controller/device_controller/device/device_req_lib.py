@@ -13,4 +13,4 @@ def confirm_attach(device):
     :param device:
     :return:
     """
-    requests.put()
+    pass

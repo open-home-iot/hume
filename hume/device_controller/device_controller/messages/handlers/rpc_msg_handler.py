@@ -18,7 +18,7 @@ def confirm_attach(message_content):
     # Resolve device
     uuid = message_content["uuid"]
     device = storage.get(Device, uuid)
-    LOGGER.debug(f"found device with properties: {device}")
+    LOGGER.debug(f"found device: {device}")
 
     # Mark device as attached
     device.attached = True

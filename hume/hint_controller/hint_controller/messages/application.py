@@ -1,6 +1,7 @@
+import json
 import logging
 
-from .definitions import HINT_MESSAGE_CONFIRM_ATTACH
+from .definitions import *
 from .handlers import rpc_msg_handler, hint_msg_handler
 
 
@@ -29,7 +30,14 @@ def incoming_rpc_request(rpc_req):
     :return bytes: rpc response
     """
     LOGGER.info("messages got new rpc request")
-    return rpc_msg_handler.handle_rpc_request(rpc_req)
+
+    decoded_req = json.loads(rpc_req.decode('utf-8'))
+
+    if decoded_req["message_type"] == DEVICE_MESSAGE_ATTACH:
+        rpc_msg_handler.attach(decoded_req["message_content"])
+
+    # TODO, result should depend on outcome
+    return json.dumps({"result": "OK"}).encode('utf-8')
 
 
 def incoming_hint_message(message_type, *args):
@@ -43,5 +51,7 @@ def incoming_hint_message(message_type, *args):
 
     if message_type == HINT_MESSAGE_CONFIRM_ATTACH:
         return hint_msg_handler.confirm_attach(*args)
+    elif message_type == HINT_MESSAGE_DEVICE_CONFIGURATION:
+        return hint_msg_handler.device_configuration(*args)
     else:
         return {"error": "does not exist"}

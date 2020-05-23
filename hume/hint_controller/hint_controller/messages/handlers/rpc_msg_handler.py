@@ -5,16 +5,16 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-def handle_rpc_request(rpc_req):
+def attach(message_content):
     """
     Called on incoming RPC requests
 
-    :param bytes rpc_req: incoming rpc request
+    :param dict message_content: incoming rpc request
     :return bytes: rpc response
     """
-    LOGGER.debug(f"RPC request received: {rpc_req}")
+    LOGGER.debug(f"device attach rpc message content: {message_content}")
 
-    return json.dumps({"result": "OK"}).encode('utf-8')
+    # TODO send HTTP request to HINT
 
 
 class BaseDeviceProperties:

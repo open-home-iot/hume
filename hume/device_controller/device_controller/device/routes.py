@@ -9,7 +9,7 @@ from device_controller.messages.definitions import *
 LOGGER = logging.getLogger(__name__)
 
 
-@route('/attach', method='POST')
+@route('/device/attach', method='POST')
 def attach():
     """
     A device sends an attach message.

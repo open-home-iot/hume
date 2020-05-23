@@ -7,11 +7,10 @@ from hint_controller.messages.definitions import HINT_MESSAGE_CONFIRM_ATTACH
 LOGGER = logging.getLogger(__name__)
 
 
-def confirm_attach(message_content, uuid):
+def confirm_attach(uuid):
     """
     Handler function for confirm attach messages.
 
-    :param message_content:
     :param uuid:
     :return:
     """

@@ -35,5 +35,8 @@ def send_device_controller_message(message):
     :param dict message: message content
     :return dict: result of device controller message
     """
+    LOGGER.info("sending device controller a message")
+    LOGGER.debug(f"message contents: {message}")
+
     return json.loads(broker.rpc_call(DEVICE_CONTROLLER_QUEUE,
                       json.dumps(message).encode('utf-8')).decode('utf-8'))

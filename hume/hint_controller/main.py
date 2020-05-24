@@ -20,7 +20,6 @@ def test_start(log_level):
     Used by test tools to start HC.
 
     :param log_level:
-    :return:
     """
     root.start(log_level=log_level)
 
@@ -28,8 +27,6 @@ def test_start(log_level):
 def test_stop():
     """
     Used by test tools to stop HC.
-
-    :return:
     """
     root.stop()
 

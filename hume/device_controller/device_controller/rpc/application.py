@@ -35,5 +35,8 @@ def send_hint_controller_message(message):
     :param dict message: message content
     :return dict: result of HINT controller message
     """
+    LOGGER.info("sending HINT controller a message")
+    LOGGER.debug(f"message contents: {message}")
+
     return json.loads(broker.rpc_call(HINT_CONTROLLER_QUEUE,
                       json.dumps(message).encode('utf-8')).decode('utf-8'))

@@ -11,4 +11,4 @@ def attach(message_content):
     :param message_content:
     :return:
     """
-    LOGGER.info(f"sending HINT attach message: {message_content}")
+    LOGGER.debug(f"sending HINT attach message: {message_content}")

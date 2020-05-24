@@ -16,6 +16,7 @@ def confirm_attach(uuid):
     :return:
     """
     LOGGER.info("got message confirm attach from HINT")
+    LOGGER.debug(f"{uuid}")
 
     result = hint_req_handler.confirm_attach(uuid)
 

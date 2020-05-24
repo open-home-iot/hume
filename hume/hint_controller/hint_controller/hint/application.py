@@ -17,14 +17,14 @@ def start():
     """
     Starts up the HTTP listener.
     """
+    LOGGER.info("device listener start")
 
     def start_http_server():
         """
-        Starts an HTTP server locally on port 8081.
+        Starts an HTTP server locally on port 8082. This sever listens for
+        requests sent from the cloud (HINT).
         """
         run(server=server)  # Blocks!
-
-    LOGGER.info("device listener start")
 
     thread = threading.Thread(target=start_http_server)
     thread.start()
@@ -35,6 +35,7 @@ def stop():
     Stop the HTTP listener.
     """
     LOGGER.info("device listener stop")
+
     server.shutdown()
 
 
@@ -45,4 +46,6 @@ def attach(message_content):
     :param message_content:
     :return:
     """
+    LOGGER.info("sending attach to HINT")
+
     hint_req_mod.attach(message_content)

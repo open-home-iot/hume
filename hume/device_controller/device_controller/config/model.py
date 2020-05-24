@@ -7,4 +7,6 @@ from device_controller.util.storage import PersistentModel
 # TODO because it will become quite tricky, and should not be done for nothing.
 
 class DeviceConfiguration(PersistentModel):
+    # TODO split this up into timers, schedules, and triggers. Keeping
+    # TODO everything in the same model is very poorly normalized.
     pass

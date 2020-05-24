@@ -22,7 +22,6 @@ This module acts as a starting point for device originated messages.
 def attach(message_content):
     """
     :param dict message_content: incoming device message
-    :return dict: result of message handling
     """
     LOGGER.debug("saving device information and forwarding info to HINT "
                  "controller")
@@ -33,8 +32,12 @@ def attach(message_content):
 
     try:
         device = Device.get(Device.uuid == uuid)
-        LOGGER.debug("device was already attached, confirming back to device")
-        device_req_mod.confirm_attach(device)
+
+        if device.attached:
+            LOGGER.debug(
+                "device was already attached, confirming back to device"
+            )
+            device_req_mod.confirm_attach(device)
 
     except DoesNotExist:
         LOGGER.debug("device not previously attached")

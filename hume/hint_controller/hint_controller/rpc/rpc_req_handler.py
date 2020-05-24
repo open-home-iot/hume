@@ -17,7 +17,7 @@ def incoming_rpc_request(rpc_req):
     :param bytes rpc_req: incoming rpc request
     :return bytes: rpc response
     """
-    LOGGER.info("messages got new rpc request")
+    LOGGER.info("new RPC request received")
 
     decoded_req = json.loads(rpc_req.decode('utf-8'))
 
@@ -30,12 +30,10 @@ def incoming_rpc_request(rpc_req):
 
 def attach(message_content):
     """
-    Called on incoming RPC requests
+    Called when a new device has sent an attach message.
 
     :param dict message_content: incoming rpc request
-    :return bytes: rpc response
     """
     LOGGER.debug(f"device attach rpc message content: {message_content}")
 
-    # TODO send HTTP request to HINT
     hint.attach(message_content)

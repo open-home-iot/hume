@@ -56,6 +56,19 @@ class LocalStorage:
 
         return result
 
+    def get_all(self, cls):
+        """
+        Get all objects of the provided class.
+
+        :param cls:
+        :return:
+        """
+        LOGGER.debug(f"getting all object of model: {cls}")
+
+        table = self._data_dict[cls.__name__]
+
+        return table.values()
+
     def save_all(self, data):
         """
         Sets all objects in the data list to the local storage dict.

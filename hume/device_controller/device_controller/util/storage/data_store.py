@@ -56,6 +56,16 @@ def get(cls, key):
     return _store.get(cls, key)
 
 
+def get_all(cls):
+    """
+    Get all object for the provided model class.
+
+    :param cls:
+    :return:
+    """
+    return _store.get_all(cls)
+
+
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
@@ -127,6 +137,15 @@ class DataStore:
         :return: class object matching key
         """
         return self._local_storage.get(cls, key)
+
+    def get_all(self, cls):
+        """
+        Get all object of the provided class.
+
+        :param cls:
+        :return:
+        """
+        return self._local_storage.get_all(cls)
 
 
 _store = DataStore()

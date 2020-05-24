@@ -49,3 +49,28 @@ def attach(message_content):
     LOGGER.info("sending attach to HINT")
 
     hint_req_mod.attach(message_content)
+
+
+def device_event(message_content):
+    """
+    Sends HINT a device event message
+
+    :param message_content:
+    :return:
+    """
+    LOGGER.info("sending device event to HINT")
+
+    hint_req_mod.device_event(message_content)
+
+
+def sub_device_event(message_content):
+    """
+    Sends HINT a sub device event message
+
+    :param message_content:
+    :return:
+    """
+    LOGGER.info("sending sub device event to HINT")
+
+    hint_req_mod.sub_device_event(message_content)
+

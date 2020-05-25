@@ -37,7 +37,7 @@ class LocalStorage:
 
         table = self._data_dict[obj.__class__.__name__]
         table.update({getattr(obj, obj.local_key_field()): obj})
-        LOGGER.debug(f"Current local storage state: {self._data_dict}")
+        LOGGER.debug(f"resulting local storage state: {self._data_dict}")
 
     def get(self, cls, key):
         """
@@ -52,7 +52,7 @@ class LocalStorage:
 
         table = self._data_dict[cls.__name__]
         LOGGER.debug(f"table contents: {table}")
-        result = table[key]
+        result = table.get(key)
 
         return result
 

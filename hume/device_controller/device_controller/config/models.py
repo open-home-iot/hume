@@ -11,8 +11,9 @@ from device_controller.util.storage import PersistentModel
 # TODO split this up into timers, schedules, and triggers. Keeping
 # TODO everything in the same model is very poorly normalized.
 class DeviceActionTimer(PersistentModel):
+
     interval = peewee.IntegerField()
-    action = peewee.CharField()
+    action = peewee.CharField(unique=True)
 
     @staticmethod
     def local_key_field():
@@ -22,4 +23,5 @@ class DeviceActionTimer(PersistentModel):
         return "action"
 
     def __str__(self):
-        return str(self.__class__) + " " + str(self.__dict__)
+        return f"{self.__class__} action: {self.action} " \
+               f"interval: {self.interval}"

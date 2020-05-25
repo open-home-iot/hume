@@ -57,13 +57,23 @@ def new_configuration(uuid, config):
         else:
             action_path = f"{uuid},{timer['action_id']}"
 
-        # save persistently
-        timer = DeviceActionTimer(interval=timer["interval"],
-                                  action=action_path)
-        storage.save(timer)
+        # Check if timer already present for action path
+        device_action_timer = storage.get(DeviceActionTimer, action_path)
+        LOGGER.debug(f"found timer object: {device_action_timer}")
+
+        if device_action_timer:
+            # Update interval if found
+            LOGGER.debug("timer matched action path")
+            device_action_timer.interval = timer["interval"]
+        else:
+            # Not found, create a new timer
+            device_action_timer = DeviceActionTimer(interval=timer["interval"],
+                                                    action=action_path)
+
+        storage.save(device_action_timer)
 
         # set timer
-        device_timer.start(timer)
+        device_timer.start(device_action_timer)
 
     # schedules = config["schedules"]
     # triggers = config["triggers"]

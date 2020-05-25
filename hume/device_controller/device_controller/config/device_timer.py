@@ -1,3 +1,4 @@
+import pprint
 import logging
 import threading
 
@@ -28,6 +29,7 @@ def start(device_action_timer: DeviceActionTimer):
         LOGGER.debug(f"there was already an old timer, cancelling: "
                      f"{active_timer}")
     except KeyError:
+        # This is the case if no timer existed before.
         pass
 
     new_timer = threading.Timer(float(device_action_timer.interval),
@@ -35,6 +37,8 @@ def start(device_action_timer: DeviceActionTimer):
                                 args=(device_action_timer,))
     _timers[device_action_timer.action] = new_timer
     new_timer.start()
+
+    LOGGER.debug(f"new _timers: {pprint.pformat(_timers, indent=2)}")
 
 
 def stop_all():

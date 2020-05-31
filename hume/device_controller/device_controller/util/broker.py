@@ -6,7 +6,7 @@ from rabbitmq_client.client import RMQClient
 LOGGER = logging.getLogger(__name__)
 
 _internal_subscriptions = dict()
-_rmq_client = RMQClient(log_level=logging.INFO)
+_rmq_client = RMQClient(log_level=logging.DEBUG)
 
 
 def start():

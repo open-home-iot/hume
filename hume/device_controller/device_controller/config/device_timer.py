@@ -45,8 +45,19 @@ def stop_all():
     """
     Stop all running timers.
     """
+    LOGGER.debug("stopping all device timers")
     for timer in _timers.values():
         timer.cancel()
+
+
+def stop(timer_ref):
+    """
+    Stop the timer pointed out by parameter.
+
+    :param timer_ref:
+    """
+    LOGGER.debug(f"stopping device timer: {timer_ref}")
+    _timers.pop(timer_ref).cancel()
 
 
 def timeout(device_action_timer):

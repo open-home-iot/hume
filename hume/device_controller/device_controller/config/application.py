@@ -35,45 +35,59 @@ def stop():
     device_timer.stop_all()
 
 
-def new_configuration(uuid, config):
+def create_timer_configuration(uuid, timer):
     """
     Interface for handling configuration changes.
 
     :param uuid: device ID
-    :param config: new configuration
-    :return:
+    :param timer: new device timer
+    :return: timer reference
     """
-    LOGGER.info(f"device: {uuid} new configuration: {config}")
+    LOGGER.info(f"device: {uuid} new timer: {timer}")
 
-    timers = config["timers"]
+    device_id = timer.get("device_id")
+    # if sub-device
+    if device_id:
+        action_path = f"{uuid},{device_id},{timer['action_id']}"
+    else:
+        action_path = f"{uuid},{timer['action_id']}"
 
-    for timer in timers:
-        # action path
-        device_id = timer.get("device_id")
+    # Check if timer already present for action path
+    device_action_timer = storage.get(DeviceActionTimer, action_path)
+    LOGGER.debug(f"found timer object: {device_action_timer}")
 
-        # if sub-device
-        if device_id:
-            action_path = f"{uuid},{device_id},{timer['action_id']}"
-        else:
-            action_path = f"{uuid},{timer['action_id']}"
+    if device_action_timer:
+        # Update interval if found
+        LOGGER.debug("timer matched action path")
+        device_action_timer.interval = timer["interval"]
+    else:
+        # Not found, create a new timer
+        device_action_timer = DeviceActionTimer(interval=timer["interval"],
+                                                action=action_path)
 
-        # Check if timer already present for action path
-        device_action_timer = storage.get(DeviceActionTimer, action_path)
-        LOGGER.debug(f"found timer object: {device_action_timer}")
+    storage.save(device_action_timer)
 
-        if device_action_timer:
-            # Update interval if found
-            LOGGER.debug("timer matched action path")
-            device_action_timer.interval = timer["interval"]
-        else:
-            # Not found, create a new timer
-            device_action_timer = DeviceActionTimer(interval=timer["interval"],
-                                                    action=action_path)
+    # set timer
+    device_timer.start(device_action_timer)
 
-        storage.save(device_action_timer)
+    return action_path
 
-        # set timer
-        device_timer.start(device_action_timer)
 
-    # schedules = config["schedules"]
-    # triggers = config["triggers"]
+def delete_timer_configuration(uuid, timer):
+    """
+    Interface for handling configuration changes.
+
+    :param uuid: device ID
+    :param timer: reference to existing timer
+    :return: reference to deleted timer/None
+    """
+    LOGGER.info(f"deleting timer with ref: {timer}")
+
+    timer_ref = storage.get(DeviceActionTimer, timer)
+
+    if timer_ref is not None:
+        device_timer.stop(timer_ref.action)
+        storage.delete(timer_ref)
+        return timer_ref.action
+
+    return timer_ref

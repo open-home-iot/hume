@@ -1,6 +1,6 @@
 import logging
 
-from bottle import request, route, put
+from bottle import request, route, put, post, delete, response
 
 from . import hint_req_handler
 
@@ -16,7 +16,6 @@ def confirm_attach(uuid):
     :return:
     """
     LOGGER.info("got message confirm attach from HINT")
-    LOGGER.debug(f"{uuid}")
 
     result = hint_req_handler.confirm_attach(uuid)
 
@@ -24,21 +23,39 @@ def confirm_attach(uuid):
     return {"result": "ok"}
 
 
-@route('/device/<uuid>/configurations', method='POST')
-def device_configuration(uuid):
+@post('/device/<uuid>/configurations/timers')
+def device_timer_configuration_create(uuid):
     """
-    HINT sends configuration for a device (and potentially for its sub-devices).
+    HINT sends device timer configuration for a device (and potentially for its
+    sub-devices).
 
     :param uuid:
     :return:
     """
-    LOGGER.info("got device configuration request from HINT")
-    LOGGER.debug(f"{request.json}")
+    LOGGER.info("got device timer configuration create from HINT")
 
-    result = hint_req_handler.device_configuration(request.json, uuid)
+    result = hint_req_handler.device_timer_configuration_create(uuid,
+                                                                request.json)
 
-    # TODO make result depend on message handling outcome
-    return {"result": "ok"}
+    return result
+
+
+@delete('/device/<uuid>/configurations/timers/<timer>')
+def device_timer_configuration_delete(uuid, timer):
+    """
+    HINT sends a delete for a device timer configuration for a device (and
+    potentially for its sub-devices).
+
+    :param uuid:
+    :param timer:
+    :return:
+    """
+    LOGGER.info("got device timer configuration delete from HINT")
+
+    result = hint_req_handler.device_timer_configuration_delete(uuid,
+                                                                timer)
+
+    return result
 
 
 @put('/device/<uuid>/actions/<action_id:int>')
@@ -51,7 +68,6 @@ def device_action(uuid, action_id: int):
     :return:
     """
     LOGGER.info("got device action invocation from HINT")
-    LOGGER.debug(f"{uuid} {action_id}")
 
     result = hint_req_handler.device_action(uuid, action_id)
 
@@ -70,7 +86,6 @@ def sub_device_action(uuid, device_id: int, action_id: int):
     :return:
     """
     LOGGER.info("got sub device action invocation from HINT")
-    LOGGER.debug(f"{uuid} {action_id}")
 
     result = hint_req_handler.sub_device_action(uuid, device_id, action_id)
 

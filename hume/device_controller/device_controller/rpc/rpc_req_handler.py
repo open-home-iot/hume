@@ -10,9 +10,16 @@ LOGGER = logging.getLogger(__name__)
 
 # HINT ORIGINATED
 HINT_MESSAGE_CONFIRM_ATTACH = 1
-HINT_MESSAGE_DEVICE_CONFIGURATION = 2
-HINT_MESSAGE_DEVICE_ACTION = 3
-HINT_MESSAGE_SUB_DEVICE_ACTION = 4
+
+HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_CREATE = 2
+HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_DELETE = 3
+HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_CREATE = 4
+HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_DELETE = 5
+HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_CREATE = 6
+HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_DELETE = 7
+
+HINT_MESSAGE_DEVICE_ACTION = 8
+HINT_MESSAGE_SUB_DEVICE_ACTION = 9
 
 
 """
@@ -31,17 +38,21 @@ def incoming_rpc_request(rpc_req):
 
     decoded_req = json.loads(rpc_req.decode('utf-8'))
 
+    result = {"result": "OK"}
+
     if decoded_req["message_type"] == HINT_MESSAGE_CONFIRM_ATTACH:
         confirm_attach(decoded_req["message_content"])
-    elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_CONFIGURATION:
-        device_configuration(decoded_req["message_content"])
+    elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_CREATE:
+        result = device_timer_configuration_create(decoded_req["message_content"])
+    elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_DELETE:
+        result = device_timer_configuration_delete(decoded_req["message_content"])
     elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_ACTION:
         device_action(decoded_req["message_content"])
     elif decoded_req["message_type"] == HINT_MESSAGE_SUB_DEVICE_ACTION:
         sub_device_action(decoded_req["message_content"])
 
-    # TODO, result should depend on outcome
-    return json.dumps({"result": "OK"}).encode('utf-8')
+    # TODO, more results should depend on outcome
+    return json.dumps(result).encode('utf-8')
 
 
 def confirm_attach(message_content):
@@ -64,16 +75,45 @@ def confirm_attach(message_content):
     device_app.confirm_attach(device)
 
 
-def device_configuration(message_content):
+def device_timer_configuration_create(message_content):
     """
-    Called on HINT controller forwarding a device's new configuration data.
+    Called on HINT controller forwarding a device's new timer configuration
+    data.
 
     :param message_content:
     """
-    LOGGER.debug(f"device configuration received: {message_content}")
+    LOGGER.debug(f"create device timer configuration received: "
+                 f"{message_content}")
 
     # Load into config application
-    config.new_configuration(message_content["uuid"], message_content["config"])
+    ref = config.create_timer_configuration(
+        message_content["uuid"], message_content["timer"]
+    )
+
+    return {"ref": ref}
+
+
+def device_timer_configuration_delete(message_content):
+    """
+    Called on HINT controller forwarding a device's deleted timer configuration
+    data.
+
+    :param message_content:
+    """
+    LOGGER.debug(f"delete device timer configuration received: "
+                 f"{message_content}")
+
+    # delete from config application
+    ref = config.delete_timer_configuration(
+        message_content["uuid"], message_content["timer"]
+    )
+
+    if ref:
+        result = {"deleted": ref}
+    else:
+        result = {"result": "error"}
+
+    return result
 
 
 def device_action(message_content):

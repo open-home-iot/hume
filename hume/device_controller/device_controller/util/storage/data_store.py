@@ -53,6 +53,7 @@ def get(cls, key):
     :param key: key
     :return: class object matching key
     """
+    LOGGER.info("getting object")
     return _store.get(cls, key)
 
 
@@ -63,7 +64,19 @@ def get_all(cls):
     :param cls:
     :return:
     """
+    LOGGER.info("getting all objects")
     return _store.get_all(cls)
+
+
+def delete(obj):
+    """
+    Removes the object from both local and persistent storage.
+
+    :param obj:
+    :return:
+    """
+    LOGGER.info("deleting object")
+    _store.delete(obj)
 
 
 class DataStore:
@@ -146,6 +159,15 @@ class DataStore:
         :return:
         """
         return self._local_storage.get_all(cls)
+
+    def delete(self, obj):
+        """
+        Removes the object from both local and persistent storage.
+
+        :param obj:
+        """
+        self._persistent_storage.delete(obj)
+        self._local_storage.delete(obj)
 
 
 _store = DataStore()

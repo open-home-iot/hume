@@ -48,3 +48,14 @@ class PersistentStorage:
         LOGGER.debug(f"getting all records for class: {cls}")
 
         return cls.select()
+
+    def delete(self, obj):
+        """
+        Removes the object from persistent storage.
+
+        :param obj:
+        :return:
+        """
+        LOGGER.debug(f"delete object: {obj}")
+
+        obj.delete_instance()

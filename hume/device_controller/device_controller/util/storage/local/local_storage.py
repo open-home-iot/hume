@@ -46,7 +46,7 @@ class LocalStorage:
 
         :param cls: class
         :param key: key
-        :return: class object matching key
+        :return: class object matching key or None
         """
         LOGGER.debug("getting object")
 
@@ -79,3 +79,15 @@ class LocalStorage:
 
         for obj in data:
             self.save(obj)
+
+    def delete(self, obj):
+        """
+        Removes the object from both local and persistent storage.
+
+        :param obj:
+        """
+        LOGGER.debug("deleting object from local storage")
+        table = self._data_dict[obj.__class__.__name__]
+
+        table.pop(getattr(obj, obj.local_key_field()))
+        LOGGER.debug(f"resulting local storage state: {self._data_dict}")

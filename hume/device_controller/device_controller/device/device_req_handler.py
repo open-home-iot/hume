@@ -32,27 +32,25 @@ def attach(message_content):
     device_ip = message_content.pop("device_ip")
     uuid = message_content["uuid"]
 
-    try:
-        device = Device.get(Device.uuid == uuid)
+    device = storage.get(Device, uuid)
 
-        if device.attached:
-            LOGGER.debug(
-                "device was already attached, confirming back to device"
-            )
-            device_req_mod.confirm_attach(device)
-
-    except DoesNotExist:
+    if device is not None and device.attached:
+        LOGGER.debug(
+            "device was already attached, confirming back to device"
+        )
+        device_req_mod.confirm_attach(device)
+    else:
         LOGGER.debug("device not previously attached")
         device = Device(uuid=uuid, ip_address=device_ip)
         storage.save(device)
 
-    hint_controller_message = {
-        "message_type": DEVICE_MESSAGE_ATTACH,
-        "message_content": message_content
-    }
+        hint_controller_message = {
+            "message_type": DEVICE_MESSAGE_ATTACH,
+            "message_content": message_content
+        }
 
-    response = rpc.send_hint_controller_message(hint_controller_message)
-    LOGGER.debug(f"HINT controller responded: {response}")
+        response = rpc.send_hint_controller_message(hint_controller_message)
+        LOGGER.debug(f"HINT controller responded: {response}")
 
 
 def device_event(uuid, event_id, message_content):

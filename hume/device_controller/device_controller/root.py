@@ -3,7 +3,7 @@ import signal
 import sys
 
 from hume_broker import broker
-from device_controller.util import data_store
+from hume_storage import data_store
 from device_controller.util.log import set_up_logging
 
 from device_controller.config import application as config

@@ -3,7 +3,7 @@ import signal
 import sys
 
 from hume_broker import broker
-from hint_controller.util import data_store
+from hume_storage import data_store
 from hint_controller.util.log import set_up_logging
 
 from hint_controller.rpc import application as rpc

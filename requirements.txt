@@ -1,7 +1,8 @@
+hume-broker @ git+ssh://git@github.com/megacorpincorporated/hume_broker.git@master
+hume-storage @ git+ssh://git@github.com/megacorpincorporated/hume_storage.git@master
 bottle==0.12.18
 certifi==2020.4.5.1
 chardet==3.0.4
-hume-broker @ git+ssh://git@github.com/megacorpincorporated/hume_broker.git@master
 idna==2.9
 peewee==3.13.1
 pika==1.1.0

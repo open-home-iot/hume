@@ -1,7 +1,7 @@
 import json
 import logging
 
-from hint_controller.util import broker
+from hume_broker import broker
 from . import rpc_req_handler
 
 

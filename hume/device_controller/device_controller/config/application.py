@@ -89,5 +89,7 @@ def delete_timer_configuration(uuid, timer):
         device_timer.stop(timer_ref.action)
         storage.delete(timer_ref)
         return timer_ref.action
+    else:
+        LOGGER.debug("timer did not exist, nothing is deleted")
 
     return timer_ref

@@ -13,7 +13,7 @@ from device_controller.util.storage import PersistentModel
 class DeviceActionTimer(PersistentModel):
 
     interval = peewee.IntegerField()
-    action = peewee.CharField(primary_key=True, unique=True)
+    action = peewee.CharField(unique=True)
 
     @staticmethod
     def local_key_field():

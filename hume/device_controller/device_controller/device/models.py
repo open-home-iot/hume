@@ -1,6 +1,6 @@
 import peewee
 
-from device_controller.util.storage import PersistentModel
+from hume_storage import PersistentModel
 
 
 class Device(PersistentModel):

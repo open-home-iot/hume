@@ -2,7 +2,7 @@ import json
 import logging
 
 from device_controller.device.models import Device
-from device_controller.util import storage
+import hume_storage as storage
 from device_controller.config import application as config
 from device_controller.device import application as device_app
 

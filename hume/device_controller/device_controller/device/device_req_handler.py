@@ -3,7 +3,7 @@ import logging
 from peewee import DoesNotExist
 
 from device_controller.device.models import Device
-from device_controller.util import storage
+import hume_storage as storage
 from device_controller.rpc import application as rpc
 from .settings import device_req_mod
 

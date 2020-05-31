@@ -1,6 +1,6 @@
 import peewee
 
-from device_controller.util.storage import PersistentModel
+from hume_storage import PersistentModel
 
 
 # TODO How can we make guards work? It's nice to guard some actions from being

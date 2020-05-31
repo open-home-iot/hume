@@ -2,7 +2,7 @@ import logging
 
 from . import device_timer
 from .models import *
-from device_controller.util import storage
+import hume_storage as storage
 
 
 LOGGER = logging.getLogger(__name__)

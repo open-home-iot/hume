@@ -3,7 +3,7 @@ import logging
 
 from bottle import run
 
-from device_controller.util import storage
+import hume_storage as storage
 
 from .http_server import MyServer
 from .models import *

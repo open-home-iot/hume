@@ -26,9 +26,6 @@ def set_up_interrupt():
 
     def interrupt(_signum, _frame):
         """
-        Both DC and HC have been given test stop functions to be able to
-        terminate nicely.
-
         :param _signum:
         :param _frame:
         """
@@ -37,9 +34,6 @@ def set_up_interrupt():
 
     def terminate(_signum, _frame):
         """
-        Both DC and HC have been given test stop functions to be able to
-        terminate nicely.
-
         :param _signum:
         :param _frame:
         """

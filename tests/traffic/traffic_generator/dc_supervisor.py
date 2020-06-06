@@ -1,9 +1,9 @@
 import logging
 import os
-import threading
-import queue
+import signal
 
 import sys
+import multiprocessing
 
 # HUME IMPORTS
 sys.path.append(os.path.abspath("../../"))
@@ -22,18 +22,53 @@ def start_dc():
     Starts the device_controller in a separate process which can be communicated
     with by HTT.
     """
-    q = queue.Queue()
+    ctx = multiprocessing.get_context("spawn")
+    q = ctx.Queue()
 
-    dc_proc = threading.Thread(target=dc_loop, args=(q,))
+    dc_proc = ctx.Process(target=dc_loop, args=(q,))
     dc_proc.start()
+    print("successfully started DC supervisor process")
 
-    return q
+    return dc_proc, q
 
 
-def dc_loop(q: queue.Queue):
+def set_up_interrupt():
+    """
+    Ensures that the program can exist gracefully.
+    :return:
+    """
+
+    def interrupt(_signum, _frame):
+        """
+        :param _signum:
+        :param _frame:
+        """
+        print(f"Interrupted DC: {os.getpid()}")
+        dc_main.test_stop()
+        sys.exit(0)
+
+    def terminate(_signum, _frame):
+        """
+        :param _signum:
+        :param _frame:
+        """
+        print(f"Terminated DC: {os.getpid()}")
+        dc_main.test_stop()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, interrupt)
+    signal.signal(signal.SIGTERM, terminate)
+
+
+def dc_loop(q: multiprocessing.Queue):
     """
     Main loop of the dc supervising process.
     """
+    print(f"dc_loop {os.getpid()}")
+
+    # new process, needs termination handlers
+    set_up_interrupt()
+
     # Test start method does not block.
     dc_main.test_start(logging.DEBUG)
 
@@ -44,4 +79,8 @@ def dc_loop(q: queue.Queue):
     # downlink messaging, HTT will receive a call in the device_req_plugin
     # module when DC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
-    q.get()
+    while True:
+        item = q.get()
+
+        if item == "stop":
+            break

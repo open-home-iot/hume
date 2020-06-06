@@ -1,6 +1,4 @@
 import logging
-import signal
-import sys
 
 from hume_broker import broker
 from hume_storage import data_store
@@ -33,10 +31,6 @@ def start(cli_args=None, log_level=logging.INFO):
 
     LOGGER.info("root start")
 
-    # bind signal handlers
-    signal.signal(signal.SIGINT, interrupt)
-    signal.signal(signal.SIGTERM, terminate)
-
     # core start
     for app in UTIL:
         app.start()
@@ -44,32 +38,6 @@ def start(cli_args=None, log_level=logging.INFO):
     # application start
     for app in APPLICATIONS:
         app.start()
-
-
-def interrupt(_signum, _frame):
-    """
-    Signal handler for signal.SIGINT
-
-    :param _signum: signal.SIGINT
-    :param _frame: N/A
-    """
-    LOGGER.info("root interrupt")
-
-    stop()
-    sys.exit(0)
-
-
-def terminate(_signum, _frame):
-    """
-    Signal handler for signal.SIGTERM
-
-    :param _signum: signal.SIGTERM
-    :param _frame: N/A
-    """
-    LOGGER.info("root terminate")
-
-    stop()
-    sys.exit(0)
 
 
 def stop():

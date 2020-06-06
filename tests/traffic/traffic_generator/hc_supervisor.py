@@ -1,14 +1,14 @@
 import logging
-import multiprocessing
 import os
 import threading
+import queue
 
 import sys
 
 # HUME IMPORTS
-sys.path.append(os.path.abspath("../.."))
-# For device controller abs imports to work
-sys.path.append(os.path.abspath("../../../hume/hint_controller"))
+sys.path.append(os.path.abspath("../../"))
+# For hint controller abs imports to work
+sys.path.append(os.path.abspath("../../hume/hint_controller"))
 
 from hume.hint_controller import main as hc_main
 from hume.hint_controller.hint_controller.hint import settings
@@ -19,14 +19,18 @@ from hint_simulator import hint_req_plugin
 
 def start_hc():
     """
-    Starts the hint_controller in a separate process which can be communicated
+    Starts the hint_controller in a separate thread which can be communicated
     with by HTT.
     """
-    hc_proc = multiprocessing.Process(target=hc_loop)
-    hc_proc.start()
+    q = queue.Queue()
+
+    hc_thread = threading.Thread(target=hc_loop, args=(q,))
+    hc_thread.start()
+
+    return q
 
 
-def hc_loop():
+def hc_loop(q: queue.Queue):
     """
     Main loop of the hc supervising process.
     """
@@ -40,4 +44,4 @@ def hc_loop():
     # uplink messaging, HTT will receive a call in the hint_req_plugin module
     # when HC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
-    threading.Event().wait()
+    q.get()

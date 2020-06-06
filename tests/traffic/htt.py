@@ -29,6 +29,9 @@ def set_up_interrupt():
 
 
 if __name__ == "__main__":
+    # Clean processes
+    # multiprocessing.set_start_method("spawn")
+
     # Set up graceful stop
     set_up_interrupt()
 

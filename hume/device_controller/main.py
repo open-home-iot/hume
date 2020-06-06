@@ -1,3 +1,6 @@
+import signal
+
+import sys
 import threading
 import argparse
 import logging
@@ -13,6 +16,38 @@ def parse_args():
         description="HUME device controller"
     )
     return parser.parse_args()
+
+
+def set_up_interrupt():
+    """
+    Ensures that the program can exist gracefully.
+    :return:
+    """
+
+    def interrupt(_signum, _frame):
+        """
+        Both DC and HC have been given test stop functions to be able to
+        terminate nicely.
+
+        :param _signum:
+        :param _frame:
+        """
+        root.stop()
+        sys.exit(0)
+
+    def terminate(_signum, _frame):
+        """
+        Both DC and HC have been given test stop functions to be able to
+        terminate nicely.
+
+        :param _signum:
+        :param _frame:
+        """
+        root.stop()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, interrupt)
+    signal.signal(signal.SIGTERM, terminate)
 
 
 def test_start(log_level):
@@ -33,6 +68,8 @@ def test_stop():
 
 if __name__ == "__main__":
     args = parse_args()
+
+    set_up_interrupt()
 
     root.start(cli_args=args, log_level=logging.DEBUG)
 

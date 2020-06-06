@@ -1,7 +1,11 @@
-import threading
+import multiprocessing
 
 from traffic_generator import dc_supervisor
 from traffic_generator import hc_supervisor
+
+
+dc_queue: multiprocessing.Queue
+hc_queue: multiprocessing.Queue
 
 
 def start():
@@ -26,10 +30,12 @@ def start():
     # invoke messages originated either from a device or HINT.
 
     # Starts a process which can handle communicating with DC.
-    dc_supervisor.start_dc()
+    global dc_queue
+    dc_queue = dc_supervisor.start_dc()
 
     # Starts a process which can handle communicating with HC.
-    hc_supervisor.start_hc()
+    global hc_queue
+    hc_queue = hc_supervisor.start_hc()
 
     # TODO load device specifications
     load_device_specs()
@@ -38,7 +44,8 @@ def start():
 
 
 def stop():
-    print("yay")
+    dc_queue.put("stop")
+    hc_queue.put("stop")
 
 
 def load_device_specs():

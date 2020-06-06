@@ -13,13 +13,15 @@ from hume.device_controller import main as dc_main
 from hume.device_controller.device_controller.device import settings
 # HUME IMPORTS
 
-from device_simulator import device_req_plugin
+from traffic_generator import device_req_plugin
 
 
 def start_dc():
     """
     Starts the device_controller in a separate process which can be communicated
     with by HTT.
+
+    :return: DC supervising process, DC command queue
     """
     ctx = multiprocessing.get_context("spawn")
     q = ctx.Queue()
@@ -34,7 +36,6 @@ def start_dc():
 def set_up_interrupt():
     """
     Ensures that the program can exist gracefully.
-    :return:
     """
 
     def interrupt(_signum, _frame):
@@ -82,4 +83,5 @@ def dc_loop(q: multiprocessing.Queue):
         item = q.get()
 
         if item == "stop":
+            print("DC supervisor stopping")
             break

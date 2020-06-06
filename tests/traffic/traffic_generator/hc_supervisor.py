@@ -13,13 +13,15 @@ from hume.hint_controller import main as hc_main
 from hume.hint_controller.hint_controller.hint import settings
 # HUME IMPORTS
 
-from hint_simulator import hint_req_plugin
+from traffic_generator import hint_req_plugin
 
 
 def start_hc():
     """
     Starts the hint_controller in a separate thread which can be communicated
     with by HTT.
+
+    :return: HC supervising process, HC command queue
     """
     ctx = multiprocessing.get_context("spawn")
     q = ctx.Queue()
@@ -34,7 +36,6 @@ def start_hc():
 def set_up_interrupt():
     """
     Ensures that the program can exist gracefully.
-    :return:
     """
 
     def interrupt(_signum, _frame):
@@ -82,4 +83,5 @@ def hc_loop(q: multiprocessing.Queue):
         item = q.get()
 
         if item == "stop":
+            print("HC supervisor stopping")
             break

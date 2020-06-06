@@ -1,9 +1,8 @@
-import multiprocessing
 import threading
-import os
 
 from traffic_generator import dc_supervisor
 from traffic_generator import hc_supervisor
+from monitoring import monitor
 
 
 supervision_info = dict()
@@ -38,6 +37,9 @@ def start():
     hc_proc, hc_queue = hc_supervisor.start_hc()
     supervision_info.update({"hc": (hc_proc, hc_queue)})
 
+    monitor_thread, monitor_queue = monitor.start()
+    supervision_info.update({"monitor": (monitor_thread, monitor_queue)})
+
     # TODO load device specifications
     load_device_specs()
 
@@ -59,6 +61,10 @@ def stop():
     hc_proc, hc_queue = supervision_info.get("hc")
     hc_queue.put("stop")  # Necessary? Signals get propagated.
     hc_proc.join()
+
+    monitor_thread, monitor_queue = supervision_info.get("monitor")
+    monitor_queue.put("stop")  # Necessary! Signal not propagated to thread.
+    monitor_thread.join()
 
 
 def load_device_specs():

@@ -1,8 +1,7 @@
 import logging
 import os
-import signal
-
 import sys
+import signal
 import multiprocessing
 
 # HUME IMPORTS
@@ -27,7 +26,7 @@ def start_dc():
 
     dc_proc = ctx.Process(target=dc_loop, args=(q,))
     dc_proc.start()
-    print("successfully started DC supervisor process")
+    print("Started DC supervisor process")
 
     return dc_proc, q
 

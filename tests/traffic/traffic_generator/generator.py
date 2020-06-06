@@ -35,11 +35,15 @@ def start():
     supervision_info.update({"dc": (dc_proc, dc_queue)})
 
     # Starts a process which can handle communicating with HC.
-    #global hc_queue
-    #hc_queue = hc_supervisor.start_hc()
+    hc_proc, hc_queue = hc_supervisor.start_hc()
+    supervision_info.update({"hc": (hc_proc, hc_queue)})
 
     # TODO load device specifications
     load_device_specs()
+
+    # TODO load HTT configuration
+    load_htt_specs()
+
     # TODO start running traffic based on specs
     run_traffic()
 
@@ -52,12 +56,27 @@ def stop():
     dc_queue.put("stop")  # Necessary? Signals get propagated.
     dc_proc.join()
 
-    #hc_queue.put("stop")
+    hc_proc, hc_queue = supervision_info.get("hc")
+    hc_queue.put("stop")  # Necessary? Signals get propagated.
+    hc_proc.join()
 
 
 def load_device_specs():
+    """
+    Load up device specs.
+    """
+    pass
+
+
+def load_htt_specs():
+    """
+    Load up HTT specs.
+    """
     pass
 
 
 def run_traffic():
-    threading.Event().wait()
+    """
+    Start traffic.
+    """
+    threading.Event().wait()  # Blocks!

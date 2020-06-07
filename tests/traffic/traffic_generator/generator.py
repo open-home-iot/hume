@@ -3,7 +3,8 @@ import threading
 from traffic_generator import dc_supervisor
 from traffic_generator import hc_supervisor
 from monitoring import monitor
-
+from traffic_generator.device_sim import DeviceSim
+from traffic_generator.hint_sim import HintSim
 
 supervision_info = dict()
 
@@ -42,13 +43,13 @@ def start():
     supervision_info.update({"hc": (hc_proc, hc_queue)})
 
     # TODO load device specifications
-    load_device_specs()
+    device_specs = load_device_specs()
 
     # TODO load HTT configuration
-    load_htt_specs()
+    htt_specs = load_htt_specs()
 
     # TODO start running traffic based on specs
-    run_traffic()
+    run_traffic(monitor_queue, device_specs, htt_specs)
 
 
 def stop():
@@ -82,8 +83,15 @@ def load_htt_specs():
     pass
 
 
-def run_traffic():
+def run_traffic(monitor_queue, device_specs, htt_specs):
     """
     Start traffic.
+
+    :param monitor_queue:
+    :param device_specs:
+    :param htt_specs:
     """
+    device_sim = DeviceSim(monitor_queue)
+    hint_sim = HintSim(monitor_queue)
+
     threading.Event().wait()  # Blocks!

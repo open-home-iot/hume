@@ -29,16 +29,17 @@ def start():
     # This means that HTT needs access to both process spaces to be able to
     # invoke messages originated either from a device or HINT.
 
+    # Monitor needs to start first to provide its queue to HTT-simulated parts.
+    monitor_thread, monitor_queue = monitor.start()
+    supervision_info.update({"monitor": (monitor_thread, monitor_queue)})
+
     # Starts a process which can handle communicating with DC.
-    dc_proc, dc_queue = dc_supervisor.start_dc()
+    dc_proc, dc_queue = dc_supervisor.start_dc(monitor_queue)
     supervision_info.update({"dc": (dc_proc, dc_queue)})
 
     # Starts a process which can handle communicating with HC.
-    hc_proc, hc_queue = hc_supervisor.start_hc()
+    hc_proc, hc_queue = hc_supervisor.start_hc(monitor_queue)
     supervision_info.update({"hc": (hc_proc, hc_queue)})
-
-    monitor_thread, monitor_queue = monitor.start()
-    supervision_info.update({"monitor": (monitor_thread, monitor_queue)})
 
     # TODO load device specifications
     load_device_specs()

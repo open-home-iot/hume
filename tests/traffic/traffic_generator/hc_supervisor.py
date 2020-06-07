@@ -16,17 +16,19 @@ from hume.hint_controller.hint_controller.hint import settings
 from traffic_generator import hint_req_plugin
 
 
-def start_hc():
+def start_hc(monitor_queue: multiprocessing.Queue):
     """
     Starts the hint_controller in a separate thread which can be communicated
     with by HTT.
+
+    :param monitor_queue: reporting queue of the monitor application
 
     :return: HC supervising process, HC command queue
     """
     ctx = multiprocessing.get_context("spawn")
     q = ctx.Queue()
 
-    hc_proc = ctx.Process(target=hc_loop, args=(q,))
+    hc_proc = ctx.Process(target=hc_loop, args=(q, monitor_queue))
     hc_proc.start()
     print("Started HC supervisor process")
 
@@ -60,9 +62,12 @@ def set_up_interrupt():
     signal.signal(signal.SIGTERM, terminate)
 
 
-def hc_loop(q: multiprocessing.Queue):
+def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     Main loop of the hc supervising process.
+
+    :param q: cmd queue of the DC supervisor
+    :param monitor_queue: reporting queue of the monitor application
     """
     print(f"hc_loop {os.getpid()}")
 

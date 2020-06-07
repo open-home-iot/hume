@@ -16,17 +16,19 @@ from hume.device_controller.device_controller.device import settings
 from traffic_generator import device_req_plugin
 
 
-def start_dc():
+def start_dc(monitor_queue: multiprocessing.Queue):
     """
     Starts the device_controller in a separate process which can be communicated
     with by HTT.
+
+    :param monitor_queue: reporting queue of the monitor application
 
     :return: DC supervising process, DC command queue
     """
     ctx = multiprocessing.get_context("spawn")
     q = ctx.Queue()
 
-    dc_proc = ctx.Process(target=dc_loop, args=(q,))
+    dc_proc = ctx.Process(target=dc_loop, args=(q, monitor_queue))
     dc_proc.start()
     print("Started DC supervisor process")
 
@@ -60,9 +62,12 @@ def set_up_interrupt():
     signal.signal(signal.SIGTERM, terminate)
 
 
-def dc_loop(q: multiprocessing.Queue):
+def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     Main loop of the dc supervising process.
+
+    :param q: cmd queue of the DC supervisor
+    :param monitor_queue: reporting queue of the monitor application
     """
     print(f"dc_loop {os.getpid()}")
 

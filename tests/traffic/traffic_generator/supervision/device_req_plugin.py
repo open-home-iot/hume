@@ -20,7 +20,7 @@ def confirm_attach(device):
     :param device:
     :return:
     """
-    LOGGER.debug(f"sending confirm attach request to device: {device.uuid}")
+    mq.put("confirming attach")
 
 
 def device_action(device, action_id):
@@ -31,7 +31,7 @@ def device_action(device, action_id):
     :param action_id:
     :return:
     """
-    LOGGER.debug(f"sending device action: {device} {action_id}")
+    mq.put("device action")
 
 
 def sub_device_action(device, device_id, action_id):
@@ -43,4 +43,4 @@ def sub_device_action(device, device_id, action_id):
     :param action_id:
     :return:
     """
-    LOGGER.debug(f"sending sub device action: {device} {device_id} {action_id}")
+    mq.put("sub device action")

@@ -4,15 +4,6 @@ import sys
 import signal
 import multiprocessing
 
-# HUME IMPORTS
-sys.path.append(os.path.abspath("../../../"))
-# For hint controller abs imports to work
-sys.path.append(os.path.abspath("../../hume/hint_controller"))
-
-from hume.hint_controller import main as hc_main
-from hume.hint_controller.hint_controller.hint import settings
-# HUME IMPORTS
-
 from traffic_generator.supervision import hint_req_plugin
 
 
@@ -35,7 +26,7 @@ def start_hc(monitor_queue: multiprocessing.Queue):
     return hc_proc, q
 
 
-def set_up_interrupt():
+def set_up_interrupt(mod):
     """
     Ensures that the program can exist gracefully.
     """
@@ -46,7 +37,7 @@ def set_up_interrupt():
         :param _frame:
         """
         print(f"Interrupted HC: {os.getpid()}")
-        hc_main.test_stop()
+        mod.test_stop()
         sys.exit(0)
 
     def terminate(_signum, _frame):
@@ -55,7 +46,7 @@ def set_up_interrupt():
         :param _frame:
         """
         print(f"Terminated HC: {os.getpid()}")
-        hc_main.test_stop()
+        mod.test_stop()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, interrupt)
@@ -71,8 +62,11 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     print(f"hc_loop {os.getpid()}")
 
+    from hume.hint_controller import main as hc_main
+    from hume.hint_controller.hint_controller.hint import settings
+
     # new process, needs termination handlers
-    set_up_interrupt()
+    set_up_interrupt(hc_main)
 
     # Test start method does not block.
     hc_main.test_start(logging.DEBUG)
@@ -92,3 +86,5 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
         if item == "stop":
             print("HC supervisor stopping")
             break
+        else:
+            print(f"HC supervisor got: {item}")

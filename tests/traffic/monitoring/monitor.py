@@ -32,3 +32,5 @@ def monitor_loop(mq: multiprocessing.Queue):
         if item == "stop":
             print("Monitor app stopping")
             break
+        else:
+            print(f"monitor got: {item}")

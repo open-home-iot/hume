@@ -38,7 +38,15 @@ if __name__ == "__main__":
     # Set up graceful stop
     set_up_interrupt()
 
-    print(f"HTT started: {os.getpid()}")
+    print(f"HTT PID: {os.getpid()}")
+
+    # IMPORTANT! This should only be done in the main process! Otherwise, the
+    # paths get inserted over and over!
+    sys.path.insert(0, os.path.abspath("../../hume/device_controller"))
+    sys.path.insert(0, os.path.abspath("../../hume/hint_controller"))
+    sys.path.insert(0, os.path.abspath("../.."))
+    print("printing sys.path")
+    print(sys.path)
 
     # Boot the HOME Traffic Tester!
     traffic_start()

@@ -7,7 +7,8 @@ class HintSim:
     proper reporting towards the monitor app through the monitor queue.
     """
 
-    def __init__(self, mq: multiprocessing.Queue):
+    def __init__(self, hc_q: multiprocessing.Queue, mq: multiprocessing.Queue):
+        self.hc_q = hc_q
         self.mq = mq
 
     def confirm_attach(self):

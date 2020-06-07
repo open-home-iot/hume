@@ -48,7 +48,7 @@ def start():
     htt_specs = load_htt_specs()
 
     # TODO start running traffic based on specs
-    run_traffic(monitor_queue, device_specs, htt_specs)
+    run_traffic(device_specs, htt_specs)
 
 
 def stop():
@@ -72,25 +72,32 @@ def load_device_specs():
     """
     Load up device specs.
     """
-    pass
+    return {}
 
 
 def load_htt_specs():
     """
     Load up HTT specs.
     """
-    pass
+    return {}
 
 
-def run_traffic(monitor_queue, device_specs, htt_specs):
+def run_traffic(device_specs, htt_specs):
     """
     Start traffic.
 
-    :param monitor_queue:
     :param device_specs:
     :param htt_specs:
     """
-    device_sim = DeviceSim(monitor_queue)
-    hint_sim = HintSim(monitor_queue)
+    _t, monitor_queue = supervision_info.get("monitor")
+    _dc_p, dc_q = supervision_info.get("dc")
+    _hc_p, hc_q = supervision_info.get("hc")
+
+    device_sim = DeviceSim(dc_q, monitor_queue)
+    hint_sim = HintSim(hc_q, monitor_queue)
+
+    # Some action happens!
+    some_device_params = {"key": "value"}
+    device_sim.attach(some_device_params)
 
     threading.Event().wait()  # Blocks!

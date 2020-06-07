@@ -4,15 +4,6 @@ import sys
 import signal
 import multiprocessing
 
-# HUME IMPORTS
-sys.path.append(os.path.abspath("../../../"))
-# For device controller abs imports to work
-sys.path.append(os.path.abspath("../../hume/device_controller"))
-
-from hume.device_controller import main as dc_main
-from hume.device_controller.device_controller.device import settings
-# HUME IMPORTS
-
 from traffic_generator.supervision import device_req_plugin
 
 
@@ -35,7 +26,7 @@ def start_dc(monitor_queue: multiprocessing.Queue):
     return dc_proc, q
 
 
-def set_up_interrupt():
+def set_up_interrupt(mod):
     """
     Ensures that the program can exist gracefully.
     """
@@ -46,7 +37,7 @@ def set_up_interrupt():
         :param _frame:
         """
         print(f"Interrupted DC: {os.getpid()}")
-        dc_main.test_stop()
+        mod.test_stop()
         sys.exit(0)
 
     def terminate(_signum, _frame):
@@ -55,7 +46,7 @@ def set_up_interrupt():
         :param _frame:
         """
         print(f"Terminated DC: {os.getpid()}")
-        dc_main.test_stop()
+        mod.test_stop()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, interrupt)
@@ -71,8 +62,12 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     print(f"dc_loop {os.getpid()}")
 
+    from hume.device_controller import main as dc_main
+    from hume.device_controller.device_controller.device import settings, \
+        device_req_handler
+
     # new process, needs termination handlers
-    set_up_interrupt()
+    set_up_interrupt(dc_main)
 
     # Test start method does not block.
     dc_main.test_start(logging.DEBUG)
@@ -92,3 +87,7 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
         if item == "stop":
             print("DC supervisor stopping")
             break
+        else:
+            print(f"DC supervisor got: {item}")
+            # TODO Do something with the device req handler module of the device
+            # controller

@@ -1,7 +1,6 @@
 import threading
 
-from traffic_generator import dc_supervisor
-from traffic_generator import hc_supervisor
+from traffic_generator.supervision import dc_supervisor, hc_supervisor
 from monitoring import monitor
 from traffic_generator.device_sim import DeviceSim
 from traffic_generator.hint_sim import HintSim

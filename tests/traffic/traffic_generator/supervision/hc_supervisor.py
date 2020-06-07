@@ -5,7 +5,7 @@ import signal
 import multiprocessing
 
 # HUME IMPORTS
-sys.path.append(os.path.abspath("../../"))
+sys.path.append(os.path.abspath("../../../"))
 # For hint controller abs imports to work
 sys.path.append(os.path.abspath("../../hume/hint_controller"))
 
@@ -13,7 +13,7 @@ from hume.hint_controller import main as hc_main
 from hume.hint_controller.hint_controller.hint import settings
 # HUME IMPORTS
 
-from traffic_generator import hint_req_plugin
+from traffic_generator.supervision import hint_req_plugin
 
 
 def start_hc(monitor_queue: multiprocessing.Queue):
@@ -77,6 +77,8 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # Test start method does not block.
     hc_main.test_start(logging.DEBUG)
 
+    # Override the outgoing HINT request module to use HTT's own plugin.
+    hint_req_plugin.mq = monitor_queue
     settings.hint_req_mod = hint_req_plugin
 
     # From this point on, HTT can communicate with this supervising process to

@@ -1,7 +1,10 @@
 import logging
+import multiprocessing
 
 
 LOGGER = logging.getLogger(__name__)
+
+mq: multiprocessing.Queue
 
 
 """

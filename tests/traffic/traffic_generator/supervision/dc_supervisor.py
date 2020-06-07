@@ -5,7 +5,7 @@ import signal
 import multiprocessing
 
 # HUME IMPORTS
-sys.path.append(os.path.abspath("../../"))
+sys.path.append(os.path.abspath("../../../"))
 # For device controller abs imports to work
 sys.path.append(os.path.abspath("../../hume/device_controller"))
 
@@ -13,7 +13,7 @@ from hume.device_controller import main as dc_main
 from hume.device_controller.device_controller.device import settings
 # HUME IMPORTS
 
-from traffic_generator import device_req_plugin
+from traffic_generator.supervision import device_req_plugin
 
 
 def start_dc(monitor_queue: multiprocessing.Queue):
@@ -77,6 +77,8 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # Test start method does not block.
     dc_main.test_start(logging.DEBUG)
 
+    # Override the outgoing device request module to use HTT's own plugin.
+    device_req_plugin.mq = monitor_queue
     settings.device_req_mod = device_req_plugin
 
     # From this point on, HTT can communicate with this supervising process to

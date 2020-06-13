@@ -32,7 +32,7 @@ def attach(message_content):
     :param message_content:
     :return:
     """
-    LOGGER.debug(f"sending HINT attach message: {message_content}")
+    mq.put("send HINT an attach")
 
 
 def device_event(message_content):
@@ -42,7 +42,7 @@ def device_event(message_content):
     :param message_content:
     :return:
     """
-    LOGGER.debug(f"sending HINT device event message: {message_content}")
+    mq.put("send HINT device event")
 
 
 def sub_device_event(message_content):
@@ -52,4 +52,4 @@ def sub_device_event(message_content):
     :param message_content:
     :return:
     """
-    LOGGER.debug(f"sending HINT event message: {message_content}")
+    mq.put("send HINT sub device event")

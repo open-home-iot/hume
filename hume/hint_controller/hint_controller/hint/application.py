@@ -17,7 +17,7 @@ def start():
     """
     Starts up the HTTP listener.
     """
-    LOGGER.info("device listener start")
+    LOGGER.info("hint start")
 
     def start_http_server():
         """
@@ -34,7 +34,7 @@ def stop():
     """
     Stop the HTTP listener.
     """
-    LOGGER.info("device listener stop")
+    LOGGER.info("hint stop")
 
     server.shutdown()
 

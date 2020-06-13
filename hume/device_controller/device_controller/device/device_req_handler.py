@@ -1,7 +1,5 @@
 import logging
 
-from peewee import DoesNotExist
-
 from device_controller.device.models import Device
 import hume_storage as storage
 from device_controller.rpc import application as rpc
@@ -39,18 +37,24 @@ def attach(message_content):
             "device was already attached, confirming back to device"
         )
         device_req_mod.confirm_attach(device)
+
+        return
+
+    elif device is not None:
+        LOGGER.debug("device already exists but not attached")
+
     else:
         LOGGER.debug("device not previously attached")
         device = Device(uuid=uuid, ip_address=device_ip)
         storage.save(device)
 
-        hint_controller_message = {
-            "message_type": DEVICE_MESSAGE_ATTACH,
-            "message_content": message_content
-        }
+    hint_controller_message = {
+        "message_type": DEVICE_MESSAGE_ATTACH,
+        "message_content": message_content
+    }
 
-        response = rpc.send_hint_controller_message(hint_controller_message)
-        LOGGER.debug(f"HINT controller responded: {response}")
+    response = rpc.send_hint_controller_message(hint_controller_message)
+    LOGGER.debug(f"HINT controller responded: {response}")
 
 
 def device_event(uuid, event_id, message_content):

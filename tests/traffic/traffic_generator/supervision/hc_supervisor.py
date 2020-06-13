@@ -63,7 +63,7 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     print(f"hc_loop {os.getpid()}")
 
     from hume.hint_controller import main as hc_main
-    from hume.hint_controller.hint_controller.hint import settings
+    import hint_controller
 
     # new process, needs termination handlers
     set_up_interrupt(hc_main)
@@ -73,7 +73,7 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
 
     # Override the outgoing HINT request module to use HTT's own plugin.
     hint_req_plugin.mq = monitor_queue
-    settings.hint_req_mod = hint_req_plugin
+    hint_controller.hint.settings
 
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the HC, for instance: HINT originated requests. For

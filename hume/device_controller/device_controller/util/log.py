@@ -1,5 +1,5 @@
 import logging
-
+import os
 
 TOP_LOGGER_NAME = "device_controller"
 
@@ -10,6 +10,8 @@ def set_up_logging(log_level):
 
     :param log_level: min log level to use for the messages controller
     """
+    print(f"DC logging at PID: {os.getpid()}")
+
     logger = logging.getLogger(TOP_LOGGER_NAME)
     logger.setLevel(log_level)
 

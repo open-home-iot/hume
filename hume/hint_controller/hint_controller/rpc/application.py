@@ -15,7 +15,7 @@ def start():
     """
     Starts the RPC application
     """
-    LOGGER.info("rpc start")
+    LOGGER.info("hc rpc start")
 
     broker.enable_rpc_server(HINT_CONTROLLER_QUEUE,
                              rpc_req_handler.incoming_rpc_request)
@@ -25,7 +25,7 @@ def stop():
     """
     Stops the RPC application
     """
-    LOGGER.info("rpc stop")
+    LOGGER.info("hc rpc stop")
 
 
 def send_device_controller_message(message):

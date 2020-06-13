@@ -62,9 +62,9 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     print(f"dc_loop {os.getpid()}")
 
+    print("Importing DC stuff before start")
     from hume.device_controller import main as dc_main
-    from hume.device_controller.device_controller.device import settings, \
-        device_req_handler
+    from device_controller.device import settings, device_req_handler
 
     # new process, needs termination handlers
     set_up_interrupt(dc_main)
@@ -81,13 +81,69 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # downlink messaging, HTT will receive a call in the device_req_plugin
     # module when DC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
+    def get_action(item):
+        """
+        :param item:
+        :return: what command/action was received
+        """
+        return item
+
     while True:
         item = q.get()
 
-        if item == "stop":
+        if get_action(item) == "stop":
             print("DC supervisor stopping")
             break
         else:
             print(f"DC supervisor got: {item}")
-            # TODO Do something with the device req handler module of the device
-            # controller
+
+            device_req_handler.attach(
+                {
+                    "name": "Greenhouse",
+                    "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fc7",
+                    "device_ip": "192.168.0.1",
+                    "class": "COMPOUND",
+                    "spec": "GREENHOUSE",
+                    "devices": [
+                        {
+                            "name": "Thermometer",
+                            "id": 3,
+                            "class": "SENSOR",
+                            "spec": "THERMOMETER",
+                            "actions": [
+                                {
+                                    "name": "Temperature",
+                                    "id": 1,
+                                    "type": "READ",
+                                    "return_type": "FLOAT"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Water Level Sensor",
+                            "id": 4,
+                            "class": "SENSOR",
+                            "spec": "WATER_LEVEL",
+                            "actions": [
+                                {
+                                    "name": "Water Level",
+                                    "id": 1,
+                                    "type": "READ",
+                                    "return_type": "PERC_INT"
+                                }
+                            ],
+                            "events": [
+                                {
+                                    "info": "Water Level Warning",
+                                    "id": 1,
+                                    "data_type": "PERC_INT"
+                                },
+                                {
+                                    "info": "Water Level High",
+                                    "id": 2
+                                }
+                            ]
+                        }
+                    ]
+                }
+            )

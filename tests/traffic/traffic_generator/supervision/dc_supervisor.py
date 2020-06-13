@@ -26,7 +26,7 @@ def start_dc(monitor_queue: multiprocessing.Queue):
     return dc_proc, q
 
 
-def set_up_interrupt(mod):
+def set_up_interrupt(stop_func):
     """
     Ensures that the program can exist gracefully.
     """
@@ -37,7 +37,7 @@ def set_up_interrupt(mod):
         :param _frame:
         """
         print(f"Interrupted DC: {os.getpid()}")
-        mod.test_stop()
+        stop_func()
         sys.exit(0)
 
     def terminate(_signum, _frame):
@@ -46,11 +46,32 @@ def set_up_interrupt(mod):
         :param _frame:
         """
         print(f"Terminated DC: {os.getpid()}")
-        mod.test_stop()
+        stop_func()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, interrupt)
     signal.signal(signal.SIGTERM, terminate)
+
+
+def set_up_logging():
+    """
+    Sets up logging for the DC.
+    """
+    print(f"DC logging at PID: {os.getpid()}")
+
+    logger = logging.getLogger("device_controller")
+    logger.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler()  # Print logging messages
+
+    formatter = logging.Formatter(fmt="{asctime} {levelname:^8} "
+                                      "{module} {message}",
+                                  style="{",
+                                  datefmt="%d/%m/%Y %H:%M:%S")
+    handler.setFormatter(formatter)
+    handler.setLevel(logging.DEBUG)
+
+    logger.addHandler(handler)
 
 
 def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
@@ -62,19 +83,23 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     print(f"dc_loop {os.getpid()}")
 
-    print("Importing DC stuff before start")
-    from hume.device_controller import main as dc_main
-    from device_controller.device import settings, device_req_handler
+    from device_controller.root import start, stop
+    from device_controller.device import device_req_handler
+
+    import device_controller
 
     # new process, needs termination handlers
-    set_up_interrupt(dc_main)
+    set_up_interrupt(stop)
+
+    # set up DC logging
+    set_up_logging()
 
     # Test start method does not block.
-    dc_main.test_start(logging.DEBUG)
+    start()
 
     # Override the outgoing device request module to use HTT's own plugin.
     device_req_plugin.mq = monitor_queue
-    settings.device_req_mod = device_req_plugin
+    device_controller.device.settings.device_req_mod = device_req_plugin
 
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the DC, for instance: device originated events. For

@@ -32,6 +32,7 @@ def attach(message_content):
     :param message_content:
     :return:
     """
+    print("sending HINT an attach message")
     mq.put("send HINT an attach")
 
 

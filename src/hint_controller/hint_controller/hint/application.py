@@ -4,8 +4,8 @@ import logging
 from bottle import run
 
 from .http_server import MyServer
+from .settings import req_mod
 from . import routes  # To load routes
-from .settings import hint_req_mod
 
 
 LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def attach(message_content):
     """
     LOGGER.info("sending attach to HINT")
 
-    hint_req_mod.attach(message_content)
+    req_mod().attach(message_content)
 
 
 def device_event(message_content):
@@ -60,7 +60,7 @@ def device_event(message_content):
     """
     LOGGER.info("sending device event to HINT")
 
-    hint_req_mod.device_event(message_content)
+    req_mod().device_event(message_content)
 
 
 def sub_device_event(message_content):
@@ -72,5 +72,5 @@ def sub_device_event(message_content):
     """
     LOGGER.info("sending sub device event to HINT")
 
-    hint_req_mod.sub_device_event(message_content)
+    req_mod().sub_device_event(message_content)
 

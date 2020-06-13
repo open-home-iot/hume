@@ -7,6 +7,8 @@ import logging
 
 from device_controller import root
 
+from device_controller.util.log import set_up_logging
+
 
 def parse_args():
     """
@@ -44,27 +46,17 @@ def set_up_interrupt():
     signal.signal(signal.SIGTERM, terminate)
 
 
-def test_start(log_level):
-    """
-    Used by testing tools to start DC.
-
-    :param log_level:
-    """
-    root.start(log_level=log_level)
-
-
-def test_stop():
-    """
-    Used by test tools to stop DC.
-    """
-    root.stop()
-
-
 if __name__ == "__main__":
     args = parse_args()
 
     set_up_interrupt()
 
-    root.start(cli_args=args, log_level=logging.DEBUG)
+    # Only set up logging if DC is run standalone and not from HTT. Rely on HTT
+    # to set up logging otherwise.
+    set_up_logging(logging.INFO)
+
+    print(f"DC sys.path: {sys.path}")
+
+    root.start(cli_args=args)
 
     threading.Event().wait()  # Blocks indefinitely

@@ -2,7 +2,7 @@ import logging
 
 from device_controller.device.models import Device
 import hume_storage as storage
-from device_controller.rpc import application as rpc
+from ..rpc import application as rpc
 from .settings import device_req_mod
 
 

@@ -1,8 +1,6 @@
 import logging
 import os
 
-TOP_LOGGER_NAME = "device_controller"
-
 
 def set_up_logging(log_level):
     """
@@ -12,7 +10,7 @@ def set_up_logging(log_level):
     """
     print(f"DC logging at PID: {os.getpid()}")
 
-    logger = logging.getLogger(TOP_LOGGER_NAME)
+    logger = logging.getLogger("device_controller")
     logger.setLevel(log_level)
 
     handler = logging.StreamHandler()  # Print logging messages

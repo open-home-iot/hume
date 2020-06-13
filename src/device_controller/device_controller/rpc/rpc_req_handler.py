@@ -1,10 +1,10 @@
 import json
 import logging
 
-from device_controller.device.models import Device
+from device_controller.device import application as device_app
 import hume_storage as storage
 from device_controller.config import application as config
-from device_controller.device import application as device_app
+from device_controller.device.models import Device
 
 LOGGER = logging.getLogger(__name__)
 

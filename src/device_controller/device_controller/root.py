@@ -2,12 +2,10 @@ import logging
 
 from hume_broker import broker
 from hume_storage import data_store
-from device_controller.util.log import set_up_logging
 
 from device_controller.config import application as config
 from device_controller.device import application as device
 from device_controller.rpc import application as rpc
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,15 +18,12 @@ APPLICATIONS = [
 ]
 
 
-def start(cli_args=None, log_level=logging.INFO):
+def start(cli_args=None):
     """
     Starts the RootApp and all its sub-applications.
 
     :param cli_args: CLI arguments from argparse
-    :param log_level: log level...
     """
-    set_up_logging(log_level)
-
     LOGGER.info("root start")
 
     # core start

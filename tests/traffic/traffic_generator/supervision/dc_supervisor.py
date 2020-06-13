@@ -83,10 +83,8 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     """
     print(f"dc_loop {os.getpid()}")
 
-    from device_controller.root import start, stop
+    from device_controller import start, stop, settings
     from device_controller.device import device_req_handler
-
-    import device_controller
 
     # new process, needs termination handlers
     set_up_interrupt(stop)
@@ -99,7 +97,7 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
 
     # Override the outgoing device request module to use HTT's own plugin.
     device_req_plugin.mq = monitor_queue
-    device_controller.device.settings.device_req_mod = device_req_plugin
+    settings._device_req_mod = device_req_plugin
 
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the DC, for instance: device originated events. For
@@ -125,7 +123,7 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
             device_req_handler.attach(
                 {
                     "name": "Greenhouse",
-                    "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fc7",
+                    "uuid": "0a4636be-40e1-460c-8b12-6d93108e3dc7",
                     "device_ip": "192.168.0.1",
                     "class": "COMPOUND",
                     "spec": "GREENHOUSE",

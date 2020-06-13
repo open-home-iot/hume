@@ -11,8 +11,13 @@ class HintSim:
         self.hc_q = hc_q
         self.mq = mq
 
-    def confirm_attach(self):
-        pass
+    def confirm_attach(self, some_hint_params):
+        """
+        Send a confirm attach to HC.
+        :return:
+        """
+        self.hc_q.put("confirm attach")
+        self.mq.put("confirm attach")
 
     def device_timer_configuration_create(self):
         pass

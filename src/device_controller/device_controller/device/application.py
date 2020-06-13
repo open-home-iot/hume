@@ -8,7 +8,7 @@ import hume_storage as storage
 from .http_server import MyServer
 from .models import *
 from . import routes  # To load routes
-from .settings import device_req_mod
+from .settings import req_mod
 
 
 LOGGER = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def confirm_attach(device):
     """
     LOGGER.info("sending confirm attach to device")
 
-    device_req_mod.confirm_attach(device)
+    req_mod().confirm_attach(device)
 
 
 def device_action(device, action_id):
@@ -64,7 +64,7 @@ def device_action(device, action_id):
     """
     LOGGER.info("sending device action to device")
 
-    device_req_mod.device_action(device, action_id)
+    req_mod().device_action(device, action_id)
 
 
 def sub_device_action(device, device_id, action_id):
@@ -77,4 +77,4 @@ def sub_device_action(device, device_id, action_id):
     """
     LOGGER.info("sending sub device action to device")
 
-    device_req_mod.sub_device_action(device, device_id, action_id)
+    req_mod().sub_device_action(device, device_id, action_id)

@@ -20,6 +20,7 @@ def confirm_attach(device):
     :param device:
     :return:
     """
+    print("confirming attach from plugin module")
     mq.put("confirming attach")
 
 

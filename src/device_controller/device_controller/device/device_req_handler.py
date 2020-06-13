@@ -3,7 +3,7 @@ import logging
 from device_controller.device.models import Device
 import hume_storage as storage
 from ..rpc import application as rpc
-from .settings import device_req_mod
+from .settings import req_mod
 
 
 LOGGER = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ def attach(message_content):
         LOGGER.debug(
             "device was already attached, confirming back to device"
         )
-        device_req_mod.confirm_attach(device)
+        req_mod().confirm_attach(device)
 
         return
 

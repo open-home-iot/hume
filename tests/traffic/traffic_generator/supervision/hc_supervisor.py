@@ -84,6 +84,7 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     print(f"hc_loop {os.getpid()}")
 
     from hint_controller import start, stop, settings
+    from hint_controller.hint import hint_req_handler
 
     # new process, needs termination handlers
     set_up_interrupt(stop)
@@ -97,6 +98,7 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # Override the outgoing HINT request module to use HTT's own plugin.
     hint_req_plugin.mq = monitor_queue
     settings._hint_req_mod = hint_req_plugin
+
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the HC, for instance: HINT originated requests. For
     # uplink messaging, HTT will receive a call in the hint_req_plugin module
@@ -115,5 +117,9 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
         if get_action(item) == "stop":
             print("HC supervisor stopping")
             break
+        elif get_action(item) == "confirm attach":
+            hint_req_handler.confirm_attach(
+                "0a4636be-40e1-460c-8b12-6d93108e3fc7"
+            )
         else:
             print(f"HC supervisor got: {item}")

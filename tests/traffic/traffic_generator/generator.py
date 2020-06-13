@@ -1,4 +1,5 @@
 import threading
+import time
 
 from traffic_generator.supervision import dc_supervisor, hc_supervisor
 from monitoring import monitor
@@ -97,7 +98,10 @@ def run_traffic(device_specs, htt_specs):
     hint_sim = HintSim(hc_q, monitor_queue)
 
     # Some action happens!
-    some_device_params = {"key": "value"}
-    device_sim.attach(some_device_params)
+    # some_device_params = {"key": "value"}
+    # time.sleep(4)
+    # device_sim.attach(some_device_params)
+    some_hint_params = {"yay": "params"}
+    hint_sim.confirm_attach(some_hint_params)
 
     threading.Event().wait()  # Blocks!

@@ -1,10 +1,10 @@
 import threading
-import time
 
 from traffic_generator.supervision import dc_supervisor, hc_supervisor
 from monitoring import monitor
 from traffic_generator.device_sim import DeviceSim
 from traffic_generator.hint_sim import HintSim
+from traffic_generator.spec_parser import load_device_specs, load_htt_specs
 
 supervision_info = dict()
 
@@ -69,20 +69,6 @@ def stop():
     monitor_thread.join()
 
 
-def load_device_specs():
-    """
-    Load up device specs.
-    """
-    return {}
-
-
-def load_htt_specs():
-    """
-    Load up HTT specs.
-    """
-    return {}
-
-
 def run_traffic(device_specs, htt_specs):
     """
     Start traffic.
@@ -97,11 +83,10 @@ def run_traffic(device_specs, htt_specs):
     device_sim = DeviceSim(dc_q, monitor_queue)
     hint_sim = HintSim(hc_q, monitor_queue)
 
-    # Some action happens!
-    # some_device_params = {"key": "value"}
-    # time.sleep(4)
-    # device_sim.attach(some_device_params)
-    some_hint_params = {"yay": "params"}
-    hint_sim.confirm_attach(some_hint_params)
+    action_sequence = ["d", "h"]
+
+    # If chaos element should be a part of the traffic scenario
+    if htt_specs.chaos_element:
+        action_sequence.append("c")
 
     threading.Event().wait()  # Blocks!

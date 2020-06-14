@@ -1,0 +1,27 @@
+{
+  "name": "Water Level Sensor",
+  "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fs4",
+  "class": "SENSOR",
+  "spec": "WATER_LEVEL",
+  "actions": [
+    {
+      "name": "Water Level",
+      "id": 1,
+      "type": "READ",
+      "return_type": "PERC_INT"
+    }
+  ],
+  "events": [
+    {
+      "description": "Water Level",
+      "type": "INFO",
+      "id": 1,
+      "data_type": "PERC_INT"
+    },
+    {
+      "description": "Water Level High",
+      "type": "INFO",
+      "id": 2
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Lamp",
+  "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fa2",
+  "class": "ACTUATOR",
+  "spec": "LAMP",
+  "actions": [
+    {
+      "name": "Lamp Control",
+      "id": 1,
+      "type": "STATEFUL",
+      "states": [
+        "ON",
+        "OFF"
+      ]
+    }
+  ]
+}

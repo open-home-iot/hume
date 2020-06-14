@@ -1,0 +1,14 @@
+{
+  "name": "Thermometer",
+  "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fs3",
+  "class": "SENSOR",
+  "spec": "THERMOMETER",
+  "actions": [
+    {
+      "name": "Temperature",
+      "id": 1,
+      "type": "READ",
+      "return_type": "FLOAT"
+    }
+  ]
+}

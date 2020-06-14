@@ -1,3 +1,4 @@
 {
-  "chaos_element": true
+  "chaos_element": true,
+  "actions_per_minute": 2.0
 }

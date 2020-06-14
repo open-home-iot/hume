@@ -40,3 +40,5 @@ def monitor_loop(mq: multiprocessing.Queue):
             break
         else:
             print(f"monitor got: {item}")
+
+    print("Monitor app broke its loop")

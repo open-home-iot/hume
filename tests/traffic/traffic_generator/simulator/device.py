@@ -139,3 +139,24 @@ class DeviceEvent:
         data_type_str = f" -> {self.data_type}" if self.data_type is not None else ""
 
         return f"[id: {self.id} type: {self.type}{data_type_str}] | "
+
+
+class DeviceConfig:
+
+    def __init__(self):
+        """Nothing at start, random generation of each config."""
+        self.timers: [DeviceTimer] = []
+        self.schedules: [DeviceSchedule] = []
+        self.triggers: [DeviceTrigger] = []
+
+
+class DeviceTimer:
+    pass
+
+
+class DeviceSchedule:
+    pass
+
+
+class DeviceTrigger:
+    pass

@@ -1,6 +1,6 @@
 import multiprocessing
 
-from traffic_generator.simulators import Device
+from traffic_generator.simulator import Device, DeviceConfig
 
 
 class DeviceSim:
@@ -29,6 +29,7 @@ class DeviceSim:
         self.mq = mq
 
         self.devices: [Device] = self.load_devices(device_specs)
+        self.device_config = DeviceConfig()  # None at start, random gen.
 
     @staticmethod
     def load_devices(device_specs):
@@ -45,15 +46,30 @@ class DeviceSim:
 
         return devices
 
-    def attach(self, params):
+    def do_device_originated_action(self, device):
         """
-        Send a device attach to the DC.
+        Tells the simulator to perform a device orignated action.
+
+        :param device:
+        :return:
         """
-        self.dc_q.put("attach device")
-        self.mq.put("attach device")
+        print("doing something device originated")
 
-    def device_event(self):
-        pass
+    def do_hint_originated_action(self, device):
+        """
+        Tells the simulator to perform a HINT originated action.
 
-    def sub_device_event(self):
-        pass
+        :param device:
+        :return:
+        """
+        print("doing something HINT originated")
+
+    def do_something_unexpected(self, device):
+        """
+        Tells the simulator to perform something unexpected, attempting to
+        break the HOME protocol in some way.
+
+        :param device:
+        :return:
+        """
+        print("doing something unexpected")

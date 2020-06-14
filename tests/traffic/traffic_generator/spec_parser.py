@@ -27,6 +27,7 @@ class HTTSettings:
         :param htt_settings: dict of HTT settings
         """
         self.chaos_element = htt_settings.get("chaos_element", False)
+        self.actions_per_minute = htt_settings.get("actions_per_minute", 1.0)
 
 
 def load_htt_specs():

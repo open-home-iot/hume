@@ -170,3 +170,5 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
                     ]
                 }
             )
+
+    print("DC supervisor broke its loop")

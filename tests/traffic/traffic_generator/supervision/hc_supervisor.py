@@ -123,3 +123,5 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
             )
         else:
             print(f"HC supervisor got: {item}")
+
+    print("HC supervisor broke its loop")

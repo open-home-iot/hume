@@ -73,12 +73,14 @@
       ],
       "events": [
         {
-          "info": "Water Level Warning",
+          "description": "Water Level",
+          "type": "INFO",
           "id": 1,
           "data_type": "PERC_INT"
         },
         {
-          "info": "Water Level High",
+          "description": "Water Level High",
+          "type": "INFO",
           "id": 2
         }
       ]

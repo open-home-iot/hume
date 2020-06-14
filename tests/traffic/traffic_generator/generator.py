@@ -2,8 +2,7 @@ import threading
 
 from traffic_generator.supervision import dc_supervisor, hc_supervisor
 from monitoring import monitor
-from traffic_generator.device_sim import DeviceSim
-from traffic_generator.hint_sim import HintSim
+from traffic_generator.simulators.device_sim import DeviceSim
 from traffic_generator.spec_parser import load_device_specs, load_htt_specs
 
 supervision_info = dict()
@@ -80,8 +79,11 @@ def run_traffic(device_specs, htt_specs):
     _dc_p, dc_q = supervision_info.get("dc")
     _hc_p, hc_q = supervision_info.get("hc")
 
-    device_sim = DeviceSim(dc_q, monitor_queue)
-    hint_sim = HintSim(hc_q, monitor_queue)
+    device_sim = DeviceSim(device_specs, dc_q, hc_q, monitor_queue)
+
+    print("HTT simulating devices:")
+    for device in device_sim.devices:
+        print(device)
 
     action_sequence = ["d", "h"]
 

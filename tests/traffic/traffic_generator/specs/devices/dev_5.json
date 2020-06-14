@@ -1,8 +1,8 @@
 {
-  "name": "Greenhouse",
+  "name": "Water Pump",
   "uuid": "0a4636be-40e1-460c-8b12-6d93108e3fa5",
-  "class": "COMPOUND",
-  "spec": "GREENHOUSE",
+  "class": "ACTUATOR",
+  "spec": "WATER_PUMP",
   "actions": [
     {
       "name": "Water Level",

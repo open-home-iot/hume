@@ -3,6 +3,12 @@ import os
 import threading
 
 
+class MonitorReport:
+
+    def __init__(self):
+        pass
+
+
 def start():
     """
     Starts the monitoring application.

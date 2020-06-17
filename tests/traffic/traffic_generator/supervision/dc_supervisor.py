@@ -36,7 +36,7 @@ def set_up_interrupt(stop_func):
         :param _signum:
         :param _frame:
         """
-        print(f"Interrupted DC: {os.getpid()}")
+        print(f"Interrupted DC supervisor: {os.getpid()}")
         stop_func()
         sys.exit(0)
 
@@ -114,11 +114,8 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     while True:
         item = q.get()
 
-        if get_action(item) == "stop":
-            print("DC supervisor stopping")
-            break
-        else:
-            print(f"DC supervisor got: {item}")
+        if True:
+            print(f"DC supervisor got: {get_action(item)}")
 
             device_req_handler.attach(
                 {
@@ -170,5 +167,3 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
                     ]
                 }
             )
-
-    print("DC supervisor broke its loop")

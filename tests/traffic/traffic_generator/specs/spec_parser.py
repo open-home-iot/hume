@@ -11,7 +11,7 @@ def load_device_specs():
     devices = []
 
     device_spec_path = \
-        f"{os.path.dirname(os.path.abspath(__file__))}/specs/devices"
+        f"{os.path.dirname(os.path.abspath(__file__))}/devices"
 
     for spec in os.listdir(device_spec_path):
         with open(f"{device_spec_path}/{spec}", 'r') as fp:
@@ -36,7 +36,7 @@ def load_htt_specs():
 
     :return: HTT settings object
     """
-    htt_spec_path = f"{os.path.dirname(os.path.abspath(__file__))}/specs/htt"
+    htt_spec_path = f"{os.path.dirname(os.path.abspath(__file__))}/htt"
 
     with open(f"{htt_spec_path}/htt.json", 'r') as fp:
         htt_settings = json.load(fp)

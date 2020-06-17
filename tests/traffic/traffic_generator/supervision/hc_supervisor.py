@@ -36,7 +36,7 @@ def set_up_interrupt(stop_func):
         :param _signum:
         :param _frame:
         """
-        print(f"Interrupted HC: {os.getpid()}")
+        print(f"Interrupted HC supervisor: {os.getpid()}")
         stop_func()
         sys.exit(0)
 
@@ -114,14 +114,9 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     while True:
         item = q.get()
 
-        if get_action(item) == "stop":
-            print("HC supervisor stopping")
-            break
-        elif get_action(item) == "confirm attach":
+        if get_action(item) == "confirm attach":
             hint_req_handler.confirm_attach(
                 "0a4636be-40e1-460c-8b12-6d93108e3fc7"
             )
         else:
-            print(f"HC supervisor got: {item}")
-
-    print("HC supervisor broke its loop")
+            print(f"HC supervisor got: {get_action(item)}")

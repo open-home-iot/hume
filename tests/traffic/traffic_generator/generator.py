@@ -1,12 +1,12 @@
 import datetime
 import random
 import threading
-import time
+
+from monitoring import monitor
 
 from traffic_generator.supervision import dc_supervisor, hc_supervisor
-from monitoring import monitor
 from traffic_generator.simulator.device_sim import DeviceSim
-from traffic_generator.spec_parser import load_device_specs, load_htt_specs
+from traffic_generator.specs.spec_parser import load_device_specs, load_htt_specs
 
 supervision_info = dict()
 running_timer: threading.Timer = None
@@ -33,15 +33,15 @@ def start():
     # This means that HTT needs access to both process spaces to be able to
     # invoke messages originated either from a device or HINT.
 
-    # Monitor needs to start first to provide its queue to HTT-simulated parts.
+    # Monitor needs to start first to provide its queue to other HTT systems.
     monitor_thread, monitor_queue = monitor.start()
     supervision_info.update({"monitor": (monitor_thread, monitor_queue)})
 
-    # Starts a process which can handle communicating with DC.
+    # Starts a process which handles DC.
     dc_proc, dc_queue = dc_supervisor.start_dc(monitor_queue)
     supervision_info.update({"dc": (dc_proc, dc_queue)})
 
-    # Starts a process which can handle communicating with HC.
+    # Starts a process which handles HC.
     hc_proc, hc_queue = hc_supervisor.start_hc(monitor_queue)
     supervision_info.update({"hc": (hc_proc, hc_queue)})
 
@@ -60,13 +60,12 @@ def stop():
     Stop HTT.
     """
     running_timer.cancel()
+    running_timer.join()
 
     dc_proc, dc_queue = supervision_info.get("dc")
-    dc_queue.put("stop")  # Necessary? Signals get propagated.
     dc_proc.join()
 
     hc_proc, hc_queue = supervision_info.get("hc")
-    hc_queue.put("stop")  # Necessary? Signals get propagated.
     hc_proc.join()
 
     monitor_thread, monitor_queue = supervision_info.get("monitor")
@@ -83,7 +82,7 @@ def run_traffic(device_specs, htt_specs):
     :param device_specs:
     :param htt_specs:
     """
-    _t, monitor_queue = supervision_info.get("monitor")
+    monitor_t, monitor_queue = supervision_info.get("monitor")
     _dc_p, dc_q = supervision_info.get("dc")
     _hc_p, hc_q = supervision_info.get("hc")
 
@@ -122,15 +121,21 @@ def run_traffic(device_specs, htt_specs):
 
     timer = threading.Timer(
         interval,
-        timeout,
+         timeout,
         args=(interval, action_sequence, device_sim)
     )
 
     global running_timer
     running_timer = timer
-
     print(f"starting timer at: {datetime.datetime.now()}")
     timer.start()
+
+    print("waiting to join monitor...")
+    # This is here to prevent a main thread exception when interrupting HTT. If
+    # this is not here, the main thread finishes and when the interrupt happens,
+    # some exception is raised from the threading module. If the main thread is
+    # not allowed to finish, the exception does not occur.
+    monitor_t.join()
 
 
 def timeout(interval, action_sequence, device_sim):

@@ -32,10 +32,17 @@ def monitor_loop(mq: multiprocessing.Queue):
     """
     print(f"monitor_loop {os.getpid()}")
 
+    def get_action(item):
+        """
+        :param item:
+        :return: what command/action was received
+        """
+        return item
+
     while True:
         item = mq.get()
 
-        if item == "stop":
+        if get_action(item) == "stop":
             print("Monitor app stopping")
             break
         else:

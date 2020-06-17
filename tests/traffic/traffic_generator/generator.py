@@ -60,7 +60,6 @@ def stop():
     Stop HTT.
     """
     running_timer.cancel()
-    running_timer.join()
 
     dc_proc, dc_queue = supervision_info.get("dc")
     dc_proc.join()
@@ -82,11 +81,11 @@ def run_traffic(device_specs, htt_specs):
     :param device_specs:
     :param htt_specs:
     """
-    monitor_t, monitor_queue = supervision_info.get("monitor")
+    monitor_t, monitor_q = supervision_info.get("monitor")
     _dc_p, dc_q = supervision_info.get("dc")
     _hc_p, hc_q = supervision_info.get("hc")
 
-    device_sim = DeviceSim(device_specs, dc_q, hc_q, monitor_queue)
+    device_sim = DeviceSim(device_specs, dc_q, hc_q, monitor_q)
 
     print("HTT simulating devices:")
     for device in device_sim.devices:

@@ -1,6 +1,8 @@
 import multiprocessing
+import random
 
-from traffic_generator.simulator import Device, DeviceConfig
+from traffic_generator.simulator import Device, DeviceConfig, Hint
+from traffic_generator.simulator.device import STATIC_DEVICE_ACTIONS
 
 
 class DeviceSim:
@@ -31,6 +33,8 @@ class DeviceSim:
         self.devices: [Device] = self.load_devices(device_specs)
         self.device_config = DeviceConfig()  # None at start, random gen.
 
+        self.hint = Hint()  # Encapsulates HINT actions
+
     @staticmethod
     def load_devices(device_specs):
         """
@@ -41,30 +45,44 @@ class DeviceSim:
         """
         devices = []
 
-        for spec in device_specs:
-            devices.append(Device(spec))
+        for dev_id, spec in device_specs:
+            devices.append(Device(dev_id, spec))
 
         return devices
 
-    def do_device_originated_action(self, device):
+    def do_device_originated_action(self, device: Device):
         """
-        Tells the simulator to perform a device orignated action.
+        Tells the simulator to perform a device orignated action for the
+        parameter device. The simulator chooses some device originated action to
+        perform randomly, but it has to be in accordance with the HOME protocol.
 
         :param device:
         :return:
         """
         print("doing something device originated")
 
-    def do_hint_originated_action(self, device):
+        possible_actions = device.device_originated_actions + STATIC_DEVICE_ACTIONS
+        print("Possible actions:")
+        print(possible_actions)
+
+        action_or_event = random.choice(possible_actions)
+        print("Chosen action:")
+        print(action_or_event)
+
+        self.dc_q.put((device, action_or_event))
+
+    def do_hint_originated_action(self, device: Device):
         """
-        Tells the simulator to perform a HINT originated action.
+        Tells the simulator to perform a HINT originated action for the
+        parameter device. The simulator chooses some HINT originated action to
+        perform randomly, but it has to be in accordance with the HOME protocol.
 
         :param device:
         :return:
         """
         print("doing something HINT originated")
 
-    def do_something_unexpected(self, device):
+    def do_something_unexpected(self, device: Device):
         """
         Tells the simulator to perform something unexpected, attempting to
         break the HOME protocol in some way.

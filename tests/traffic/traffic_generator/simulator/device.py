@@ -1,3 +1,8 @@
+STATIC_DEVICE_ACTIONS = [
+    "attach"
+]
+
+
 def indent(level):
     i = 0
     ind = ""
@@ -11,10 +16,13 @@ def indent(level):
 
 class Device:
 
-    def __init__(self, device_spec: dict):
+    def __init__(self, htt_id, device_spec: dict):
         """
+        :param htt_id: HTT specific ID for this device
         :param device_spec: spec for the device to be created
         """
+        self.htt_id = htt_id
+
         self.name = device_spec["name"]
         self.uuid = device_spec.get("uuid")
         self.cls = device_spec["class"]
@@ -22,6 +30,20 @@ class Device:
         self.devices = self.load_sub_devices(device_spec.get("devices"))
         self.actions = self.load_device_actions(device_spec.get("actions"))
         self.events = self.load_device_events(device_spec.get("events"))
+
+    @property
+    def device_originated_actions(self):
+        """
+        Retrieve a list of possible actions for this device to take, both on top
+        and sub-device levels.
+
+        :return:
+        """
+        return \
+            self.events + \
+            [event
+             for dev in self.devices
+             for event in dev.device_originated_actions]
 
     @staticmethod
     def load_sub_devices(sub_device_specs):
@@ -37,7 +59,7 @@ class Device:
         sub_devices = []
 
         for spec in sub_device_specs:
-            sub_devices.append(Device(spec))
+            sub_devices.append(Device("sub", spec))
 
         return sub_devices
 
@@ -99,6 +121,9 @@ class Device:
                f"{indent(level + 1)}events: {events}\n" \
                f"{indent(level + 1)}sub-devices: \n{sub_devices}"
 
+    def __repr__(self):
+        return f"<HTT Device> {self.htt_id}"
+
 
 class DeviceAction:
 
@@ -123,6 +148,14 @@ class DeviceAction:
 
         return f"[id: {self.id} type: {self.type} -> {add_type_str}] | "
 
+    def __repr__(self):
+        if self.type == "STATEFUL":
+            add_type_str = f"{self.states}"
+        elif self.type == "READ":
+            add_type_str = f"{self.return_type}"
+
+        return f"[id: {self.id} type: {self.type} -> {add_type_str}]"
+
 
 class DeviceEvent:
 
@@ -139,6 +172,11 @@ class DeviceEvent:
         data_type_str = f" -> {self.data_type}" if self.data_type is not None else ""
 
         return f"[id: {self.id} type: {self.type}{data_type_str}] | "
+
+    def __repr__(self):
+        data_type_str = f" -> {self.data_type}" if self.data_type is not None else ""
+
+        return f"[id: {self.id} type: {self.type}{data_type_str}]"
 
 
 class DeviceConfig:

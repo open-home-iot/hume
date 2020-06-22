@@ -3,6 +3,7 @@ import random
 import threading
 
 from monitoring import monitor
+from traffic_generator.simulator import Device
 
 from traffic_generator.supervision import dc_supervisor, hc_supervisor
 from traffic_generator.simulator.device_sim import DeviceSim
@@ -120,7 +121,7 @@ def run_traffic(device_specs, htt_specs):
 
     timer = threading.Timer(
         interval,
-         timeout,
+        timeout,
         args=(interval, action_sequence, device_sim)
     )
 
@@ -149,7 +150,9 @@ def timeout(interval, action_sequence, device_sim):
     print(f"timeout at: {datetime.datetime.now()}")
 
     action = random.choice(action_sequence)
-    device = random.choice(device_sim.devices)
+    print(f"Random action source: {action}")
+    device: Device = random.choice(device_sim.devices)
+    print(f"Chosen device: {device.name}")
 
     if action == "d":
         device_sim.do_device_originated_action(device)

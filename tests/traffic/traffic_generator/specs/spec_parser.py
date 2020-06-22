@@ -1,6 +1,11 @@
 import os
 import json
 
+from traffic_generator.simulator import Device
+
+device_spec_path = \
+        f"{os.path.dirname(os.path.abspath(__file__))}/devices"
+
 
 def load_device_specs():
     """
@@ -10,14 +15,24 @@ def load_device_specs():
     """
     devices = []
 
-    device_spec_path = \
-        f"{os.path.dirname(os.path.abspath(__file__))}/devices"
-
     for spec in os.listdir(device_spec_path):
         with open(f"{device_spec_path}/{spec}", 'r') as fp:
-            devices.append(json.load(fp))
+            dev_str, _file_type = spec.split('.')
+            _dev_prefix, dev_id = dev_str.split('_')
+            devices.append((dev_id, json.load(fp)))
 
     return devices
+
+
+def get_device_spec(device: Device):
+    """
+    Gets the pointed out device spec.
+
+    :param device:
+    :return: device spec
+    """
+    with open(f"{device_spec_path}/dev_{device.htt_id}.json", 'r') as fp:
+        return json.load(fp)
 
 
 class HTTSettings:

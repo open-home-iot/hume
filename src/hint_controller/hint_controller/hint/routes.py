@@ -37,6 +37,7 @@ def device_timer_configuration_create(uuid):
     result = hint_req_handler.device_timer_configuration_create(uuid,
                                                                 request.json)
 
+    # TODO make result depend on message handling outcome
     return result
 
 
@@ -55,6 +56,7 @@ def device_timer_configuration_delete(uuid, timer):
     result = hint_req_handler.device_timer_configuration_delete(uuid,
                                                                 timer)
 
+    # TODO make result depend on message handling outcome
     return result
 
 

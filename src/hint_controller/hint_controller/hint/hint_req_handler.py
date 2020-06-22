@@ -41,6 +41,8 @@ def confirm_attach(uuid):
 
     LOGGER.debug(f"Device controller responded: {response}")
 
+    # TODO return based on outcome.
+
 
 def device_timer_configuration_create(uuid, message_content):
     """
@@ -59,6 +61,7 @@ def device_timer_configuration_create(uuid, message_content):
 
     LOGGER.debug(f"device controller responded: {response}")
 
+    # TODO return based on outcome.
     return response
 
 
@@ -79,6 +82,7 @@ def device_timer_configuration_delete(uuid, timer):
 
     LOGGER.debug(f"device controller responded: {response}")
 
+    # TODO return based on outcome.
     return response
 
 
@@ -98,6 +102,8 @@ def device_action(uuid, action_id):
     })
 
     LOGGER.debug(f"device controller responded: {response}")
+
+    # TODO return based on outcome.
 
 
 def sub_device_action(uuid, device_id, action_id):
@@ -121,3 +127,5 @@ def sub_device_action(uuid, device_id, action_id):
     })
 
     LOGGER.debug(f"device controller responded: {response}")
+
+    # TODO return based on outcome.

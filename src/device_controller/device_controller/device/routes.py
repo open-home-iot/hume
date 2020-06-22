@@ -24,6 +24,7 @@ def attach():
 
     result = device_req_handler.attach(request.json)
 
+    # TODO make result depend on message handling outcome
     return {"result": "ok"}
 
 
@@ -40,6 +41,7 @@ def device_event(uuid, event_id: int):
 
     result = device_req_handler.device_event(uuid, event_id, request.json)
 
+    # TODO make result depend on message handling outcome
     return {"result": "ok"}
 
 
@@ -60,4 +62,5 @@ def sub_device_event(uuid, device_id: int, event_id: int):
                                                  event_id,
                                                  request.json)
 
+    # TODO make result depend on message handling outcome
     return {"result": "ok"}

@@ -21,8 +21,10 @@ class Device:
         :param htt_id: HTT specific ID for this device
         :param device_spec: spec for the device to be created
         """
+        # HTT specific information
         self.htt_id = htt_id
 
+        # Device general information
         self.name = device_spec["name"]
         self.uuid = device_spec.get("uuid")
         self.cls = device_spec["class"]
@@ -30,6 +32,9 @@ class Device:
         self.devices = self.load_sub_devices(device_spec.get("devices"))
         self.actions = self.load_device_actions(device_spec.get("actions"))
         self.events = self.load_device_events(device_spec.get("events"))
+
+        # Device runtime information
+        self.attached = False
 
     @property
     def device_originated_actions(self):

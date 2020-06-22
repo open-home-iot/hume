@@ -56,6 +56,8 @@ def attach(message_content):
     response = rpc.send_hint_controller_message(hint_controller_message)
     LOGGER.debug(f"HINT controller responded: {response}")
 
+    # TODO return based on outcome.
+
 
 def device_event(uuid, event_id, message_content):
     """
@@ -77,6 +79,8 @@ def device_event(uuid, event_id, message_content):
 
     response = rpc.send_hint_controller_message(hint_controller_message)
     LOGGER.debug(f"HINT controller responded: {response}")
+
+    # TODO return based on outcome.
 
 
 def sub_device_event(uuid, device_id, event_id, message_content):
@@ -100,3 +104,5 @@ def sub_device_event(uuid, device_id, event_id, message_content):
 
     response = rpc.send_hint_controller_message(hint_controller_message)
     LOGGER.debug(f"HINT controller responded: {response}")
+
+    # TODO return based on outcome.

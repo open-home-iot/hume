@@ -4,7 +4,7 @@ import sys
 import signal
 import multiprocessing
 
-from traffic_generator.simulator import DeviceEvent
+from traffic_generator.simulator import DeviceEvent, Device
 from traffic_generator.specs.spec_parser import get_device_spec
 from traffic_generator.supervision import device_req_plugin
 
@@ -106,16 +106,32 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # downlink messaging, HTT will receive a call in the device_req_plugin
     # module when DC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
+    def get_operation_tag(operation):
+        """
+        :param operation:
+        :return:
+        """
+        if isinstance(operation, str):
+            return operation
+        else:
+            return operation.operation_tag
+
     while True:
         print("DC supervisor awaiting more commands")
-        device, action = q.get()
+        device, operation = q.get()
 
-        print(f"DC supervisor got: {device, action}")
+        print(f"DC supervisor got: {device, operation}")
 
-        if action == "attach":
+        operation_tag = get_operation_tag(operation)
+
+        if operation_tag == Device.ATTACH:
             device_spec = get_device_spec(device)
             device_spec["device_ip"] = f"192.168.0.{device.htt_id}"
 
             device_req_handler.attach(device_spec)
-        elif isinstance(action, DeviceEvent):
+
+        elif operation_tag == Device.EVENT:
             print("DC supervisor got a device event!")
+
+        else:
+            print(f"DC supervisor got unrecognized operation_tag: {operation_tag}")

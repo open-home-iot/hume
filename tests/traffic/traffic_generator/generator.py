@@ -10,7 +10,14 @@ from traffic_generator.simulator.device_sim import DeviceSim
 from traffic_generator.specs.spec_parser import load_device_specs, load_htt_specs
 
 supervision_info = dict()
-running_timer: threading.Timer = None
+running_timer: threading.Timer
+
+# Randomization part, option for the random engine to choose from.
+ORIGIN_DEVICE = "d"
+ORIGIN_HINT = "h"
+ORIGIN_CHAOS = "c"
+
+ORIGIN_SEQUENCE = [ORIGIN_DEVICE, ORIGIN_HINT]
 
 
 def start():
@@ -92,13 +99,10 @@ def run_traffic(device_specs, htt_specs):
     for device in device_sim.devices:
         print(device)
 
-    # Randomization part, option for the random engine to choose from.
-    action_sequence = ["d", "h"]
-
     # If chaos element should be a part of the traffic scenario
     if htt_specs.chaos_element:
         # Additional random element to pick
-        action_sequence.append("c")
+        ORIGIN_SEQUENCE.append(ORIGIN_CHAOS)
 
     # Get number of individual devices
     num_devices = len(device_sim.devices)
@@ -122,7 +126,7 @@ def run_traffic(device_specs, htt_specs):
     timer = threading.Timer(
         interval,
         timeout,
-        args=(interval, action_sequence, device_sim)
+        args=(interval, device_sim)
     )
 
     global running_timer
@@ -138,33 +142,34 @@ def run_traffic(device_specs, htt_specs):
     monitor_t.join()
 
 
-def timeout(interval, action_sequence, device_sim):
+def timeout(interval, device_sim):
     """
     Traffic generator timeout func.
 
     :param interval:
-    :param action_sequence:
     :param device_sim:
     :return:
     """
     print(f"timeout at: {datetime.datetime.now()}")
 
-    action = random.choice(action_sequence)
-    print(f"Random action source: {action}")
+    origin = random.choice(ORIGIN_SEQUENCE)
+    print(f"Random origin: {origin}")
     device: Device = random.choice(device_sim.devices)
     print(f"Chosen device: {device.name}")
 
-    if action == "d":
-        device_sim.do_device_originated_action(device)
-    elif action == "h":
-        device_sim.do_hint_originated_action(device)
-    elif action == "c":
-        device_sim.do_something_unexpected(device)
+    if origin == ORIGIN_DEVICE:
+        device_sim.origin_device(device)
+
+    elif origin == ORIGIN_HINT:
+        device_sim.origin_hint(device)
+
+    elif origin == ORIGIN_CHAOS:
+        device_sim.origin_chaos(device)
 
     timer = threading.Timer(
         interval,
         timeout,
-        args=(interval, action_sequence, device_sim)
+        args=(interval, device_sim)
     )
 
     global running_timer

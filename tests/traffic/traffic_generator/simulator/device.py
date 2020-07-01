@@ -1,8 +1,3 @@
-STATIC_DEVICE_ACTIONS = [
-    "attach"
-]
-
-
 def indent(level):
     i = 0
     ind = ""
@@ -15,6 +10,13 @@ def indent(level):
 
 
 class Device:
+
+    ATTACH = "attach"
+    EVENT = "event"
+
+    STATIC_DEVICE_OPERATIONS = [
+        ATTACH
+    ]
 
     def __init__(self, htt_id, device_spec: dict):
         """
@@ -37,7 +39,7 @@ class Device:
         self.attached = False
 
     @property
-    def device_originated_actions(self):
+    def device_originated_operations(self):
         """
         Retrieve a list of possible actions for this device to take, both on top
         and sub-device levels.
@@ -48,7 +50,7 @@ class Device:
             self.events + \
             [event
              for dev in self.devices
-             for event in dev.device_originated_actions]
+             for event in dev.device_originated_operations]
 
     @staticmethod
     def load_sub_devices(sub_device_specs):
@@ -164,6 +166,8 @@ class DeviceAction:
 
 class DeviceEvent:
 
+    operation_tag = Device.EVENT
+
     def __init__(self, event_spec: dict):
         """
         :param event_spec: spec for the event to be created
@@ -182,24 +186,3 @@ class DeviceEvent:
         data_type_str = f" -> {self.data_type}" if self.data_type is not None else ""
 
         return f"[id: {self.id} type: {self.type}{data_type_str}]"
-
-
-class DeviceConfig:
-
-    def __init__(self):
-        """Nothing at start, random generation of each config."""
-        self.timers: [DeviceTimer] = []
-        self.schedules: [DeviceSchedule] = []
-        self.triggers: [DeviceTrigger] = []
-
-
-class DeviceTimer:
-    pass
-
-
-class DeviceSchedule:
-    pass
-
-
-class DeviceTrigger:
-    pass

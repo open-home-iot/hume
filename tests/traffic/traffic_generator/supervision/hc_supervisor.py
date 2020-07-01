@@ -4,6 +4,7 @@ import sys
 import signal
 import multiprocessing
 
+from traffic_generator.simulator import Hint
 from traffic_generator.supervision import hint_req_plugin
 
 
@@ -104,19 +105,21 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # uplink messaging, HTT will receive a call in the hint_req_plugin module
     # when HC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
-    def get_action(item):
+    def get_operation_tag(operation):
         """
-        :param item:
-        :return: what command/action was received
+        :param operation:
+        :return:
         """
-        return item
+        if isinstance(operation, str):
+            return operation
 
     while True:
-        item = q.get()
+        device, operation = q.get()
 
-        if get_action(item) == "confirm attach":
-            hint_req_handler.confirm_attach(
-                "0a4636be-40e1-460c-8b12-6d93108e3fc7"
-            )
+        operation_tag = get_operation_tag(operation)
+
+        if operation_tag == Hint.CONFIRM_ATTACH:
+            hint_req_handler.confirm_attach(device.uuid)
+
         else:
-            print(f"HC supervisor got: {get_action(item)}")
+            print(f"HC supervisor got: {operation_tag}")

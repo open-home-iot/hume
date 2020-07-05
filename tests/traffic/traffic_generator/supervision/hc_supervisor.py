@@ -3,6 +3,7 @@ import os
 import sys
 import signal
 import multiprocessing
+import traceback
 
 from traffic_generator.simulator import Hint
 from traffic_generator.supervision import hint_req_plugin
@@ -118,12 +119,20 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     while True:
         print("HC supervisor getting new command")
 
-        device, operation = q.get()
+        try:
+            device, operation = q.get()
 
-        operation_tag = get_operation_tag(operation)
+            operation_tag = get_operation_tag(operation)
 
-        if operation_tag == Hint.CONFIRM_ATTACH:
-            hint_req_handler.confirm_attach(device.uuid)
+            if operation_tag == Hint.CONFIRM_ATTACH:
+                hint_req_handler.confirm_attach(device.uuid)
 
-        else:
-            print(f"HC supervisor got: {operation_tag}")
+            else:
+                print(f"HC supervisor got: {operation_tag}")
+
+        # Bare catch-all causes SIGINT etc. to be caught, derive from Exception
+        # to get around that problem. KeyBoardInterrupt derives from
+        # BaseException so it will not be caught here.
+        except Exception:
+            # TODO log caught exceptions with monitor
+            traceback.print_exc()

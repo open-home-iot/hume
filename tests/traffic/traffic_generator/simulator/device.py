@@ -18,7 +18,7 @@ class Device:
         ATTACH
     ]
 
-    def __init__(self, htt_id, device_spec: dict):
+    def __init__(self, htt_id, device_spec: dict, parent=None):
         """
         :param htt_id: HTT specific ID for this device
         :param device_spec: spec for the device to be created
@@ -26,11 +26,21 @@ class Device:
         # HTT specific information
         self.htt_id = htt_id
 
+        # Device or None
+        self.parent = parent
+
         # Device general information
         self.name = device_spec["name"]
+
+        # Top device
         self.uuid = device_spec.get("uuid")
+
+        # Sub-device
+        self.id = device_spec.get("id")
+
         self.cls = device_spec["class"]
         self.spec = device_spec["spec"]
+
         self.devices = self.load_sub_devices(device_spec.get("devices"))
         self.actions = self.load_device_actions(device_spec.get("actions"))
         self.events = self.load_device_events(device_spec.get("events"))
@@ -42,18 +52,26 @@ class Device:
     def device_originated_operations(self):
         """
         Retrieve a list of possible actions for this device to take, both on top
-        and sub-device levels.
+        and sub-device levels. Sub devices can be noticed by checking the data
+        type of the id of the tuple, sub devices have integer IDs top devices
+        have string UUIDs.
 
         :return:
         """
-        return \
-            self.events + \
-            [event
-             for dev in self.devices
-             for event in dev.device_originated_operations]
+        # Tuple notation since there is a need to differentiate between events
+        # belonging to a sub device versus a top device.
+        device_ops = [(self, Device.ATTACH)]
 
-    @staticmethod
-    def load_sub_devices(sub_device_specs):
+        for event in self.events:
+            device_ops.append((self, event))
+
+        for dev in self.devices:
+            for event in dev.events:
+                device_ops.append((dev, event))
+
+        return device_ops
+
+    def load_sub_devices(self, sub_device_specs):
         """
         Loads sub devices and returns a list of created devices.
 
@@ -66,7 +84,7 @@ class Device:
         sub_devices = []
 
         for spec in sub_device_specs:
-            sub_devices.append(Device("sub", spec))
+            sub_devices.append(Device("sub", spec, parent=self))
 
         return sub_devices
 

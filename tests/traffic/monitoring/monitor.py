@@ -32,20 +32,25 @@ def monitor_loop(mq: multiprocessing.Queue):
     """
     print(f"monitor_loop {os.getpid()}")
 
-    def get_action(item):
+    def get_operation_tag(op):
         """
-        :param item:
-        :return: what command/action was received
+        :param op:
+        :return:
         """
-        return item
+        if isinstance(op, str):
+            return op
+        else:
+            return op.operation_tag
 
     while True:
-        item = mq.get()
+        device, operation = mq.get()
 
-        if get_action(item) == "stop":
+        operation_tag = get_operation_tag(operation)
+
+        if operation_tag == "stop":
             print("Monitor app stopping")
             break
         else:
-            print(f"monitor got: {item}")
+            print(f"Monitor got operation: {operation}")
 
     print("Monitor app broke its loop")

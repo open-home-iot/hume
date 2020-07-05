@@ -135,7 +135,7 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
                 device_req_handler.attach(device_spec)
 
             elif operation_tag == Device.EVENT:
-                print("DC supervisor got a device event!")
+                pass
 
             else:
                 print(f"DC supervisor got unrecognized operation_tag: {operation_tag}")

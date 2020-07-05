@@ -21,7 +21,7 @@ def confirm_attach(device):
     :return:
     """
     print("confirming attach from plugin module")
-    mq.put("confirming attach")
+    mq.put((device, "confirming attach"))
 
 
 def device_action(device, action_id):
@@ -32,7 +32,7 @@ def device_action(device, action_id):
     :param action_id:
     :return:
     """
-    mq.put("device action")
+    mq.put((device, "device action"))
 
 
 def sub_device_action(device, device_id, action_id):
@@ -44,4 +44,4 @@ def sub_device_action(device, device_id, action_id):
     :param action_id:
     :return:
     """
-    mq.put("sub device action")
+    mq.put((device, "sub device action"))

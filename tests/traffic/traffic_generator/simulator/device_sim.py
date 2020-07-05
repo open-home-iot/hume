@@ -33,6 +33,17 @@ class DeviceSim:
 
         self.hint = Hint()  # Encapsulates HINT actions
 
+    def get_device(self, uuid):
+        """
+        Get a device based on its UUID.
+
+        :param uuid:
+        :return:
+        """
+        for device in self.devices:
+            if device.uuid == uuid:
+                return device
+
     @staticmethod
     def load_devices(device_specs):
         """
@@ -57,16 +68,17 @@ class DeviceSim:
         :param device:
         :return:
         """
-        possible_operations = device.device_originated_operations + \
-            Device.STATIC_DEVICE_OPERATIONS
+        possible_operations = device.device_originated_operations
         print("Possible operations:")
         print(possible_operations)
 
+        # Operation tuple identifying device + op
         operation = random.choice(possible_operations)
         print("Chosen operation:")
         print(operation)
 
-        self.dc_q.put((device, operation))
+        self.mq.put(operation)
+        self.dc_q.put(operation)
 
     def origin_hint(self, device: Device):
         """

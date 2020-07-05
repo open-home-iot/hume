@@ -33,7 +33,7 @@ def attach(message_content):
     :return:
     """
     print("sending HINT an attach message")
-    mq.put("send HINT an attach")
+    mq.put((message_content["uuid"], "send HINT an attach"))
 
 
 def device_event(message_content):
@@ -43,7 +43,7 @@ def device_event(message_content):
     :param message_content:
     :return:
     """
-    mq.put("send HINT device event")
+    mq.put((message_content["uuid"], "send HINT device event"))
 
 
 def sub_device_event(message_content):

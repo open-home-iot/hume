@@ -78,7 +78,7 @@ def stop():
     hc_proc.join()
 
     monitor_thread, monitor_queue = supervision_info.get("monitor")
-    monitor_queue.put("stop")  # Necessary! Signal not propagated to thread.
+    monitor_queue.put((None, "stop"))  # Necessary! Signal not propagated to thread.
     print("Joining Monitor thread")
     monitor_thread.join()
 

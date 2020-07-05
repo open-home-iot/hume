@@ -135,7 +135,18 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
                 device_req_handler.attach(device_spec)
 
             elif operation_tag == Device.EVENT:
-                pass
+
+                # No parent = top device
+                if device.parent is None:
+                    device_req_handler.device_event(device.uuid,
+                                                    operation.id,
+                                                    {"data": 666})
+
+                else:
+                    device_req_handler.sub_device_event(device.parent.uuid,
+                                                        device.id,
+                                                        operation.id,
+                                                        {"data": "subdevice"})
 
             else:
                 print(f"DC supervisor got unrecognized operation_tag: {operation_tag}")

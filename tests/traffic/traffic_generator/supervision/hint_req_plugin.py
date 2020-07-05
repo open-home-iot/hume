@@ -53,4 +53,6 @@ def sub_device_event(message_content):
     :param message_content:
     :return:
     """
-    mq.put("send HINT sub device event")
+    mq.put(((message_content["uuid"],
+             message_content["device_id"]),
+            "send HINT sub device event"))

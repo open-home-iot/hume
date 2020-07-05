@@ -106,18 +106,19 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # downlink messaging, HTT will receive a call in the device_req_plugin
     # module when DC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
-    def get_operation_tag(operation):
+    def get_operation_tag(op):
         """
-        :param operation:
+        :param op:
         :return:
         """
-        if isinstance(operation, str):
-            return operation
+        if isinstance(op, str):
+            return op
         else:
-            return operation.operation_tag
+            return op.operation_tag
 
     while True:
-        print("DC supervisor awaiting more commands")
+        print("DC supervisor getting new command")
+
         device, operation = q.get()
 
         print(f"DC supervisor got: {device, operation}")

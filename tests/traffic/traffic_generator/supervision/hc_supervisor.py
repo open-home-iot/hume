@@ -105,15 +105,19 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # uplink messaging, HTT will receive a call in the hint_req_plugin module
     # when HC attempts to send a message to a device. From there, HTT can
     # capture the traffic and update relevant KPIs.
-    def get_operation_tag(operation):
+    def get_operation_tag(op):
         """
-        :param operation:
+        :param op:
         :return:
         """
-        if isinstance(operation, str):
-            return operation
+        if isinstance(op, str):
+            return op
+        else:
+            return op.operation_tag
 
     while True:
+        print("HC supervisor getting new command")
+
         device, operation = q.get()
 
         operation_tag = get_operation_tag(operation)

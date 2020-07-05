@@ -70,13 +70,16 @@ def stop():
     running_timer.cancel()
 
     dc_proc, dc_queue = supervision_info.get("dc")
+    print("Joining DC supervisor process")
     dc_proc.join()
 
     hc_proc, hc_queue = supervision_info.get("hc")
+    print("Joining HC supervisor process")
     hc_proc.join()
 
     monitor_thread, monitor_queue = supervision_info.get("monitor")
     monitor_queue.put("stop")  # Necessary! Signal not propagated to thread.
+    print("Joining Monitor thread")
     monitor_thread.join()
 
     print("All supervised processes and threads have been joined")

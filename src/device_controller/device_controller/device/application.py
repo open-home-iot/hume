@@ -14,6 +14,7 @@ from .settings import req_mod
 LOGGER = logging.getLogger(__name__)
 
 server = MyServer(host='localhost', port=8081)
+server_thread: threading.Thread
 
 
 def start():
@@ -30,9 +31,11 @@ def start():
         devices will send requests to.
         """
         run(server=server)  # Blocks!
+        LOGGER.info("device listener broke server loop")
 
-    thread = threading.Thread(target=start_http_server)
-    thread.start()
+    global server_thread
+    server_thread = threading.Thread(target=start_http_server)
+    server_thread.start()
 
 
 def stop():
@@ -42,6 +45,7 @@ def stop():
     LOGGER.info("device listener stop")
 
     server.shutdown()
+    server_thread.join()
 
 
 def confirm_attach(device):

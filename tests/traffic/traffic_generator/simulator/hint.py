@@ -59,3 +59,6 @@ class Hint:
 
         else:
             print("Hint got unrecognized operation")
+
+        # TODO catch all for operation info return!
+        return operation

@@ -29,7 +29,7 @@ class DeviceSim:
         self.hc_q = hc_q
         self.mq = mq
 
-        self.devices: [Device] = self.load_devices(device_specs)
+        self.devices: [Device] = DeviceSim.load_devices(device_specs)
 
         self.hint = Hint()  # Encapsulates HINT actions
 

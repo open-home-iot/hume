@@ -37,5 +37,6 @@ class MyServer(WSGIRefServer):
         srv.serve_forever()
 
     def shutdown(self):  # ADD SHUTDOWN METHOD.
+        print("HTTP custom WSGI ref server shutdown")
         self.srv.shutdown()
         # self.server.server_close()

@@ -127,6 +127,9 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
             if operation_tag == Hint.CONFIRM_ATTACH:
                 hint_req_handler.confirm_attach(device.uuid)
 
+            elif operation_tag == Hint.CONFIRM_PAIRING:
+                hint_req_handler.confirm_pairing()
+
             elif operation_tag == Hint.ACTION:
 
                 # No parent == top device

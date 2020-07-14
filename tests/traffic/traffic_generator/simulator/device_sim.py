@@ -99,8 +99,14 @@ class DeviceSim:
         devices.extend(device.devices)
         selected_device = random.choice(devices)
 
-        possible_operations = Hint.filter_ops_based_on_device_cap(hint_operations,
-                                                                  selected_device)
+        if self.hint.paired:
+            possible_operations = Hint.filter_ops_based_on_device_cap(
+                hint_operations, selected_device
+            )
+        else:
+            # ensure pairing happens first
+            possible_operations = [Hint.CONFIRM_PAIRING]
+
         operation = random.choice(possible_operations)
         print("Chosen operation:")
         print(operation)

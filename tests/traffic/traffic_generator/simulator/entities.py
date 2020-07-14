@@ -180,6 +180,8 @@ class Device:
 
 class Hint:
 
+    CONFIRM_PAIRING = "confirm_pairing"
+
     CONFIG_TIMER = "config_timer"
     CONFIG_SCHEDULE = "config_schedule"
     CONFIG_TRIGGER = "config_trigger"
@@ -196,6 +198,7 @@ class Hint:
 
     def __init__(self):
         """"""
+        self.paired = False
         self.device_config = dict()
 
     @property
@@ -232,7 +235,7 @@ class Hint:
             filter_list.append(Hint.CONFIG_TIMER)
             filter_list.append(Hint.CONFIG_SCHEDULE)
 
-        print(filter_list)
+        print(f"Filter list: {filter_list}")
         filtered_ops = [op for op in operations if op not in filter_list]
         print(f"Filtered list of operations: {filtered_ops}")
 
@@ -250,6 +253,11 @@ class Hint:
         """
         if operation == Hint.CONFIRM_ATTACH:
             device.attached = True
+
+            return operation
+
+        elif operation == Hint.CONFIRM_PAIRING:
+            self.paired = True
 
             return operation
 

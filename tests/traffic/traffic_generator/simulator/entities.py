@@ -1,3 +1,6 @@
+import random
+
+
 def indent(level):
     i = 0
     ind = ""
@@ -42,11 +45,36 @@ class Device:
         self.spec = device_spec["spec"]
 
         self.devices = self.load_sub_devices(device_spec.get("devices"))
-        self.actions = self.load_device_actions(device_spec.get("actions"))
-        self.events = self.load_device_events(device_spec.get("events"))
+        self._actions = self.load_device_actions(device_spec.get("actions"))
+        self._events = self.load_device_events(device_spec.get("events"))
 
         # Device runtime information
-        self.attached = False
+        self._attached = False
+
+    @property
+    def attached(self):
+        """
+        Returns if the device is attached or not.
+
+        :return:
+        """
+        if not self.parent:
+            return self._attached
+
+        return self.parent.attached
+
+    @attached.setter
+    def attached(self, attached):
+        """
+        Sets if the device is attached.
+
+        :param attached:
+        :return:
+        """
+        if not self.parent:
+            self._attached = attached
+        else:
+            self.parent._attached = attached
 
     @property
     def device_originated_operations(self):
@@ -62,11 +90,11 @@ class Device:
         # belonging to a sub device versus a top device.
         device_ops = [(self, Device.ATTACH)]
 
-        for event in self.events:
+        for event in self._events:
             device_ops.append((self, event))
 
         for dev in self.devices:
-            for event in dev.events:
+            for event in dev._events:
                 device_ops.append((dev, event))
 
         return device_ops
@@ -133,12 +161,12 @@ class Device:
             for device in self.devices:
                 sub_devices += f"{device.__str__(level=level + 2)}"
 
-        if self.actions:
-            for action in self.actions:
+        if self._actions:
+            for action in self._actions:
                 actions += f"{action.__str__()}"
 
-        if self.events:
-            for event in self.events:
+        if self._events:
+            for event in self._events:
                 events += f"{event.__str__()}"
 
         return f"{indent(level)}{self.name}:\n" \
@@ -150,7 +178,109 @@ class Device:
         return f"<HTT Device> {self.htt_id}"
 
 
+class Hint:
+
+    CONFIG_TIMER = "config_timer"
+    CONFIG_SCHEDULE = "config_schedule"
+    CONFIG_TRIGGER = "config_trigger"
+
+    CONFIRM_ATTACH = "confirm_attach"
+    DETACH = "detach"
+
+    ACTION = "action"
+
+    STATIC_HINT_OPERATIONS = [
+        CONFIG_TIMER, CONFIG_SCHEDULE, CONFIG_TRIGGER, CONFIRM_ATTACH, DETACH,
+        ACTION
+    ]
+
+    def __init__(self):
+        """"""
+        self.device_config = dict()
+
+    @property
+    def hint_originated_operations(self):
+        """
+        Returns a list of HINT originated actions possible.
+
+        :return:
+        """
+        return Hint.STATIC_HINT_OPERATIONS
+
+    @staticmethod
+    def filter_ops_based_on_device_cap(operations, device):
+        """
+        Filters operations that the parameter device cannot perform due to
+        missing capabilities.
+
+        :param operations:
+        :param device:
+        :return:
+        """
+        filter_list = []
+
+        # device.attached is a property that checks the parent if sub device.
+        if device.attached:
+            filter_list.append(Hint.CONFIRM_ATTACH)
+        else:
+            # can't detach if not attached
+            filter_list.append(Hint.DETACH)
+
+        # Implicit booleanness states that an empty list = false
+        if not device._actions:
+            filter_list.append(Hint.ACTION)
+            filter_list.append(Hint.CONFIG_TIMER)
+            filter_list.append(Hint.CONFIG_SCHEDULE)
+
+        print(filter_list)
+        filtered_ops = [op for op in operations if op not in filter_list]
+        print(f"Filtered list of operations: {filtered_ops}")
+
+        return filtered_ops
+
+    def perform_operation(self, device: Device, operation):
+        """
+        Performs the action on the HINT side and returns information to send to
+        HUME. In HTT, that means information to forward to the HC supervisor to
+        make a direct call.
+
+        :param device:
+        :param operation:
+        :return:
+        """
+        if operation == Hint.CONFIRM_ATTACH:
+            device.attached = True
+
+            return operation
+
+        elif operation == Hint.ACTION:
+            action = random.choice(device._actions)
+
+            return action
+
+        elif operation == Hint.DETACH:
+            print("NOT IMPLEMENTED: Detach")
+
+        elif operation == Hint.CONFIG_TIMER:
+            print("NOT IMPLEMENTED: Config timer")
+
+        elif operation == Hint.CONFIG_SCHEDULE:
+            print("NOT IMPLEMENTED: Config schedule")
+
+        elif operation == Hint.CONFIG_TRIGGER:
+            print("NOT IMPLEMENTED: Config trigger")
+
+        else:
+            print("Hint got unrecognized operation")
+
+        # TODO catch all for operation info return!
+        return operation
+
+
 class DeviceAction:
+
+    # Actions are of HINT origin.
+    operation_tag = Hint.ACTION
 
     def __init__(self, action_spec: dict):
         """

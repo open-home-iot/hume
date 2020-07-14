@@ -4,13 +4,17 @@ import logging
 from bottle import run
 
 from .http_server import MyServer
+from .models import Hume
 from .settings import req_mod
+import hume_storage as storage
 from . import routes  # To load routes
+from .util import read_hume_id
 
 
 LOGGER = logging.getLogger(__name__)
 
 server = MyServer(host='localhost', port=8082)
+server_thread: threading.Thread
 
 
 def start():
@@ -19,6 +23,8 @@ def start():
     """
     LOGGER.info("hint start")
 
+    storage.register(Hume)
+
     def start_http_server():
         """
         Starts an HTTP server locally on port 8082. This sever listens for
@@ -26,8 +32,24 @@ def start():
         """
         run(server=server)  # Blocks!
 
-    thread = threading.Thread(target=start_http_server)
-    thread.start()
+    global server_thread
+    server_thread = threading.Thread(target=start_http_server)
+    server_thread.start()
+
+    hume_id = read_hume_id()
+    hume = storage.get(Hume, hume_id)
+
+    if hume is None:
+        hume = Hume(hume_id=hume_id)
+
+        storage.save(hume)
+    elif hume.paired:
+        LOGGER.debug("HUME is already paired")
+        return
+    else:
+        pass
+
+    req_mod().pair(hume)
 
 
 def stop():
@@ -37,6 +59,7 @@ def stop():
     LOGGER.info("hint stop")
 
     server.shutdown()
+    server_thread.join()
 
 
 def attach(message_content):

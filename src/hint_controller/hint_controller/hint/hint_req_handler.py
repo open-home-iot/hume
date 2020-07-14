@@ -1,7 +1,10 @@
 import json
 import logging
 
+from hint_controller.hint.models import Hume
+import hume_storage as storage
 from hint_controller.rpc import application as rpc
+from .util import read_hume_id
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,6 +26,23 @@ HINT_MESSAGE_SUB_DEVICE_ACTION = 9
 """
 This module is the starting point of HINT originating request handling.
 """
+
+
+def confirm_pairing():
+    """
+    Handler function for confirm pairing.
+
+    :return:
+    """
+    LOGGER.debug("got message confirm pairing")
+
+    hume = storage.get(Hume, read_hume_id())
+
+    hume.paired = True
+
+    storage.save(hume)
+
+    # TODO return based on outcome
 
 
 def confirm_attach(uuid):

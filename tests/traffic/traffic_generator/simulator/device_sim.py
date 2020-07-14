@@ -91,19 +91,23 @@ class DeviceSim:
         :param device:
         :return:
         """
-        possible_operations = self.hint.hint_originated_operations
-        print("Possible operations: ")
-        print(possible_operations)
+        hint_operations = self.hint.hint_originated_operations
+        print("Hint operations: ")
+        print(hint_operations)
 
+        devices = [device]
+        devices.extend(device.devices)
+        selected_device = random.choice(devices)
+
+        possible_operations = Hint.filter_ops_based_on_device_cap(hint_operations,
+                                                                  selected_device)
         operation = random.choice(possible_operations)
         print("Chosen operation:")
         print(operation)
 
-        # Make HINT simulator perform the necessary things on the HINT end and
-        # return what needs to be sent onward to HUME.
-        operation_info = self.hint.perform_operation(device, operation)
+        operation_info = self.hint.perform_operation(selected_device, operation)
 
-        self.hc_q.put((device, operation_info))
+        self.hc_q.put((selected_device, operation_info))
 
     def origin_chaos(self, device: Device):
         """

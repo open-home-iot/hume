@@ -94,12 +94,12 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # set up DC logging
     set_up_logging()
 
-    # Start method does not block.
-    start()
-
     # Override the outgoing HINT request module to use HTT's own plugin.
     hint_req_plugin.mq = monitor_queue
     settings._hint_req_mod = hint_req_plugin
+
+    # Start method does not block.
+    start()
 
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the HC, for instance: HINT originated requests. For
@@ -127,8 +127,20 @@ def hc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
             if operation_tag == Hint.CONFIRM_ATTACH:
                 hint_req_handler.confirm_attach(device.uuid)
 
+            elif operation_tag == Hint.ACTION:
+
+                # No parent == top device
+                if device.parent is None:
+                    hint_req_handler.device_action(device.uuid, operation.id)
+
+                else:
+                    hint_req_handler.sub_device_action(device.parent.uuid,
+                                                       device.id,
+                                                       operation.id)
+
             else:
-                print(f"HC supervisor got: {operation_tag}")
+                print(f"HC supervisor got unrecognized operation tag: "
+                      f"{operation_tag} for device: {device}")
 
         # Bare catch-all causes SIGINT etc. to be caught, derive from Exception
         # to get around that problem. KeyBoardInterrupt derives from

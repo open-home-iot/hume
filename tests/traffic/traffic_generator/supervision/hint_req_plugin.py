@@ -25,6 +25,17 @@ Example scenario:
 """
 
 
+def pair(hume):
+    """
+    Sends HINT a pairing request.
+
+    :param hume:
+    :return:
+    """
+    print("sending HINT a pairing request")
+    mq.put((hume.hume_id, "send HINT a pairing request"))
+
+
 def attach(message_content):
     """
     Sends HINT an attach message.

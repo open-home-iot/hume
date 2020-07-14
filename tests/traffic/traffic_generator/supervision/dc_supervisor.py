@@ -96,12 +96,12 @@ def dc_loop(q: multiprocessing.Queue, monitor_queue: multiprocessing.Queue):
     # set up DC logging
     set_up_logging()
 
-    # Test start method does not block.
-    start()
-
     # Override the outgoing device request module to use HTT's own plugin.
     device_req_plugin.mq = monitor_queue
     settings._device_req_mod = device_req_plugin
+
+    # Test start method does not block.
+    start()
 
     # From this point on, HTT can communicate with this supervising process to
     # issue commands to the DC, for instance: device originated events. For

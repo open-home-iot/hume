@@ -1,2 +1,1 @@
-from .device import Device, DeviceAction, DeviceEvent
-from .hint import Hint
+from .entities import Device, DeviceAction, DeviceEvent, Hint

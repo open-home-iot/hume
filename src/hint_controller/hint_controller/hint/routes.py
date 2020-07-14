@@ -1,10 +1,25 @@
 import logging
 
-from bottle import request, route, put, post, delete, response
+from bottle import request, route, put, post, delete
 
 from . import hint_req_handler
 
 LOGGER = logging.getLogger(__name__)
+
+
+@route('/confirm-pairing', method='POST')
+def confirm_pairing():
+    """
+    HINT confirms the pairing of the HUME.
+
+    :return:
+    """
+    LOGGER.info("got message confirm pairing from HINT")
+
+    result = hint_req_handler.confirm_pairing()
+
+    # TODO make result depend on message handling outcome
+    return {"result": "ok"}
 
 
 @route('/device/<uuid>/attach', method='PATCH')

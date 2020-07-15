@@ -1,4 +1,3 @@
-import json
 import logging
 
 from hint_controller.hint.models import Hume

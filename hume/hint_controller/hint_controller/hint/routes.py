@@ -7,7 +7,7 @@ from . import hint_req_handler
 LOGGER = logging.getLogger(__name__)
 
 
-@route('/confirm-pairing', method='POST')
+@route('/confirm-pairing', method='PATCH')
 def confirm_pairing():
     """
     HINT confirms the pairing of the HUME.

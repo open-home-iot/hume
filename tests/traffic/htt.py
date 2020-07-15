@@ -42,8 +42,8 @@ if __name__ == "__main__":
 
     # IMPORTANT! This should only be done in the main process! Otherwise, the
     # paths get inserted over and over!
-    sys.path.insert(0, os.path.abspath("../../src/device_controller"))
-    sys.path.insert(0, os.path.abspath("../../src/hint_controller"))
+    sys.path.insert(0, os.path.abspath("../../hume/device_controller"))
+    sys.path.insert(0, os.path.abspath("../../hume/hint_controller"))
     print("printing sys.path")
     print(sys.path)
 

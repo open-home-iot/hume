@@ -34,12 +34,10 @@ def attach(message_content):
 
     if device is not None and device.attached:
         LOGGER.debug(
-            "device was already attached, confirming back to device"
+            "device was already attached, confirming back to device right away"
         )
-        # TODO maybe need to queue this up separately? Sending a request before
-        # TODO answering the current request could get weird for the device.
-        req_mod().confirm_attach(device)
 
+        # TODO return based on outcome
         return
 
     elif device is not None:

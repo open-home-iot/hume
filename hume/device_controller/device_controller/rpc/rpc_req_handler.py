@@ -75,8 +75,6 @@ def confirm_attach(message_content):
         device.attached = True
         storage.save(device)
 
-        device_app.confirm_attach(device)
-
 
 def device_timer_configuration_create(message_content):
     """

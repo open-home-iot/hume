@@ -9,16 +9,6 @@ This module provides functions for sending requests to a device.
 """
 
 
-def confirm_attach(device):
-    """
-    Sends the parameter device an attach confirm message
-
-    :param device:
-    :return:
-    """
-    LOGGER.debug(f"sending confirm attach request to device: {device.uuid}")
-
-
 def device_action(device, action_id):
     """
     Sends a device an action invocation.

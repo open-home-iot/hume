@@ -48,17 +48,6 @@ def stop():
     server_thread.join()
 
 
-def confirm_attach(device):
-    """
-    Sends a device confirm attach.
-
-    :param device:
-    """
-    LOGGER.info("sending confirm attach to device")
-
-    req_mod().confirm_attach(device)
-
-
 def device_action(device, action_id):
     """
     Sends a device an action invocation.

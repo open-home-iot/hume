@@ -22,6 +22,21 @@ def confirm_pairing():
     return {"result": "ok"}
 
 
+@route('/unpair', method='PATCH')
+def unpair():
+    """
+    HINT unpairs the HUME.
+
+    :return:
+    """
+    LOGGER.info("got message unpair from HINT")
+
+    result = hint_req_handler.unpair()
+
+    # TODO make result depend on message handling outcome
+    return {"result": "ok"}
+
+
 @route('/device/<uuid>/attach', method='PATCH')
 def confirm_attach(uuid):
     """

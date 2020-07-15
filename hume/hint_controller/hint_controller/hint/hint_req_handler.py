@@ -44,6 +44,23 @@ def confirm_pairing():
     # TODO return based on outcome
 
 
+def unpair():
+    """
+    Handler function for unpair.
+
+    :return:
+    """
+    LOGGER.debug("get message unpair")
+
+    hume = storage.get(Hume, read_hume_id())
+
+    hume.paired = False
+
+    storage.save(hume)
+
+    # TODO return based on outcome
+
+
 def confirm_attach(uuid):
     """
     Handler function for confirm attach messages.

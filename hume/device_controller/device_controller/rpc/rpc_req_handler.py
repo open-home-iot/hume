@@ -68,11 +68,14 @@ def confirm_attach(message_content):
     device = storage.get(Device, uuid)
     LOGGER.debug(f"found device: {device}")
 
-    # Mark device as attached
-    device.attached = True
-    storage.save(device)
+    if not device.attached:
+        LOGGER.debug("device was not attached, attaching")
 
-    device_app.confirm_attach(device)
+        # Mark device as attached
+        device.attached = True
+        storage.save(device)
+
+        device_app.confirm_attach(device)
 
 
 def device_timer_configuration_create(message_content):

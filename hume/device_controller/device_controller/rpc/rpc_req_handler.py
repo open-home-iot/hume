@@ -10,16 +10,17 @@ LOGGER = logging.getLogger(__name__)
 
 # HINT ORIGINATED
 HINT_MESSAGE_CONFIRM_ATTACH = 1
+HINT_MESSAGE_DETACH = 2
 
-HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_CREATE = 2
-HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_DELETE = 3
-HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_CREATE = 4
-HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_DELETE = 5
-HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_CREATE = 6
-HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_DELETE = 7
+HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_CREATE = 3
+HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_DELETE = 4
+HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_CREATE = 5
+HINT_MESSAGE_DEVICE_SCHEDULE_CONFIGURATION_DELETE = 6
+HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_CREATE = 7
+HINT_MESSAGE_DEVICE_TRIGGER_CONFIGURATION_DELETE = 8
 
-HINT_MESSAGE_DEVICE_ACTION = 8
-HINT_MESSAGE_SUB_DEVICE_ACTION = 9
+HINT_MESSAGE_DEVICE_ACTION = 9
+HINT_MESSAGE_SUB_DEVICE_ACTION = 10
 
 
 """
@@ -42,6 +43,8 @@ def incoming_rpc_request(rpc_req):
 
     if decoded_req["message_type"] == HINT_MESSAGE_CONFIRM_ATTACH:
         confirm_attach(decoded_req["message_content"])
+    elif decoded_req["message_type"] == HINT_MESSAGE_DETACH:
+        detach(decoded_req["message_content"])
     elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_CREATE:
         result = device_timer_configuration_create(decoded_req["message_content"])
     elif decoded_req["message_type"] == HINT_MESSAGE_DEVICE_TIMER_CONFIGURATION_DELETE:
@@ -74,6 +77,21 @@ def confirm_attach(message_content):
         # Mark device as attached
         device.attached = True
         storage.save(device)
+
+
+def detach(message_content):
+    """
+    Called on HINT controller detaching a device.
+
+    :param message_content:
+    """
+    LOGGER.debug(f"detach received: {message_content}")
+
+    uuid = message_content["uuid"]
+    device = storage.get(Device, uuid)
+
+    if device is not None:
+        storage.delete(device)
 
 
 def device_timer_configuration_create(message_content):

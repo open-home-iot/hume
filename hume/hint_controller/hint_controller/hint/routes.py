@@ -53,6 +53,22 @@ def confirm_attach(uuid):
     return {"result": "ok"}
 
 
+@route('/device/<uuid>/detach', method='DELETE')
+def detach(uuid):
+    """
+    HINT orders the detach of parameter device.
+
+    :param uuid:
+    :return:
+    """
+    LOGGER.info("got message detach from HINT")
+
+    result = hint_req_handler.detach(uuid)
+
+    # TODO make result depend on message handling outcome
+    return {"result": "ok"}
+
+
 @post('/device/<uuid>/configurations/timers')
 def device_timer_configuration_create(uuid):
     """

@@ -36,6 +36,8 @@ def attach(message_content):
         LOGGER.debug(
             "device was already attached, confirming back to device"
         )
+        # TODO maybe need to queue this up separately? Sending a request before
+        # TODO answering the current request could get weird for the device.
         req_mod().confirm_attach(device)
 
         return

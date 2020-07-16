@@ -68,14 +68,18 @@ class DeviceSim:
         :param device:
         :return:
         """
-        possible_operations = device.device_originated_operations
-        print("Possible operations:")
-        print(possible_operations)
+        # Devices can only signal if it is DeviceState.ATTACHED
+        if device.attached:
+            possible_operations = device.device_originated_operations
+        else:
+            possible_operations = [(device, Device.ATTACH)]
 
-        # Operation tuple identifying device + op
+        print(f"Possible operations: {possible_operations}")
+
         operation = random.choice(possible_operations)
-        print("Chosen operation:")
-        print(operation)
+        print(f"Chosen operation: {operation}")
+
+        device.perform_operation(*operation)
 
         self.mq.put(operation)
         self.dc_q.put(operation)
@@ -92,12 +96,12 @@ class DeviceSim:
         :return:
         """
         hint_operations = self.hint.hint_originated_operations
-        print("Hint operations: ")
-        print(hint_operations)
+        print(f"Hint operations: {hint_operations}")
 
         devices = [device]
         devices.extend(device.devices)
         selected_device = random.choice(devices)
+        print(f"Selected device: {selected_device}")
 
         if self.hint.paired:
             possible_operations = Hint.filter_ops_based_on_device_cap(
@@ -107,9 +111,13 @@ class DeviceSim:
             # ensure pairing happens first
             possible_operations = [Hint.CONFIRM_PAIRING]
 
-        operation = random.choice(possible_operations)
-        print("Chosen operation:")
-        print(operation)
+        try:
+            operation = random.choice(possible_operations)
+            print(f"Chosen operation: {operation}")
+        except IndexError:
+            # if sequence of operations was empty (detached device)
+            print("HINT cannot issue commands until device is attached!")
+            return
 
         operation_info = self.hint.perform_operation(selected_device, operation)
 

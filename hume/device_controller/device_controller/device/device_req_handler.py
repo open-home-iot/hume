@@ -34,7 +34,7 @@ def attach(message_content):
 
     if device is not None and device.attached:
         LOGGER.debug(
-            "device was already attached, confirming back to device right away"
+            f"device {uuid} was already attached, confirming back to device right away"
         )
 
         # TODO return based on outcome

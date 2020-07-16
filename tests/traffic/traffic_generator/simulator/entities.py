@@ -14,6 +14,11 @@ def indent(level):
 
 class Device:
 
+    class DeviceState:
+        DETACHED = 0
+        SIGNALLED = 1
+        ATTACHED = 2
+
     ATTACH = "attach"
     EVENT = "event"
 
@@ -32,6 +37,9 @@ class Device:
         # Device or None
         self.parent = parent
 
+        if not self.parent:
+            self._state = self.DeviceState.DETACHED
+
         # Device general information
         self.name = device_spec["name"]
 
@@ -48,9 +56,6 @@ class Device:
         self._actions = self.load_device_actions(device_spec.get("actions"))
         self._events = self.load_device_events(device_spec.get("events"))
 
-        # Device runtime information
-        self._attached = False
-
     @property
     def attached(self):
         """
@@ -58,23 +63,36 @@ class Device:
 
         :return:
         """
+        # Bit counter intuitive, self.parent is a parent field, not a boolean
         if not self.parent:
-            return self._attached
+            return self.state == self.DeviceState.ATTACHED
 
-        return self.parent.attached
+        return self.parent.state == self.DeviceState.ATTACHED
 
-    @attached.setter
-    def attached(self, attached):
+    @property
+    def state(self):
         """
-        Sets if the device is attached.
+        Returns the current state of the device.
 
-        :param attached:
         :return:
         """
         if not self.parent:
-            self._attached = attached
+            return self._state
+
+        return self.parent.state
+
+    @state.setter
+    def state(self, new_state):
+        """
+        Setter for device state.
+
+        :param new_state:
+        :return:
+        """
+        if not self.parent:
+            self._state = new_state
         else:
-            self.parent._attached = attached
+            self.parent.state = new_state
 
     @property
     def device_originated_operations(self):
@@ -98,6 +116,18 @@ class Device:
                 device_ops.append((dev, event))
 
         return device_ops
+
+    def perform_operation(self, device, operation):
+        """
+        Performs any actions that the device needs to do according to the
+        parameter operation.
+
+        :param device:
+        :param operation:
+        :return:
+        """
+        if operation == Device.ATTACH:
+            self.state = Device.DeviceState.SIGNALLED
 
     def load_sub_devices(self, sub_device_specs):
         """
@@ -211,7 +241,7 @@ class Hint:
         return Hint.STATIC_HINT_OPERATIONS
 
     @staticmethod
-    def filter_ops_based_on_device_cap(operations, device):
+    def filter_ops_based_on_device_cap(operations, device: Device):
         """
         Filters operations that the parameter device cannot perform due to
         missing capabilities.
@@ -222,18 +252,24 @@ class Hint:
         """
         filter_list = []
 
-        # device.attached is a property that checks the parent if sub device.
-        if device.attached:
+        # If the device is detached, HINT cannot send any signals.
+        if device.state == Device.DeviceState.DETACHED:
+            return []
+        # If device is attached, HINT cannot confirm it again.
+        elif device.state == Device.DeviceState.ATTACHED:
             filter_list.append(Hint.CONFIRM_ATTACH)
+        # Else, device has signalled, so it cannot be detached yet.
         else:
             # can't detach if not attached
             filter_list.append(Hint.DETACH)
 
         # Implicit booleanness states that an empty list = false
-        if not device._actions:
+        if not device._actions or not device.attached:
             filter_list.append(Hint.ACTION)
+            # If no actions, there is nothing to trigger/set a timer for
             filter_list.append(Hint.CONFIG_TIMER)
             filter_list.append(Hint.CONFIG_SCHEDULE)
+            filter_list.append(Hint.CONFIG_TRIGGER)
 
         print(f"Filter list: {filter_list}")
         filtered_ops = [op for op in operations if op not in filter_list]
@@ -252,14 +288,10 @@ class Hint:
         :return:
         """
         if operation == Hint.CONFIRM_ATTACH:
-            device.attached = True
-
-            return operation
+            device.state = Device.DeviceState.ATTACHED
 
         elif operation == Hint.CONFIRM_PAIRING:
             self.paired = True
-
-            return operation
 
         elif operation == Hint.ACTION:
             action = random.choice(device._actions)
@@ -267,7 +299,7 @@ class Hint:
             return action
 
         elif operation == Hint.DETACH:
-            print("NOT IMPLEMENTED: Detach")
+            device.state = Device.DeviceState.DETACHED
 
         elif operation == Hint.CONFIG_TIMER:
             print("NOT IMPLEMENTED: Config timer")
@@ -281,7 +313,6 @@ class Hint:
         else:
             print("Hint got unrecognized operation")
 
-        # TODO catch all for operation info return!
         return operation
 
 

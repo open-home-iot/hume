@@ -16,6 +16,10 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="HUME HINT controller"
     )
+    # HINT connection args
+    parser.add_argument('-ip', '--ip-address', default='127.0.0.1')
+    parser.add_argument('-p', '--port', type=int, default=8000)
+    print(parser.parse_args())
     return parser.parse_args()
 
 
@@ -46,7 +50,7 @@ def set_up_interrupt():
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    cli_args = parse_args()
 
     set_up_interrupt()
 
@@ -56,6 +60,6 @@ if __name__ == "__main__":
 
     print(f"HC sys.path: {sys.path}")
 
-    root.start(cli_args=args)
+    root.start(cli_args)
 
     threading.Event().wait()  # Blocks indefinitely

@@ -16,8 +16,8 @@ _timers: {str: threading.Timer} = {}
 
 def start(device_action_timer: DeviceActionTimer):
     """
-    Sets up a new timer and cleans up any old timers with the same device action
-    as the target.
+    Sets up a new timer and cleans up any old timers with the same device
+    action as the target.
 
     :param device_action_timer:
     """

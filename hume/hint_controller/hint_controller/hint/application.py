@@ -3,12 +3,13 @@ import logging
 
 from bottle import run
 
-from .http_server import MyServer
-from .models import Hume
-from .settings import req_mod
 import hume_storage as storage
-from . import routes  # To load routes
-from .util import read_hume_id
+
+from hint_controller.hint.http_server import MyServer
+from hint_controller.hint.models import Hume
+from hint_controller.hint.settings import req_mod
+from hint_controller.hint import routes  # noqa, imported to load routes
+from hint_controller.hint.util import read_hume_id
 
 
 LOGGER = logging.getLogger(__name__)
@@ -96,4 +97,3 @@ def sub_device_event(message_content):
     LOGGER.info("sending sub device event to HINT")
 
     req_mod().sub_device_event(message_content)
-

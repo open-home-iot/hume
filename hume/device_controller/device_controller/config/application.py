@@ -1,7 +1,7 @@
 import logging
 
 from . import device_timer
-from .models import *
+from .models import DeviceActionTimer
 
 import hume_storage as storage
 
@@ -36,6 +36,8 @@ def stop():
     device_timer.stop_all()
 
 
+# TODO re-do interface, split timer -> action_id, interval and add
+# TODO device_id=None as kwarg?
 def create_timer_configuration(uuid, timer):
     """
     Interface for handling configuration changes.

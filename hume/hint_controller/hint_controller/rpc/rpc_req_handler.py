@@ -67,4 +67,3 @@ def sub_device_event(message_content):
     LOGGER.debug(f"sub device event rpc message content: {message_content}")
 
     hint.sub_device_event(message_content)
-

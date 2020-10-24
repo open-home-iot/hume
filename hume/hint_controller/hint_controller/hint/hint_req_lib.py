@@ -9,14 +9,13 @@ This module provides functions for sending requests to HINT.
 """
 
 
-def pair(hume):
+def pair():
     """
     Sends a pairing request for the parameter HUME.
 
-    :param hume:
     :return:
     """
-    LOGGER.debug(f"sending pairing request for HUME: {hume.hume_id}")
+    LOGGER.debug("sending pairing request")
 
 
 def attach(message_content):

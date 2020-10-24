@@ -1,6 +1,5 @@
 import logging
 
-from hint_controller.hint.models import Hume
 import hume_storage as storage
 from hint_controller.rpc import application as rpc
 from .util import read_hume_id
@@ -36,12 +35,6 @@ def confirm_pairing():
     """
     LOGGER.debug("got message confirm pairing")
 
-    hume = storage.get(Hume, read_hume_id())
-
-    hume.paired = True
-
-    storage.save(hume)
-
     # TODO return based on outcome
 
 
@@ -52,12 +45,6 @@ def unpair():
     :return:
     """
     LOGGER.debug("get message unpair")
-
-    hume = storage.get(Hume, read_hume_id())
-
-    hume.paired = False
-
-    storage.save(hume)
 
     # TODO return based on outcome
 

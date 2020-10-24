@@ -6,9 +6,9 @@ from bottle import run
 import hume_storage as storage
 
 from hint_controller.hint.http_server import MyServer
-from hint_controller.hint.models import Hume, HumeUser
+from hint_controller.hint.models import HumeUser
 from hint_controller.hint import routes  # noqa, imported to load routes
-from hint_controller.hint.util import read_hume_id
+from hint_controller.hint import hint_req_lib
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,16 +27,7 @@ def start():
         """
         Initialize models.
         """
-        storage.register(Hume)
         storage.register(HumeUser)
-
-        hume_id = read_hume_id()
-        hume = storage.get(Hume, hume_id)
-
-        if hume is None:
-            hume = Hume(hume_id=hume_id)
-
-            storage.save(hume)
 
     def start_http_server():
         """
@@ -59,7 +50,7 @@ def start():
 
         if hume_user is None:
             # Send pairing request
-            pass
+            hint_req_lib.pair()
 
     model_init()
     start_http_server()

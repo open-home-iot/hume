@@ -6,8 +6,7 @@ from bottle import run
 import hume_storage as storage
 
 from hint_controller.hint.http_server import MyServer
-from hint_controller.hint.models import Hume
-from hint_controller.hint.settings import req_mod
+from hint_controller.hint.models import Hume, HumeUser
 from hint_controller.hint import routes  # noqa, imported to load routes
 from hint_controller.hint.util import read_hume_id
 
@@ -24,33 +23,47 @@ def start():
     """
     LOGGER.info("hint start")
 
-    storage.register(Hume)
+    def model_init():
+        """
+        Initialize models.
+        """
+        storage.register(Hume)
+        storage.register(HumeUser)
+
+        hume_id = read_hume_id()
+        hume = storage.get(Hume, hume_id)
+
+        if hume is None:
+            hume = Hume(hume_id=hume_id)
+
+            storage.save(hume)
 
     def start_http_server():
         """
-        Starts an HTTP server locally on port 8082. This sever listens for
+        Starts an HTTP server locally on port 8082. This server listens for
         requests sent from the cloud (HINT).
         """
-        run(server=server)  # Blocks!
+        def run_server():
+            """Start the bottle server"""
+            run(server=server)  # Blocks!
 
-    global server_thread
-    server_thread = threading.Thread(target=start_http_server)
-    server_thread.start()
+        global server_thread
+        server_thread = threading.Thread(target=run_server)
+        server_thread.start()
 
-    hume_id = read_hume_id()
-    hume = storage.get(Hume, hume_id)
+    def startup_actions():
+        """
+        Run through the HINT application's startup actions.
+        """
+        hume_user = storage.get(HumeUser, None)
 
-    if hume is None:
-        hume = Hume(hume_id=hume_id)
+        if hume_user is None:
+            # Send pairing request
+            pass
 
-        storage.save(hume)
-    elif hume.paired:
-        LOGGER.debug("HUME is already paired")
-        return
-    else:
-        pass
-
-    req_mod().pair(hume)
+    model_init()
+    start_http_server()
+    startup_actions()
 
 
 def stop():
@@ -72,7 +85,7 @@ def attach(message_content):
     """
     LOGGER.info("sending attach to HINT")
 
-    req_mod().attach(message_content)
+    pass
 
 
 def device_event(message_content):
@@ -84,7 +97,7 @@ def device_event(message_content):
     """
     LOGGER.info("sending device event to HINT")
 
-    req_mod().device_event(message_content)
+    pass
 
 
 def sub_device_event(message_content):
@@ -96,4 +109,4 @@ def sub_device_event(message_content):
     """
     LOGGER.info("sending sub device event to HINT")
 
-    req_mod().sub_device_event(message_content)
+    pass

@@ -1,12 +1,7 @@
+bottle==0.12.19
 hume-broker @ git+ssh://git@github.com/megacorpincorporated/hume_broker.git@master
 hume-storage @ git+ssh://git@github.com/megacorpincorporated/hume_storage.git@master
-bottle==0.12.18
-certifi==2020.4.5.1
-chardet==3.0.4
-idna==2.9
 peewee==3.13.1
 pika==1.1.0
-psycopg2==2.8.4
+psycopg2-binary==2.8.6
 rabbitmq-client==0.2.0
-requests==2.23.0
-urllib3==1.25.9

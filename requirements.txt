@@ -4,4 +4,4 @@ hume-storage @ git+ssh://git@github.com/megacorpincorporated/hume_storage.git@ma
 peewee==3.13.1
 pika==1.1.0
 psycopg2-binary==2.8.6
-rabbitmq-client==0.2.0
+rabbitmq-client==0.2.1

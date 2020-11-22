@@ -1,5 +1,10 @@
 _args = None
 
+HUME_UUID = "hume_uuid"
+
+HINT_IP_ADDRESS = "hint_ip_address"
+HINT_PORT = "hint_port"
+
 
 def set_args(**cli_args):
     """

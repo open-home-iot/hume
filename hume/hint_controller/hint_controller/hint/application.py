@@ -6,7 +6,7 @@ from bottle import run
 import hume_storage as storage
 
 from hint_controller.hint.http_server import MyServer
-from hint_controller.hint.models import HumeUser
+from hint_controller.hint.models import HumeUser, BrokerCredentials
 from hint_controller.hint import routes  # noqa, imported to load routes
 from hint_controller.hint import hint_req_lib
 
@@ -28,6 +28,7 @@ def start():
         Initialize models.
         """
         storage.register(HumeUser)
+        storage.register(BrokerCredentials)
 
     def start_http_server():
         """
@@ -51,6 +52,10 @@ def start():
         if hume_user is None:
             # Send pairing request
             hint_req_lib.pair()
+        else:
+            # Or login if user already exists
+            if hint_req_lib.login(hume_user):
+                hint_req_lib.broker_credentials()
 
     model_init()
     start_http_server()

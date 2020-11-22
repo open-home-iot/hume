@@ -16,10 +16,26 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="HUME HINT controller"
     )
-    # HINT connection args
-    parser.add_argument('-ip', '--ip-address', default='127.0.0.1')
-    parser.add_argument('-p', '--port', type=int, default=8000)
+
+    # HUME identification
+    parser.add_argument('hume_uuid',
+                        metavar="HUME_UUID",
+                        help="HUME UUID")
+
+    # Connection args
+    parser.add_argument('-hip',
+                        '--hint-ip-address',
+                        default='127.0.0.1',
+                        help="HINT IP address")
+    parser.add_argument('-hp',
+                        '--hint-port',
+                        type=int,
+                        default=8000,
+                        help="HINT port")
+
+    print("Starting HC with the following arguments:")
     print(parser.parse_args())
+
     return parser.parse_args()
 
 

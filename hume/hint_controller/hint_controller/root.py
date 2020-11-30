@@ -1,10 +1,9 @@
 import logging
 
+import hume_storage as storage
 from hume_broker import broker
-from hume_storage import data_store
 
 from hint_controller.util import args
-
 from hint_controller.rpc import application as rpc
 from hint_controller.hint import application as hint
 
@@ -12,7 +11,7 @@ from hint_controller.hint import application as hint
 LOGGER = logging.getLogger(__name__)
 
 UTIL = [
-    broker, data_store
+    broker, storage
 ]
 
 APPLICATIONS = [
@@ -30,11 +29,19 @@ def start(cli_args):
 
     args.set_args(**vars(cli_args))
 
-    # core start
-    for app in UTIL:
-        app.start()
+    # storage start
+    storage.start()  # Must block until started!
+    broker.start()
 
-    # application start
+    # model init
+    for app in APPLICATIONS:
+        app.model_init()
+
+    # pre start
+    for app in APPLICATIONS:
+        app.pre_start()
+
+    # app start
     for app in APPLICATIONS:
         app.start()
 

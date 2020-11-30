@@ -6,7 +6,8 @@ TOP_LOGGER_NAME = "hint_controller"
 
 def set_up_logging(log_level):
     """
-    Sets up the messages controller's "root" logger with the starting log level.
+    Sets up the messages controller's "root" logger with the starting log
+    level.
 
     :param log_level: min log level to use for the messages controller
     """
@@ -16,7 +17,7 @@ def set_up_logging(log_level):
     handler = logging.StreamHandler()  # Print logging messages
 
     formatter = logging.Formatter(fmt="{asctime} {levelname:^8} "
-                                      "{module} {message}",
+                                      "{name} - {message}",
                                   style="{",
                                   datefmt="%d/%m/%Y %H:%M:%S")
     handler.setFormatter(formatter)

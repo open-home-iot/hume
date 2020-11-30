@@ -11,6 +11,20 @@ HINT_CONTROLLER_QUEUE = "rpc_hint_controller"
 DEVICE_CONTROLLER_QUEUE = "rpc_device_controller"
 
 
+def model_init():
+    """
+    Initialize models.
+    """
+    LOGGER.info("model-init")
+
+
+def pre_start():
+    """
+    Pre-start, before starting applications.
+    """
+    LOGGER.info("pre-start")
+
+
 def start():
     """
     Starts the RPC application

@@ -32,6 +32,15 @@ def parse_args():
                         type=int,
                         default=8000,
                         help="HINT port")
+    parser.add_argument('-bip',
+                        '--broker-ip-address',
+                        default='127.0.0.1',
+                        help="Central HINT broker IP address")
+    parser.add_argument('-bp',
+                        '--broker-port',
+                        type=int,
+                        default=5672,
+                        help="Central HINT broker port")
 
     print("Starting HC with the following arguments:")
     print(parser.parse_args())

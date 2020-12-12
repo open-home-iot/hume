@@ -1,4 +1,5 @@
 import logging
+import threading
 
 import hume_storage as storage
 from hume_broker import broker
@@ -6,6 +7,7 @@ from hume_broker import broker
 from hint_controller.util import args
 from hint_controller.rpc import application as rpc
 from hint_controller.hint import application as hint
+from hint_controller.util import log
 
 
 LOGGER = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ def start(cli_args):
 
     # storage start
     storage.start()  # Must block until started!
-    broker.start()
+    broker.start(log_queue=log.log_queue)
 
     # model init
     for app in APPLICATIONS:
@@ -59,3 +61,23 @@ def stop():
     # core stop
     for app in UTIL:
         app.stop()
+
+    # This must happen last to track application exits
+    log.stop_logging()
+
+    print_exit_status()
+
+
+def print_exit_status():
+    """
+    Health check sort of, to see that resources are released properly when
+    exiting.
+    """
+    print("----------------------------------------------")
+    print("- STOP RESULTS -")
+    print("----------------------------------------------")
+    print("# THREADING")
+    print(f"# Active threads: {threading.active_count()}")
+    print("# List of threads:")
+    for thread in threading.enumerate():
+        print(f"# {thread}")

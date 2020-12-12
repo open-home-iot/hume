@@ -1,5 +1,6 @@
 import logging
 import pika
+
 import hume_storage as storage
 
 from rabbitmq_client.client import RMQClient
@@ -11,6 +12,7 @@ from hint_controller.hint import hint_req_lib
 
 from hint_controller.util.args import get_arg, HUME_UUID, BROKER_IP_ADDRESS, \
                                       BROKER_PORT
+from hint_controller.util import log
 
 
 LOGGER = logging.getLogger(__name__)
@@ -146,9 +148,15 @@ def start():
         """
         LOGGER.info(f"received command {command} from HINT")
 
+    # Fetch broker credentials
     broker_credentials = storage.get(BrokerCredentials, None)
-    credentials = pika.PlainCredentials(broker_credentials.username,
-                                        broker_credentials.password)
+
+    if broker_credentials is not None:
+        credentials = pika.PlainCredentials(broker_credentials.username,
+                                            broker_credentials.password)
+    else:
+        # Default fallback to avoid exceptions at this stage
+        credentials = pika.PlainCredentials('guest', 'guest')
     conn_params = pika.ConnectionParameters(host=get_arg(
                                                 BROKER_IP_ADDRESS
                                             ),
@@ -156,9 +164,9 @@ def start():
                                             virtual_host='/',
                                             credentials=credentials)
     global _c_broker_client
-    _c_broker_client = RMQClient(connection_parameters=conn_params)
+    _c_broker_client = RMQClient(log_queue=log.log_queue,
+                                 connection_parameters=conn_params)
     _c_broker_client.start()
-
     _c_broker_client.command_queue(get_arg(HUME_UUID), command_received)
 
 

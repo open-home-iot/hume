@@ -2,7 +2,6 @@ import signal
 import sys
 import threading
 import argparse
-import logging
 
 from hint_controller import root
 
@@ -81,7 +80,7 @@ if __name__ == "__main__":
 
     # Only set up logging if DC is run standalone and not from HTT. Rely on HTT
     # to set up logging otherwise.
-    set_up_logging(logging.DEBUG)
+    set_up_logging()
 
     print(f"HC sys.path: {sys.path}")
 

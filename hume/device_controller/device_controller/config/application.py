@@ -9,14 +9,26 @@ import hume_storage as storage
 LOGGER = logging.getLogger(__name__)
 
 
+def model_init():
+    """
+    Initialize models.
+    """
+    LOGGER.info("model-init")
+    storage.register(DeviceActionTimer)
+
+
+def pre_start():
+    """
+    Pre-start, before starting applications.
+    """
+    LOGGER.info("pre-start")
+
+
 def start():
     """
     Starts up the config server.
     """
     LOGGER.info("config start")
-
-    # Register and fetch saved config data, the register action does both ;-)
-    storage.register(DeviceActionTimer)
 
     # TODO get all timers and start them
     LOGGER.debug("getting all timers and starting them.")

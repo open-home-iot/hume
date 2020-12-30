@@ -1,16 +1,19 @@
 import logging
+import threading
 
+import hume_storage as storage
 from hume_broker import broker
-from hume_storage import data_store
 
+from device_controller.util import args
 from device_controller.config import application as config
 from device_controller.device import application as device
 from device_controller.rpc import application as rpc
+from device_controller.util import log
 
 LOGGER = logging.getLogger(__name__)
 
 UTIL = [
-    broker, data_store
+    broker, storage
 ]
 
 APPLICATIONS = [
@@ -18,7 +21,7 @@ APPLICATIONS = [
 ]
 
 
-def start(cli_args=None):
+def start(cli_args):
     """
     Starts the RootApp and all its sub-applications.
 
@@ -26,11 +29,21 @@ def start(cli_args=None):
     """
     LOGGER.info("root start")
 
-    # core start
-    for app in UTIL:
-        app.start()
+    args.set_args(**vars(cli_args))
 
-    # application start
+    # storage start
+    storage.start()  # Must block until started!
+    broker.start(log_queue=log.log_queue)
+
+    # model init
+    for app in APPLICATIONS:
+        app.model_init()
+
+    # pre start
+    for app in APPLICATIONS:
+        app.pre_start()
+
+    # app start
     for app in APPLICATIONS:
         app.start()
 
@@ -48,3 +61,23 @@ def stop():
     # core stop
     for app in UTIL:
         app.stop()
+
+    # This must happen last to track application exits
+    log.stop_logging()
+
+    print_exit_status()
+
+
+def print_exit_status():
+    """
+    Health check sort of, to see that resources are released properly when
+    exiting.
+    """
+    print("----------------------------------------------")
+    print("- STOP RESULTS -")
+    print("----------------------------------------------")
+    print("# THREADING")
+    print(f"# Active threads: {threading.active_count()}")
+    print("# List of threads:")
+    for thread in threading.enumerate():
+        print(f"# {thread}")

@@ -12,7 +12,7 @@ LOG_FORMATTER = logging.Formatter(fmt="{asctime} {levelname:^8} "
 
 # For multiprocess applications, this queue is monitored for new messages.
 log_queue = Queue()
-log_listener = None
+_log_listener = None
 
 
 LOGGER = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def set_up_logging():
     """
     Sets up the hint_controller logging for itself and its dependencies
     """
-    def set_up_logger_for(name, log_level, handler_type=None):
+    def set_up_logger_for(name, log_level, handler_type):
         """
         Generic log setup function
 
@@ -42,8 +42,13 @@ def set_up_logging():
         logger.addHandler(handler)
 
     HINT_CONTROLLER_LOG_LEVEL = logging.DEBUG
+
     HUME_BROKER_LOG_LEVEL = logging.DEBUG
+    HUME_STORAGE_LOG_LEVEL = logging.DEBUG
+
     RABBITMQ_CLIENT_LOG_LEVEL = logging.INFO
+
+    # Applications that post to the log queue will be affected by this level
     LOG_QUEUE_LOG_LEVEL = logging.INFO
 
     # SET UP LOGGERS
@@ -52,6 +57,9 @@ def set_up_logging():
                       "stream")
     set_up_logger_for("hume_broker",
                       HUME_BROKER_LOG_LEVEL,
+                      "stream")
+    set_up_logger_for("hume_broker",
+                      HUME_STORAGE_LOG_LEVEL,
                       "stream")
     set_up_logger_for("rabbitmq_client",
                       RABBITMQ_CLIENT_LOG_LEVEL,
@@ -62,13 +70,13 @@ def set_up_logging():
     stream_handler.setFormatter(LOG_FORMATTER)
     stream_handler.setLevel(LOG_QUEUE_LOG_LEVEL)
 
-    global log_listener
-    log_listener = logging.handlers.QueueListener(
+    global _log_listener
+    _log_listener = logging.handlers.QueueListener(
         log_queue,
         stream_handler,
         respect_handler_level=True
     )
-    log_listener.start()
+    _log_listener.start()
 
 
 def stop_logging():
@@ -76,7 +84,7 @@ def stop_logging():
     Stops logging processed gracefully.
     """
     LOGGER.info("Stopping logging queue listener and closing queue")
-    log_listener.stop()
+    _log_listener.stop()
     while not log_queue.empty():
         log_queue.get()
     log_queue.close()

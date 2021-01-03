@@ -59,28 +59,3 @@ def stop():
 
     server.shutdown()
     server_thread.join()
-
-
-def device_action(device, action_id):
-    """
-    Sends a device an action invocation.
-
-    :param device:
-    :param action_id:
-    """
-    LOGGER.info("sending device action to device")
-
-    req_mod().device_action(device, action_id)
-
-
-def sub_device_action(device, device_id, action_id):
-    """
-    Sends a sub device an action invocation.
-
-    :param device:
-    :param device_id:
-    :param action_id:
-    """
-    LOGGER.info("sending sub device action to device")
-
-    req_mod().sub_device_action(device, device_id, action_id)

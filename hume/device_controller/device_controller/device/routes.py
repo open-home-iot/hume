@@ -10,9 +10,7 @@ LOGGER = logging.getLogger(__name__)
 @post('/devices/attach')
 def attach():
     """
-    A device sends an attach message.
-
-    :return:
+    A device sends an attach message to HUME.
     """
     LOGGER.info("device attach received")
 

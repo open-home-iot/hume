@@ -1,6 +1,7 @@
 _args = None
 
 HUME_UUID = "hume_uuid"
+DEVICE_MOCK_ADDRESS = "device_mock_address"
 
 
 def set_args(**cli_args):

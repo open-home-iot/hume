@@ -58,7 +58,7 @@ def set_up_logging():
     set_up_logger_for("hume_broker",
                       HUME_BROKER_LOG_LEVEL,
                       "stream")
-    set_up_logger_for("hume_broker",
+    set_up_logger_for("hume_storage",
                       HUME_STORAGE_LOG_LEVEL,
                       "stream")
     set_up_logger_for("rabbitmq_client",

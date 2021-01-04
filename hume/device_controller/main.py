@@ -21,6 +21,12 @@ def parse_args():
                         metavar="HUME_UUID",
                         help="HUME UUID")
 
+    # Testing
+    parser.add_argument('-dma',
+                        '--device-mock-address',
+                        help="Set up a device mock address where all device "
+                             "requests will be routed")
+
     print("Starting DC with the following arguments:")
     print(parser.parse_args())
 

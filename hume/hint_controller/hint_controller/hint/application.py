@@ -5,19 +5,28 @@ import hume_storage as storage
 
 from rabbitmq_client.client import RMQClient
 
-from hint_controller.hint.models import HumeUser, BrokerCredentials, \
-                                        HintAuthentication
-from hint_controller.hint import routes  # noqa, imported to load routes
-from hint_controller.hint import hint_req_lib
-
-from hint_controller.util.args import get_arg, HUME_UUID, BROKER_IP_ADDRESS, \
-                                      BROKER_PORT
+from hint_controller.hint.models import (
+    HumeUser,
+    BrokerCredentials,
+    HintAuthentication
+)
+from hint_controller.hint import (
+    hint_req_lib,
+    hint_command_handler,
+    hint_command_lib
+)
+from hint_controller.util.args import (
+    get_arg,
+    HUME_UUID,
+    BROKER_IP_ADDRESS,
+    BROKER_PORT
+)
 from hint_controller.util import log
 
 
 LOGGER = logging.getLogger(__name__)
 
-_c_broker_client: RMQClient
+_central_broker_client: RMQClient
 
 
 def model_init():
@@ -142,12 +151,6 @@ def start():
     """
     LOGGER.info("hint start")
 
-    def command_received(command):
-        """
-        Callback for received commands.
-        """
-        LOGGER.info(f"received command {command} from HINT")
-
     # Fetch broker credentials
     broker_credentials = storage.get(BrokerCredentials, None)
 
@@ -163,11 +166,17 @@ def start():
                                             port=get_arg(BROKER_PORT),
                                             virtual_host='/',
                                             credentials=credentials)
-    global _c_broker_client
-    _c_broker_client = RMQClient(log_queue=log.log_queue,
-                                 connection_parameters=conn_params)
-    _c_broker_client.start()
-    _c_broker_client.command_queue(get_arg(HUME_UUID), command_received)
+
+    global _central_broker_client
+    _central_broker_client = RMQClient(log_queue=log.log_queue,
+                                       connection_parameters=conn_params)
+
+    # Initialize command lib
+    hint_command_lib.init(_central_broker_client)
+
+    _central_broker_client.start()
+    _central_broker_client.command_queue(get_arg(HUME_UUID),
+                                         hint_command_handler.incoming_command)
 
 
 def stop():
@@ -175,4 +184,4 @@ def stop():
     Stop the central broker client.
     """
     LOGGER.info("hint stop")
-    _c_broker_client.stop()
+    _central_broker_client.stop()

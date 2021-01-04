@@ -7,8 +7,9 @@ from hume_broker import broker
 from device_controller.util import args
 from device_controller.config import application as config
 from device_controller.device import application as device
-from device_controller.rpc import application as rpc
+from device_controller.dispatch import application as dispatch
 from device_controller.util import log
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    config, device, rpc
+    config, device, dispatch
 ]
 
 

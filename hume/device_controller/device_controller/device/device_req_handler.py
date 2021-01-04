@@ -7,9 +7,6 @@ from device_controller.device.models import Device
 
 LOGGER = logging.getLogger(__name__)
 
-# DEVICE ORIGINATED
-DEVICE_MESSAGE_ATTACH = 0
-
 
 """
 This module specifies the handling of device messages.

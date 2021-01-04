@@ -8,7 +8,6 @@ import hume_storage as storage
 from device_controller.device.http_server import MyServer
 from device_controller.device.models import Device
 from device_controller.device import routes  # noqa
-from device_controller.device.settings import req_mod
 
 
 LOGGER = logging.getLogger(__name__)

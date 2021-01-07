@@ -19,3 +19,8 @@ def incoming_command(command):
 
         # To avoid re-encoding
         dispatch.forward_command_to_dc(command)
+
+    elif decoded_command["type"] == defs.CONFIRM_ATTACH:
+        LOGGER.info("received confirm attach command")
+
+        dispatch.forward_command_to_dc(command)

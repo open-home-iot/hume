@@ -23,6 +23,8 @@ def incoming_command(command):
     decoded_command = json.loads(command.decode('utf-8'))
 
     if decoded_command["type"] == defs.DISCOVER_DEVICES:
-        LOGGER.info("received device discovery command")
         # Forward the whole thing, nothing needs to be changed.
         hint_command_lib.discover_devices_done(decoded_command)
+
+    elif decoded_command["type"] == defs.CONFIRM_ATTACH:
+        hint_command_lib.confirm_attach_result(decoded_command)

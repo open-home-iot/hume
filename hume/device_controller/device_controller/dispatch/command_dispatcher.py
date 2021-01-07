@@ -25,3 +25,7 @@ def incoming_command(command):
     if decoded_command["type"] == defs.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
         device_procedures.discover_devices(decoded_command["content"])
+
+    elif decoded_command["type"] == defs.CONFIRM_ATTACH:
+        LOGGER.info("received confirm attach command")
+        device_procedures.confirm_attach(decoded_command["content"])

@@ -41,6 +41,16 @@ def discover_devices_done(command):
 
     :type command: dict
     """
-    LOGGER.info("sending discover devices result back to HINT")
-    LOGGER.debug(f"discovery result: {command}")
+    LOGGER.info("sending discover devices result to HINT")
+    HintClient.command(command)
+
+
+def confirm_attach_result(command):
+    """
+    This is just a forward of what was returned by DC since the messages look
+    exactly the same.
+
+    :type command: dict
+    """
+    LOGGER.info("sending confirm attach result to HINT")
     HintClient.command(command)

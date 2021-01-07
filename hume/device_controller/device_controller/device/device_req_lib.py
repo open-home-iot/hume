@@ -74,3 +74,18 @@ def capability_request(device):
         return response.json()
 
     return None
+
+
+def heartbeat_request(device):
+    """
+    Sends a heartbeat request to the parameter device.
+
+    :type device: Device
+    :returns: True if successful
+    """
+    response = requests.get(_device_url(device) + "heartbeat")
+
+    if response.status_code == 200:
+        return True
+
+    return False

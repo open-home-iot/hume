@@ -52,6 +52,9 @@ def confirm_attach(device_uuid):
 
     if device:
         if device_req_lib.heartbeat_request(device):
+            device.attached = True
+            hume_storage.save(device)
+
             dispatch.hc_command(
                 {
                     "type": defs.CONFIRM_ATTACH,

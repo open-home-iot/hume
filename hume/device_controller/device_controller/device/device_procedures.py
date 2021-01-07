@@ -5,6 +5,7 @@ import hume_storage
 from device_controller.device.models import Device
 from device_controller.device import device_req_lib
 from device_controller import dispatch
+from device_controller import defs
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,8 +25,16 @@ def discover_devices(command_content):
 
     for device in devices:
         if not device.attached:
-            result.append(device_req_lib.capability_request(device))
+
+            device_capability = device_req_lib.capability_request(device)
+            if device_capability is not None:
+                result.append(device_capability)
 
     LOGGER.debug(f"the following devices responded: {result}")
 
-    dispatch.hc_command(result)
+    dispatch.hc_command(
+        {
+            "type": defs.DISCOVER_DEVICES,
+            "content": result
+        }
+    )

@@ -1,6 +1,8 @@
 import logging
+import json
 
 from hume_broker import broker
+
 from hint_controller.dispatch import rpc_req_dispatcher
 from hint_controller.dispatch import command_dispatcher
 
@@ -51,3 +53,20 @@ def stop():
     Stops the dispatch application
     """
     LOGGER.info("hc dispatch stop")
+
+
+def forward_command_to_dc(command):
+    """
+    :type command: bytes
+    """
+    broker.command(DEVICE_CONTROLLER_COMMAND_QUEUE, command)
+
+
+def dc_command(command_content):
+    """
+    Input must be possible to convert to valid JSON.
+
+    :type command_content: dict
+    """
+    broker.command(DEVICE_CONTROLLER_COMMAND_QUEUE,
+                   json.dumps(command_content).encode('utf-8'))

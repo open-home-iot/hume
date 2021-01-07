@@ -5,7 +5,6 @@ from hume_broker import broker
 
 from device_controller.dispatch import rpc_req_dispatcher
 from device_controller.dispatch import command_dispatcher
-from device_controller.defs import DISCOVER_DEVICES
 
 
 LOGGER = logging.getLogger(__name__)
@@ -60,11 +59,7 @@ def hc_command(command_content):
     """
     Input must be possible to convert to valid JSON.
 
-    :type command_content: dict | list
+    :type command_content: dict
     """
-    encoded_command = json.dumps(
-        {"type": DISCOVER_DEVICES, "content": command_content}
-    ).encode('utf-8')
-
     broker.command(HINT_CONTROLLER_COMMAND_QUEUE,
-                   encoded_command)
+                   json.dumps(command_content).encode('utf-8'))

@@ -8,6 +8,11 @@ from hint_controller.hint import hint_command_lib
 LOGGER = logging.getLogger(__name__)
 
 
+"""
+This module is the starting point for commands originating from the DC.
+"""
+
+
 def incoming_command(command):
     """
     :param command: DC command

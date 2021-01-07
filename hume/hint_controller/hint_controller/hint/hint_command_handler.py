@@ -1,8 +1,7 @@
 import logging
 import json
 
-from hint_controller.dispatch import command_lib
-from hint_controller import defs
+from hint_controller import defs, dispatch
 
 
 LOGGER = logging.getLogger(__name__)
@@ -17,4 +16,6 @@ def incoming_command(command):
 
     if decoded_command["type"] == defs.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
-        command_lib.discover_devices(decoded_command["content"])
+
+        # To avoid re-encoding
+        dispatch.forward_command_to_dc(command)

@@ -1,9 +1,7 @@
 import signal
-
 import sys
 import threading
 import argparse
-import logging
 
 from device_controller import root
 
@@ -17,6 +15,21 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="HUME device controller"
     )
+
+    # HUME identification
+    parser.add_argument('hume_uuid',
+                        metavar="HUME_UUID",
+                        help="HUME UUID")
+
+    # Testing
+    parser.add_argument('-dma',
+                        '--device-mock-address',
+                        help="Set up a device mock address where all device "
+                             "requests will be routed")
+
+    print("Starting DC with the following arguments:")
+    print(parser.parse_args())
+
     return parser.parse_args()
 
 
@@ -47,16 +60,16 @@ def set_up_interrupt():
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    cli_args = parse_args()
 
     set_up_interrupt()
 
     # Only set up logging if DC is run standalone and not from HTT. Rely on HTT
     # to set up logging otherwise.
-    set_up_logging(logging.DEBUG)
+    set_up_logging()
 
     print(f"DC sys.path: {sys.path}")
 
-    root.start(cli_args=args)
+    root.start(cli_args)
 
     threading.Event().wait()  # Blocks indefinitely

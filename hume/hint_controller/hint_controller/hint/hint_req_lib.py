@@ -1,10 +1,14 @@
 import logging
 import requests
 
-from hint_controller.util.args import get_arg, HINT_IP_ADDRESS, HINT_PORT, \
+from hint_controller.util.args import (
+    get_arg,
+    HINT_IP_ADDRESS,
+    HINT_PORT,
     HUME_UUID
-
+)
 from hint_controller.hint.models import HumeUser
+
 
 LOGGER = logging.getLogger(__name__)
 

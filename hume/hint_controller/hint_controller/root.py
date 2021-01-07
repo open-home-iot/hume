@@ -5,7 +5,7 @@ import hume_storage as storage
 from hume_broker import broker
 
 from hint_controller.util import args
-from hint_controller.rpc import application as rpc
+from hint_controller.dispatch import application as dispatch
 from hint_controller.hint import application as hint
 from hint_controller.util import log
 
@@ -17,7 +17,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    rpc, hint
+    dispatch, hint
 ]
 
 

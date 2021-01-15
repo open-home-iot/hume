@@ -1,7 +1,15 @@
-_args = None
+"""
+This module is responsible for keeping CLI arguments stored for easy access.
+"""
+
+
+_args: dict
 
 HUME_UUID = "hume_uuid"
-DEVICE_MOCK_ADDRESS = "device_mock_address"
+
+# TESTING PARAMETERS
+TEST_DEVICE_MOCK_ADDRESS = "test_device_mock_address"
+TEST_RUN_DEVICE_SIMULATOR = "test_run_device_simulator"
 
 
 def set_args(**cli_args):

@@ -1,7 +1,7 @@
 import logging
 import requests
 
-from device_controller.util.args import get_arg, DEVICE_MOCK_ADDRESS
+from device_controller.util.args import get_arg, TEST_DEVICE_MOCK_ADDRESS
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def _device_url(device):
 
     :type device: Device
     """
-    mock_address = get_arg(DEVICE_MOCK_ADDRESS)
+    mock_address = get_arg(TEST_DEVICE_MOCK_ADDRESS)
 
     if mock_address:
         return mock_address + "/"

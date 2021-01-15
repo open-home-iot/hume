@@ -41,33 +41,28 @@ def capability_request(device):
     #     "description": "Combined Thermometer and Humidity sensor.",
     #     "category": 0,
     #     "type": 0,
-    #     "data_groups": [
-    #         {
-    #             "id": 0,
-    #             "name": "Temperature"
-    #         },
-    #         {
-    #             "id": 1,
-    #             "name": "Humidity"
-    #         }
-    #     ],
+    #     "data_types": {
+    #         "0": "Temperature",
+    #         "1": "Humidity"
+    #     },
     #     "actions": [
     #         {
     #             "id": 0,
     #             "name": "Read temperature",
     #             "type": 1,
-    #             "return_type": 1,
-    #             "data_group": 0
+    #             "return_type": 2,
+    #             "data_type": 0
     #         },
     #         {
     #             "id": 1,
     #             "name": "Read humidity",
     #             "type": 1,
-    #             "return_type": 1,
-    #             "data_group": 1
+    #             "return_type": 2,
+    #             "data_type": 1
     #         }
     #     ]
     # }
+
     response = requests.get(_device_url(device) + "capabilities")
 
     if response.status_code == 200:

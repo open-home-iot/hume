@@ -64,8 +64,10 @@ def confirm_attach(device_uuid):
             return
         else:
             LOGGER.warning("device did not respond to heartbeat request")
-            # Remove, either the device info is faulty, or device has issues
-            hume_storage.delete(device)
+            # Remove if not attached, either the device info is faulty, or
+            # device has issues
+            if not device.attached:
+                hume_storage.delete(device)
     else:
         LOGGER.error("device to be attached does not exist")
 

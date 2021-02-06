@@ -46,12 +46,13 @@ def confirm_attach(device_uuid):
     :param device_uuid: device to attach
     :type device_uuid: str
     """
-    LOGGER.debug(f"confirm attach for: {device_uuid}")
-
     device = hume_storage.get(Device, device_uuid)
 
     if device:
+
         if device_req_lib.heartbeat_request(device):
+            LOGGER.debug("heartbeat request succeeded")
+
             device.attached = True
             hume_storage.save(device)
 
@@ -77,3 +78,23 @@ def confirm_attach(device_uuid):
             "content": {"device_uuid": device_uuid, "success": False}
         }
     )
+
+
+def detach(device_uuid):
+    """
+    Detach the parameter device from HUME, removing all associated data.
+
+    NOTE! In the future, this procedure needs to be extended to delete
+    configurations as well.
+
+    :param device_uuid: UUID of device to detach
+    :type device_uuid: str
+    """
+    device = hume_storage.get(Device, device_uuid)
+
+    if device:
+        LOGGER.debug("found device to delete")
+
+        hume_storage.delete(device)
+    else:
+        LOGGER.debug("device does not exist")

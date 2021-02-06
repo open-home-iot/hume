@@ -3,8 +3,8 @@ import json
 
 from hume_broker import broker
 
-from hint_controller.dispatch import rpc_req_dispatcher
-from hint_controller.dispatch import command_dispatcher
+from hint_controller.dispatch import dc_rpc_req_handler
+from hint_controller.dispatch import dc_command_handler
 
 
 LOGGER = logging.getLogger(__name__)
@@ -43,9 +43,9 @@ def start():
     LOGGER.info("hc dispatch start")
 
     broker.enable_rpc_server(HINT_CONTROLLER_RPC,
-                             rpc_req_dispatcher.incoming_rpc_request)
+                             dc_rpc_req_handler.incoming_rpc_request)
     broker.command_queue(HINT_CONTROLLER_COMMAND_QUEUE,
-                         command_dispatcher.incoming_command)
+                         dc_command_handler.incoming_command)
 
 
 def stop():

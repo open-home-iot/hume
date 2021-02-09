@@ -70,25 +70,14 @@ def capabilties():
             "description": "Combined Thermometer and Humidity sensor.",
             "category": 0,
             "type": 0,
-            "data_types": {
-                "0": "Temperature",
-                "1": "Humidity"
-            },
-            "actions": [
+            "data_sources": [
                 {
-                    "id": 0,
-                    "name": "Read temperature",
-                    "type": 1,
-                    "data_type": "0",
-                    "return_type": 2
-
+                    "name": "Temperature",
+                    "data_type": 2
                 },
                 {
-                    "id": 1,
-                    "name": "Read humidity",
-                    "type": 1,
-                    "data_type": "1",
-                    "return_type": 2
+                    "name": "Humidity",
+                    "data_type": 5
                 }
             ]
         }

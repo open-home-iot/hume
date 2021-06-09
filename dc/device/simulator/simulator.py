@@ -6,7 +6,7 @@ import random
 
 from bottle import run, get, response
 
-from dc.device.http_server import MyServer
+from device.http_server import MyServer
 
 
 """

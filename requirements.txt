@@ -3,7 +3,7 @@ certifi==2021.5.30
 chardet==4.0.0
 coverage==5.5
 flake8==3.9.2
-hume-storage @ git+https://github.com/megacorpincorporated/hume_storage@c035f24110d9ff108cd0d576b87008516454ee96
+hume-storage @ git+https://github.com/megacorpincorporated/hume_storage@master
 idna==2.10
 mccabe==0.6.1
 peewee==3.14.4

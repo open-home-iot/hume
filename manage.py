@@ -23,7 +23,7 @@ def parse_args():
 
 def start_dc(hume_uuid):
     subprocess.run([
-        "python", "dc/main.py", hume_uuid
+        "python", "dc/main.py", hume_uuid, "--test-run-device-simulator"
     ])
 
 

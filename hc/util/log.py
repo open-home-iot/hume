@@ -2,12 +2,11 @@ import logging
 import logging.handlers
 
 
-TOP_LOGGER_NAME = "hc"
 LOG_FORMATTER = logging.Formatter(fmt="{asctime} {levelname:^8} "
                                   "HC {name} - {message}",
                                   style="{",
                                   datefmt="%d/%m/%Y %H:%M:%S")
-HINT_CONTROLLER_LOG_LEVEL = logging.DEBUG
+HINT_CONTROLLER_LOG_LEVEL = logging.INFO
 HUME_STORAGE_LOG_LEVEL = logging.INFO
 RABBITMQ_CLIENT_LOG_LEVEL = logging.INFO
 
@@ -28,6 +27,7 @@ def set_up_logging():
         :param handler_type: string for which handler type should be created
         """
         logger = logging.getLogger(name)
+        logger.propagate = False
         logger.setLevel(log_level)
 
         if handler_type == "stream":
@@ -39,7 +39,7 @@ def set_up_logging():
         logger.addHandler(handler)
 
     # SET UP LOGGERS
-    set_up_logger_for(TOP_LOGGER_NAME,
+    set_up_logger_for(None,  # Root logger
                       HINT_CONTROLLER_LOG_LEVEL,
                       "stream")
     set_up_logger_for("hume_storage",
@@ -52,6 +52,10 @@ def set_up_logging():
     # Set up monitor log queue
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(LOG_FORMATTER)
+
+    # Disable pika logging
+    pika_logger = logging.getLogger("pika")
+    pika_logger.propagate = False
 
 
 def stop_logging():

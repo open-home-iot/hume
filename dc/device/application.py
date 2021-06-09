@@ -51,7 +51,7 @@ def start():
     server_thread.start()
 
     if get_arg(TEST_RUN_DEVICE_SIMULATOR):
-        from dc.device.simulator import start_simulator
+        from device.simulator import start_simulator
         start_simulator()
 
 
@@ -65,5 +65,5 @@ def stop():
     server_thread.join()  # noqa
 
     if get_arg(TEST_RUN_DEVICE_SIMULATOR):
-        from dc.device.simulator import stop_simulator
+        from device.simulator import stop_simulator
         stop_simulator()

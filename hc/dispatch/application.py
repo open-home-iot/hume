@@ -73,6 +73,8 @@ def forward_command_to_dc(command):
     """
     :type command: bytes
     """
+    LOGGER.info("forwarding command to DC")
+
     _producer.publish(command, queue_params=_dc_command_queue_params)  # noqa
 
 
@@ -82,6 +84,8 @@ def dc_command(command_content):
 
     :type command_content: dict
     """
+    LOGGER.info("sending a command to DC")
+
     _producer.publish(
         json.dumps(command_content).encode('utf-8'),
         queue_params=_dc_command_queue_params  # noqa

@@ -3,6 +3,8 @@ import logging
 
 from rabbitmq_client import RMQProducer, QueueParams
 
+from util.args import get_arg, HUME_UUID
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,6 +21,12 @@ def init(producer_instance):
     producer = producer_instance
 
 
+def encode_hint_command(command):
+    """Formats a HINT command."""
+    command["uuid"] = get_arg(HUME_UUID)
+    return json.dumps(command)
+
+
 def discover_devices_done(command):
     """
     This is just a forward of what was returned by DC since the messages look
@@ -27,7 +35,8 @@ def discover_devices_done(command):
     :type command: dict
     """
     LOGGER.info("sending discover devices result to HINT")
-    producer.publish(json.dumps(command), queue_params=_hint_queue_params)  # noqa
+    producer.publish(encode_hint_command(command),
+                     queue_params=_hint_queue_params)  # noqa
 
 
 def confirm_attach_result(command):
@@ -38,4 +47,5 @@ def confirm_attach_result(command):
     :type command: dict
     """
     LOGGER.info("sending confirm attach result to HINT")
-    producer.publish(json.dumps(command), queue_params=_hint_queue_params)  # noqa
+    producer.publish(encode_hint_command(command),
+                     queue_params=_hint_queue_params)  # noqa

@@ -25,19 +25,19 @@ def incoming_command(command):
         LOGGER.info("dc command handler got ConsumeOK")
         return
 
-    LOGGER.debug(f"got command from DC: {command}")
+    LOGGER.info("got command from DC")
 
     decoded_command = json.loads(command.decode('utf-8'))
 
     command_type = decoded_command["type"]
 
     if command_type == defs.DISCOVER_DEVICES:
-        LOGGER.debug("received a discover devices complete from DC")
+        LOGGER.info("received a discover devices complete from DC")
 
         # Forward the whole thing, nothing needs to be changed.
         hint_command_lib.discover_devices_done(decoded_command)
 
     elif command_type == defs.CONFIRM_ATTACH:
-        LOGGER.debug("received a confirm attach result from DC")
+        LOGGER.info("received a confirm attach result from DC")
 
         hint_command_lib.confirm_attach_result(decoded_command)

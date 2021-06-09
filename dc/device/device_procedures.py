@@ -20,7 +20,7 @@ def discover_devices(command_content):
     :param command_content: currently not in use, empty
     :type command_content: str
     """
-    LOGGER.debug(f"discover devices command content: {command_content}")
+    LOGGER.info("discover devices command gotten")
 
     devices = hume_storage.get_all(Device)
     result = []
@@ -32,7 +32,9 @@ def discover_devices(command_content):
             if device_capability is not None:
                 result.append(device_capability)
 
-    LOGGER.debug(f"the following devices responded: {result}")
+    LOGGER.info(f"the following devices responded: "
+                f"{[cap['uuid'] for cap in result]}")
+    LOGGER.debug(f"full reply content: {result}")
 
     dispatch.hc_command(
         {
@@ -47,6 +49,8 @@ def confirm_attach(device_uuid):
     :param device_uuid: device to attach
     :type device_uuid: str
     """
+    LOGGER.info(f"sending confirm attach to: {device_uuid}")
+
     device = hume_storage.get(Device, device_uuid)
 
     if device:
@@ -91,6 +95,8 @@ def detach(device_uuid):
     :param device_uuid: UUID of device to detach
     :type device_uuid: str
     """
+    LOGGER.info(f"detaching device: {device_uuid}")
+
     device = hume_storage.get(Device, device_uuid)
 
     if device:

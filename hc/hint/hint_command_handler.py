@@ -19,6 +19,8 @@ def incoming_command(command):
         LOGGER.info("hint command handler got ConsumeOK")
         return
 
+    LOGGER.info("got command from HINT")
+
     decoded_command = json.loads(command.decode('utf-8'))
 
     command_type = decoded_command["type"]

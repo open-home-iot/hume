@@ -79,7 +79,6 @@ def print_exit_status():
         print(f"# {thread}")
 
 
-
 def parse_args():
     """
     Parse arguments provided at running the python program.

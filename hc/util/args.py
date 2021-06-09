@@ -27,4 +27,4 @@ def get_arg(name):
 
     :param name: argument to get
     """
-    return _args.get(name)
+    return _args.get(name)  # noqa

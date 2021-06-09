@@ -62,7 +62,7 @@ def stop():
     LOGGER.info("device listener stop")
 
     server.shutdown()
-    server_thread.join()
+    server_thread.join()  # noqa
 
     if get_arg(TEST_RUN_DEVICE_SIMULATOR):
         from dc.device.simulator import stop_simulator

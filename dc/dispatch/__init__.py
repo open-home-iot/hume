@@ -1,3 +1,3 @@
-from dispatch.application import (
+from dispatch.application import (  # noqa
     hc_command
 )

@@ -77,5 +77,5 @@ def hc_command(command_content):
     """
     _producer.publish(
         json.dumps(command_content).encode('utf-8'),
-        queue_params=_hc_command_queue_params
+        queue_params=_hc_command_queue_params  # noqa
     )

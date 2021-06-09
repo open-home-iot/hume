@@ -1,4 +1,4 @@
-from device.simulator.simulator import (
+from device.simulator.simulator import (  # noqa
     start_simulator,
     stop_simulator
 )

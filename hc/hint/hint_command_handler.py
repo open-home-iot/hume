@@ -1,7 +1,8 @@
 import logging
 import json
 
-import defs, dispatch
+import defs
+import dispatch
 
 from rabbitmq_client import ConsumeOK
 

@@ -51,7 +51,7 @@ def stop_simulator():
     Stops the device simulator.
     """
     server.shutdown()
-    server_thread.join()
+    server_thread.join()  # noqa
 
 
 @get('/capabilities')

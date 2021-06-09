@@ -27,7 +27,7 @@ def discover_devices_done(command):
     :type command: dict
     """
     LOGGER.info("sending discover devices result to HINT")
-    producer.publish(json.dumps(command), queue_params=_hint_queue_params)
+    producer.publish(json.dumps(command), queue_params=_hint_queue_params)  # noqa
 
 
 def confirm_attach_result(command):
@@ -38,4 +38,4 @@ def confirm_attach_result(command):
     :type command: dict
     """
     LOGGER.info("sending confirm attach result to HINT")
-    producer.publish(json.dumps(command), queue_params=_hint_queue_params)
+    producer.publish(json.dumps(command), queue_params=_hint_queue_params)  # noqa

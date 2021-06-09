@@ -1,8 +1,6 @@
 import logging
 import logging.handlers
 
-from multiprocessing import Queue
-
 
 TOP_LOGGER_NAME = "hc"
 LOG_FORMATTER = logging.Formatter(fmt="{asctime} {levelname:^8} "

@@ -73,7 +73,7 @@ def forward_command_to_dc(command):
     """
     :type command: bytes
     """
-    _producer.publish(command, queue_params=_dc_command_queue_params)
+    _producer.publish(command, queue_params=_dc_command_queue_params)  # noqa
 
 
 def dc_command(command_content):
@@ -84,5 +84,5 @@ def dc_command(command_content):
     """
     _producer.publish(
         json.dumps(command_content).encode('utf-8'),
-        queue_params=_dc_command_queue_params
+        queue_params=_dc_command_queue_params  # noqa
     )

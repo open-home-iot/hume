@@ -63,14 +63,3 @@ def stop_logging():
     Stops logging processed gracefully.
     """
     LOGGER.info("stopping logging")
-
-
-def get_root_log_level():
-    """
-    Returns the "root" logger's effective level, to be able to set sub-logger
-    and handler levels appropriately.
-
-    :return: log level of "root" logger
-    """
-    logger = logging.getLogger(TOP_LOGGER_NAME)
-    return logger.getEffectiveLevel()

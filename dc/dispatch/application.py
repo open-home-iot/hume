@@ -8,8 +8,8 @@ from rabbitmq_client import (
     QueueParams
 )
 
-from dc.dispatch.hc_command_handler import incoming_command
-from dc.util.args import HUME_UUID, get_arg
+from dispatch.hc_command_handler import incoming_command
+from util.args import HUME_UUID, get_arg
 
 
 LOGGER = logging.getLogger(__name__)

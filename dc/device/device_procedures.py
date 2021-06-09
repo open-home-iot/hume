@@ -2,10 +2,11 @@ import logging
 
 import hume_storage
 
-from dc.device.models import Device
-from dc.device import device_req_lib
-from dc import dispatch
-from dc import defs
+import dispatch
+import defs
+
+from device.models import Device
+from device import device_req_lib
 
 
 LOGGER = logging.getLogger(__name__)

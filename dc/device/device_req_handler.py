@@ -2,7 +2,7 @@ import logging
 
 import hume_storage
 
-from dc.device.models import Device
+from device.models import Device
 
 
 LOGGER = logging.getLogger(__name__)

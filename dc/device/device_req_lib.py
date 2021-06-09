@@ -1,7 +1,7 @@
 import logging
 import requests
 
-from dc.util.args import get_arg, TEST_DEVICE_MOCK_ADDRESS
+from util.args import get_arg, TEST_DEVICE_MOCK_ADDRESS
 
 
 LOGGER = logging.getLogger(__name__)

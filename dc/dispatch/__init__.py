@@ -1,3 +1,3 @@
-from dc.dispatch.application import (
+from dispatch.application import (
     hc_command
 )

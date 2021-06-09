@@ -56,9 +56,8 @@ jobs:
 
     - name: Run unit tests
       run: |
-        coverage run --source rabbitmq_client -m unittest \
-          tests.test_connection \
-          tests.test_consumer \
-          tests.test_producer -f
-        coverage report -m --fail-under 96
+        coverage run --source dc -m unittest discover
+        coverage run --source hc -m unittest discover
+
     # TODO: Add integration tests
+    # TODO: Add "fail under" clause: coverage report -m --fail-under 96

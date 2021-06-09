@@ -1,10 +1,11 @@
 import json
 import logging
 
+import defs
+
 from rabbitmq_client import ConsumeOK
 
-from dc import defs
-from dc.device import device_procedures
+from device import device_procedures
 
 
 LOGGER = logging.getLogger(__name__)

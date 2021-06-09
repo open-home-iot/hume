@@ -5,10 +5,10 @@ from bottle import run
 
 import hume_storage as storage
 
-from dc.device.http_server import MyServer
-from dc.device.models import Device
-from dc.device import routes  # noqa
-from dc.util.args import get_arg, TEST_RUN_DEVICE_SIMULATOR
+from device.http_server import MyServer
+from device.models import Device
+from device import routes  # noqa
+from util.args import get_arg, TEST_RUN_DEVICE_SIMULATOR
 
 
 LOGGER = logging.getLogger(__name__)

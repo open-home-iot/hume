@@ -2,10 +2,82 @@ import signal
 import sys
 import threading
 import argparse
+import logging
 
-from device_controller import root
+import hume_storage
 
-from device_controller.util.log import set_up_logging
+from util import args, log
+from device import application as device
+from dispatch import application as dispatch
+
+
+LOGGER = logging.getLogger(__name__)
+
+UTIL = [
+    hume_storage
+]
+
+APPLICATIONS = [
+    device, dispatch
+]
+
+
+def start():
+    """
+    Starts the RootApp and all its sub-applications.
+    """
+    LOGGER.info("root start")
+
+    # storage start
+    hume_storage.start()
+
+    # model init
+    for app in APPLICATIONS:
+        app.model_init()
+
+    # pre start
+    for app in APPLICATIONS:
+        app.pre_start()
+
+    # app start
+    for app in APPLICATIONS:
+        app.start()
+
+
+def stop():
+    """
+    Stops all RootApp sub-applications in order to clean up used resources.
+    """
+    LOGGER.info("root stop")
+
+    # application stop
+    for app in APPLICATIONS:
+        app.stop()
+
+    # core stop
+    for app in UTIL:
+        app.stop()
+
+    # This must happen last to track application exits
+    log.stop_logging()
+
+    print_exit_status()
+
+
+def print_exit_status():
+    """
+    Health check sort of, to see that resources are released properly when
+    exiting.
+    """
+    print("----------------------------------------------")
+    print("- STOP RESULTS -")
+    print("----------------------------------------------")
+    print("# THREADING")
+    print(f"# Active threads: {threading.active_count()}")
+    print("# List of threads:")
+    for thread in threading.enumerate():
+        print(f"# {thread}")
+
 
 
 def parse_args():
@@ -43,8 +115,8 @@ def parse_args():
                             "heartbeat, and action",
                        action='store_true')
 
-    print("Starting DC with the following arguments:")
-    print(parser.parse_args())
+    # print("Starting DC with the following arguments:")
+    # print(parser.parse_args())
 
     return parser.parse_args()
 
@@ -60,7 +132,7 @@ def set_up_interrupt():
         :param _signum:
         :param _frame:
         """
-        root.stop()
+        stop()
         sys.exit(0)
 
     def terminate(_signum, _frame):
@@ -68,7 +140,7 @@ def set_up_interrupt():
         :param _signum:
         :param _frame:
         """
-        root.stop()
+        stop()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, interrupt)
@@ -77,15 +149,16 @@ def set_up_interrupt():
 
 if __name__ == "__main__":
     cli_args = parse_args()
+    args.set_args(**vars(cli_args))
 
-    set_up_interrupt()
+    log.set_up_logging()
 
     # Only set up logging if DC is run standalone and not from HTT. Rely on HTT
     # to set up logging otherwise.
-    set_up_logging()
 
-    print(f"DC sys.path: {sys.path}")
+    # print(f"DC sys.path: {sys.path}")
 
-    root.start(cli_args)
+    set_up_interrupt()
+    start()
 
     threading.Event().wait()  # Blocks indefinitely

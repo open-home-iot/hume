@@ -1,7 +1,7 @@
 import logging
 
 from bottle import request, post
-from dc.device import device_req_handler
+from device import device_req_handler
 
 
 LOGGER = logging.getLogger(__name__)

@@ -4,11 +4,11 @@ import logging.handlers
 
 TOP_LOGGER_NAME = "dc"
 LOG_FORMATTER = logging.Formatter(fmt="{asctime} {levelname:^8} "
-                                  "{name} - {message}",
+                                  "DC {name} - {message}",
                                   style="{",
                                   datefmt="%d/%m/%Y %H:%M:%S")
 DEVICE_CONTROLLER_LOG_LEVEL = logging.DEBUG
-HUME_STORAGE_LOG_LEVEL = logging.DEBUG
+HUME_STORAGE_LOG_LEVEL = logging.INFO
 RABBITMQ_CLIENT_LOG_LEVEL = logging.INFO
 
 LOGGER = logging.getLogger(__name__)

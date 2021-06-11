@@ -4,6 +4,11 @@ import subprocess
 import argparse
 import threading
 
+import peewee
+
+from dc.device.models import Device
+from hc.hint.models import BrokerCredentials, HumeUser
+
 
 def parse_args():
     """
@@ -12,6 +17,11 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="HUME device controller"
     )
+
+    parser.add_argument("-cdb",
+                        "--clean-db",
+                        action="store_true",
+                        help="Clean all tables in local Postgres DB 'hume'")
 
     subparsers = parser.add_subparsers(help="supported commands")
 
@@ -30,7 +40,33 @@ def parse_args():
     return parser.parse_args()
 
 
+def clean_db():
+    """
+    Clean the local Postgres DB 'hume' of all table content. If new tables are
+    added to HUME, they must be added here as well, I don't have the energy for
+    fixing automatic discovery.
+    """
+    print("clearing the local Postgres DB 'hume' of all tables...\n")
+
+    psql_db = peewee.PostgresqlDatabase("hume",
+                                        user="hume",
+                                        password="password")
+    psql_db.connect()
+    psql_db.drop_tables([Device, BrokerCredentials, HumeUser])
+
+
+"""
+Subparsers below
+"""
+
+
 def run_dev_server(runserver_args):
+    """
+    Runs a local development server for HUME, starting both HC and DC.
+
+    :param runserver_args: arguments for the 'runserver' command
+    """
+    print("starting HUME development server...\n")
 
     def start_dc(args):
         optional_args = []
@@ -57,6 +93,8 @@ def run_dev_server(runserver_args):
     threading.Event().wait()
 
 
-cli_args = parse_args()
-print(cli_args)
-cli_args.func(cli_args)
+if __name__ == "__main__":
+    cli_args = parse_args()
+    if cli_args.clean_db:
+        clean_db()
+    cli_args.func(cli_args)

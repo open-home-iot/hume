@@ -25,10 +25,6 @@ def parse_args():
 
     subparsers = parser.add_subparsers(help="supported commands")
 
-    clean_db_parser = subparsers.add_parser("clean-db",
-                                            help="Clean the local DB.")
-    clean_db_parser.set_defaults(func=clean_db)
-
     runserver_parser = subparsers.add_parser("runserver",
                                              help="Run a local HUME "
                                                   "development server.")
@@ -42,22 +38,15 @@ def parse_args():
                                   action='store_true')
     runserver_parser.set_defaults(func=run_dev_server)
 
+    clean_db_parser = subparsers.add_parser("clean-db",
+                                            help="Clean the local DB.")
+    clean_db_parser.set_defaults(func=clean_db)
+
+    test_parser = subparsers.add_parser("test",
+                                        help="Run tests.")
+    test_parser.set_defaults(func=test)
+
     return parser.parse_args()
-
-
-def clean_db(_):
-    """
-    Clean the local Postgres DB 'hume' of all table content. If new tables are
-    added to HUME, they must be added here as well, I don't have the energy for
-    fixing automatic discovery.
-    """
-    print("clearing the local Postgres DB 'hume' of all tables...\n")
-
-    psql_db = peewee.PostgresqlDatabase("hume",
-                                        user="hume",
-                                        password="password")
-    psql_db.connect()
-    psql_db.drop_tables([Device, BrokerCredentials, HumeUser])
 
 
 """
@@ -98,8 +87,33 @@ def run_dev_server(runserver_args):
     threading.Event().wait()
 
 
+def clean_db(_):
+    """
+    Clean the local Postgres DB 'hume' of all table content. If new tables are
+    added to HUME, they must be added here as well, I don't have the energy for
+    fixing automatic discovery.
+
+    :param _: CLI args
+    """
+    print("clearing the local Postgres DB 'hume' of all tables...\n")
+
+    psql_db = peewee.PostgresqlDatabase("hume",
+                                        user="hume",
+                                        password="password")
+    psql_db.connect()
+    psql_db.drop_tables([Device, BrokerCredentials, HumeUser])
+
+
+def test(_):
+    """
+    Run all tests for HUME.
+    :param _: CLI args
+    """
+    pass
+
+
 if __name__ == "__main__":
     cli_args = parse_args()
     if cli_args.clean_db:
-        clean_db()
+        clean_db(None)
     cli_args.func(cli_args)

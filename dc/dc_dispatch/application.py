@@ -23,8 +23,8 @@ _hc_command_queue_params: QueueParams
 
 
 """
-This module is the starting point of the dc_dispatch application, responsible for
-registering callbacks for various HUME internal comm. types.
+This module is the starting point of the dc_dispatch application, responsible
+for registering callbacks for various HUME internal comm. types.
 """
 
 

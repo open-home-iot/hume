@@ -57,6 +57,6 @@ jobs:
 
     - name: Run tests
       run: |
-        python manage.py test
+        ./manage.py test
 
     # TODO: Add "fail under" clause: coverage report -m --fail-under 96

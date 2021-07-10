@@ -1,5 +1,7 @@
 #! python
 
+import os
+import sys
 import subprocess
 import argparse
 import threading
@@ -109,7 +111,40 @@ def test(_):
     Run all tests for HUME.
     :param _: CLI args
     """
-    pass
+
+    def prep_path_for_tests_in(path=None):
+        test_path = f"{root_path}/{path}" if path else root_path
+        os.chdir(test_path)
+        sys.path.append(test_path)
+
+    def run_coverage_tests(discover_args=None):
+        cmd = ["coverage", "run", "-m", "unittest", "discover"]
+        cmd.extend(discover_args) if discover_args else None
+        proc_res = subprocess.run(cmd)
+        if proc_res.returncode != 0:
+            sys.exit(proc_res.returncode)
+
+    subproject_dc = "dc"
+    subproject_hc = "hc"
+    root_path = os.getcwd()
+
+    prep_path_for_tests_in(subproject_dc)
+    print("Running DC unit tests")
+    run_coverage_tests()
+
+    # Remove DC path before executing HC tests
+    sys.path = sys.path[:-1]
+
+    prep_path_for_tests_in(subproject_hc)
+    print("Running HC unit tests")
+    run_coverage_tests()
+
+    # Remove HC path before executing integration tests
+    sys.path = sys.path[:-1]
+
+    prep_path_for_tests_in()  # Needed to set the cwd
+    print("Running integration tests")
+    run_coverage_tests(discover_args=["-s", "tests"])
 
 
 if __name__ == "__main__":

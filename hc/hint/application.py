@@ -20,11 +20,11 @@ from hint import (
     hint_command_handler,
     hint_command_lib
 )
-from util.args import (
-    get_arg,
-    HUME_UUID,
-    BROKER_IP_ADDRESS,
-    BROKER_PORT
+from util import get_arg
+from hc_defs import (
+    CLI_HUME_UUID,
+    CLI_BROKER_IP_ADDRESS,
+    CLI_BROKER_PORT
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -167,9 +167,9 @@ def start():
         # Default fallback to avoid exceptions at this stage
         credentials = pika.PlainCredentials('guest', 'guest')
     conn_params = pika.ConnectionParameters(host=get_arg(
-                                                BROKER_IP_ADDRESS
+                                                CLI_BROKER_IP_ADDRESS
                                             ),
-                                            port=get_arg(BROKER_PORT),
+                                            port=get_arg(CLI_BROKER_PORT),
                                             virtual_host='/',
                                             credentials=credentials)
 
@@ -184,7 +184,7 @@ def start():
     hint_command_lib.init(_producer)
 
     # Consumer from the HUME's input command queue.
-    _hume_queue_params = QueueParams(f"{get_arg(HUME_UUID)}", durable=True)
+    _hume_queue_params = QueueParams(f"{get_arg(CLI_HUME_UUID)}", durable=True)
     _consumer.consume(ConsumeParams(hint_command_handler.incoming_command),
                       queue_params=_hume_queue_params)
 

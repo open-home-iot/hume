@@ -8,8 +8,9 @@ from rabbitmq_client import (
     QueueParams
 )
 
-from dispatch.dc_command_handler import incoming_command
-from util.args import HUME_UUID, get_arg
+from hc_dispatch.command_handler import incoming_command
+from util import get_arg
+from hc_defs import CLI_HUME_UUID
 
 
 LOGGER = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ _hc_command_queue_params: QueueParams
 
 
 """
-This module is the starting point of the dispatch application, responsible for
+This module is the starting point of the dc_dispatch application, responsible for
 registering callbacks for various HUME internal comm. types.
 """
 
@@ -43,14 +44,16 @@ def pre_start():
 
 def start():
     """
-    Starts the dispatch application
+    Starts the dc_dispatch application
     """
-    LOGGER.info("hc dispatch start")
+    LOGGER.info("hc dc_dispatch start")
     global _dc_command_queue_params, _hc_command_queue_params
-    _dc_command_queue_params = QueueParams(f"{get_arg(HUME_UUID)}-dc-commands",
-                                           durable=True)
-    _hc_command_queue_params = QueueParams(f"{get_arg(HUME_UUID)}-hc-commands",
-                                           durable=True)
+    _dc_command_queue_params = QueueParams(
+        f"{get_arg(CLI_HUME_UUID)}-dc-commands", durable=True
+    )
+    _hc_command_queue_params = QueueParams(
+        f"{get_arg(CLI_HUME_UUID)}-hc-commands", durable=True
+    )
 
     _consumer.start()
     _consumer.consume(
@@ -62,9 +65,9 @@ def start():
 
 def stop():
     """
-    Stops the dispatch application
+    Stops the dc_dispatch application
     """
-    LOGGER.info("hc dispatch stop")
+    LOGGER.info("hc dc_dispatch stop")
     _consumer.stop()
     _producer.stop()
 

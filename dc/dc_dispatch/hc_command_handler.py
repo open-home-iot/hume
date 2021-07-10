@@ -1,7 +1,7 @@
 import json
 import logging
 
-import defs
+import dc_defs
 
 from rabbitmq_client import ConsumeOK
 
@@ -31,17 +31,17 @@ def incoming_command(command):
 
     command_type = decoded_command["type"]
 
-    if command_type == defs.DISCOVER_DEVICES:
+    if command_type == dc_defs.MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery")
 
         device_procedures.discover_devices(decoded_command["content"])
 
-    elif command_type == defs.CONFIRM_ATTACH:
+    elif command_type == dc_defs.MessageType.CONFIRM_ATTACH:
         LOGGER.info("received confirm attach")
 
         device_procedures.confirm_attach(decoded_command["content"])
 
-    elif command_type == defs.DETACH:
+    elif command_type == dc_defs.MessageType.DETACH:
         LOGGER.info("received detach command")
 
         device_procedures.detach(decoded_command["content"])

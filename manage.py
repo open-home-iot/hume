@@ -25,9 +25,14 @@ def parse_args():
 
     subparsers = parser.add_subparsers(help="supported commands")
 
+    clean_db_parser = subparsers.add_parser("clean-db",
+                                            help="Clean the local DB.")
+    clean_db_parser.set_defaults(func=clean_db)
+
     runserver_parser = subparsers.add_parser("runserver",
                                              help="Run a local HUME "
                                                   "development server.")
+
     runserver_parser.add_argument("hume_uuid",
                                   type=str,
                                   help="UUID for the HUME instance")
@@ -40,7 +45,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def clean_db():
+def clean_db(_):
     """
     Clean the local Postgres DB 'hume' of all table content. If new tables are
     added to HUME, they must be added here as well, I don't have the energy for

@@ -8,8 +8,10 @@ import hume_storage as storage
 from device.http_server import MyServer
 from device.models import Device
 from device import routes  # noqa
-from util.args import get_arg, TEST_RUN_DEVICE_SIMULATOR
-
+from util import get_arg
+from dc_defs import (
+    CLI_TEST_RUN_DEVICE_SIMULATOR
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +52,7 @@ def start():
     server_thread = threading.Thread(target=start_http_server)
     server_thread.start()
 
-    if get_arg(TEST_RUN_DEVICE_SIMULATOR):
+    if get_arg(CLI_TEST_RUN_DEVICE_SIMULATOR):
         from device.simulator import start_simulator
         start_simulator()
 
@@ -64,6 +66,6 @@ def stop():
     server.shutdown()
     server_thread.join()  # noqa
 
-    if get_arg(TEST_RUN_DEVICE_SIMULATOR):
+    if get_arg(CLI_TEST_RUN_DEVICE_SIMULATOR):
         from device.simulator import stop_simulator
         stop_simulator()

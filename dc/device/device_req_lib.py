@@ -1,7 +1,10 @@
 import logging
 import requests
 
-from util.args import get_arg, TEST_DEVICE_MOCK_ADDRESS
+from util import get_arg
+from dc_defs import (
+    CLI_TEST_DEVICE_MOCK_ADDRESS
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,7 +21,7 @@ def _device_url(device):
 
     :type device: Device
     """
-    mock_address = get_arg(TEST_DEVICE_MOCK_ADDRESS)
+    mock_address = get_arg(CLI_TEST_DEVICE_MOCK_ADDRESS)
 
     if mock_address:
         return mock_address + "/"

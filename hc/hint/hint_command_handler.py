@@ -1,8 +1,8 @@
 import logging
 import json
 
-import defs
-import dispatch
+import hc_defs
+import hc_dispatch
 
 from rabbitmq_client import ConsumeOK
 
@@ -25,18 +25,18 @@ def incoming_command(command):
 
     command_type = decoded_command["type"]
 
-    if command_type == defs.DISCOVER_DEVICES:
+    if command_type == hc_defs.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
 
         # To avoid re-encoding
-        dispatch.forward_command_to_dc(command)
+        hc_dispatch.forward_command_to_dc(command)
 
-    elif command_type == defs.CONFIRM_ATTACH:
+    elif command_type == hc_defs.CONFIRM_ATTACH:
         LOGGER.info("received confirm attach command")
 
-        dispatch.forward_command_to_dc(command)
+        hc_dispatch.forward_command_to_dc(command)
 
-    elif command_type == defs.DETACH:
+    elif command_type == hc_defs.DETACH:
         LOGGER.info("received detach command")
 
-        dispatch.forward_command_to_dc(command)
+        hc_dispatch.forward_command_to_dc(command)

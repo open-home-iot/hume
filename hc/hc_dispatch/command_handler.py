@@ -1,10 +1,8 @@
 import json
 import logging
-
-import defs
+import hc_defs
 
 from rabbitmq_client import ConsumeOK
-
 from hint import hint_command_lib
 
 
@@ -31,13 +29,13 @@ def incoming_command(command):
 
     command_type = decoded_command["type"]
 
-    if command_type == defs.DISCOVER_DEVICES:
+    if command_type == hc_defs.DISCOVER_DEVICES:
         LOGGER.info("received a discover devices complete from DC")
 
         # Forward the whole thing, nothing needs to be changed.
         hint_command_lib.discover_devices_done(decoded_command)
 
-    elif command_type == defs.CONFIRM_ATTACH:
+    elif command_type == hc_defs.CONFIRM_ATTACH:
         LOGGER.info("received a confirm attach result from DC")
 
         hint_command_lib.confirm_attach_result(decoded_command)

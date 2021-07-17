@@ -3,7 +3,6 @@ import logging
 import hume_storage as storage
 
 from device.models import Device
-from device import routes  # noqa
 
 
 LOGGER = logging.getLogger(__name__)

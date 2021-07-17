@@ -5,7 +5,7 @@ import hume_storage as storage
 
 from hint.procedures import request_library
 from hint.models import HumeUser, BrokerCredentials, HintAuthentication
-from hint import login_to_hint
+from hint.procedures.auth import login_to_hint
 
 
 LOGGER = logging.getLogger(__name__)

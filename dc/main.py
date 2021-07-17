@@ -44,21 +44,6 @@ def parse_args():
     #
 
     # Testing arguments are prepended with "--test", or "-t" for short.
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-t-dma',
-                       '--test-device-mock-address',
-                       help="Set up a device mock address where all device "
-                            "requests will be routed")
-    group.add_argument('-t-rds',
-                       '--test-run-device-simulator',
-                       help="Run a device simulator, where a single device "
-                            "will attach to the HUME on start and can reply "
-                            "to all standard requests such as: capability, "
-                            "heartbeat, and action",
-                       action='store_true')
-
-    # print("Starting DC with the following arguments:")
-    # print(parser.parse_args())
 
     return parser.parse_args()
 

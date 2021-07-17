@@ -23,7 +23,7 @@ _hc_command_queue_params: QueueParams
 
 
 """
-This module is the starting point of the dc_dispatch application, responsible
+This module is the starting point of the hc_communication application, responsible
 for registering callbacks for various HUME internal comm. types.
 """
 
@@ -44,9 +44,9 @@ def pre_start():
 
 def start():
     """
-    Starts the dc_dispatch application
+    Starts the hc_communication application
     """
-    LOGGER.info("hc dc_dispatch start")
+    LOGGER.info("hc hc_communication start")
     global _dc_command_queue_params, _hc_command_queue_params
     _dc_command_queue_params = QueueParams(
         f"{get_arg(CLI_HUME_UUID)}-dc-commands", durable=True
@@ -65,9 +65,9 @@ def start():
 
 def stop():
     """
-    Stops the dc_dispatch application
+    Stops the hc_communication application
     """
-    LOGGER.info("hc dc_dispatch stop")
+    LOGGER.info("hc hc_communication stop")
     _consumer.stop()
     _producer.stop()
 

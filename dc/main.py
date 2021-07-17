@@ -8,7 +8,7 @@ import hume_storage
 
 from util import set_args, set_up_logger_for, HANDLER_STREAM
 from device import application as device
-from dc_dispatch import application as dispatch
+from hc_communication import application as dispatch
 
 
 LOGGER = logging.getLogger(__name__)

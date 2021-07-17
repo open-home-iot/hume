@@ -5,12 +5,13 @@ from rabbitmq_client import (
     RMQConsumer,
     RMQProducer,
     ConsumeParams,
-    QueueParams
+    QueueParams,
+    ConsumeOK
 )
 
-from dc_dispatch.hc_command_handler import incoming_command
 from util import get_arg
-from dc_defs import CLI_HUME_UUID
+from dc_defs import CLI_HUME_UUID, MessageType
+from device import procedures
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ _hc_command_queue_params: QueueParams
 
 
 """
-This module is the starting point of the dc_dispatch application, responsible
+This module is the starting point of the hc_communication application, responsible
 for registering callbacks for various HUME internal comm. types.
 """
 
@@ -44,9 +45,9 @@ def pre_start():
 
 def start():
     """
-    Starts the dc_dispatch application
+    Starts the hc_communication application
     """
-    LOGGER.info("dc dc_dispatch start")
+    LOGGER.info("dc hc_communication start")
     global _dc_command_queue_params, _hc_command_queue_params
     _dc_command_queue_params = QueueParams(
         f"{get_arg(CLI_HUME_UUID)}-dc-commands", durable=True
@@ -57,16 +58,16 @@ def start():
 
     _consumer.start()
     _consumer.consume(
-        ConsumeParams(incoming_command), queue_params=_dc_command_queue_params
+        ConsumeParams(_incoming_command), queue_params=_dc_command_queue_params
     )
     _producer.start()
 
 
 def stop():
     """
-    Stops the dc_dispatch application
+    Stops the hc_communication application
     """
-    LOGGER.info("dc dc_dispatch stop")
+    LOGGER.info("dc hc_communication stop")
     _consumer.stop()
     _producer.stop()
 
@@ -81,3 +82,34 @@ def hc_command(command_content):
         json.dumps(command_content).encode('utf-8'),
         queue_params=_hc_command_queue_params  # noqa
     )
+
+
+def _incoming_command(command):
+    """
+    :param command: HC command
+    :type command: bytes
+    """
+    if isinstance(command, ConsumeOK):
+        LOGGER.info("hc command handler got ConsumeOK")
+        return
+
+    LOGGER.info("got command from HC")
+
+    decoded_command = json.loads(command.decode('utf-8'))
+
+    command_type = decoded_command["type"]
+
+    if command_type == MessageType.DISCOVER_DEVICES:
+        LOGGER.info("received device discovery")
+
+        procedures.discover_devices(decoded_command["content"])
+
+    elif command_type == MessageType.CONFIRM_ATTACH:
+        LOGGER.info("received confirm attach")
+
+        procedures.confirm_attach(decoded_command["content"])
+
+    elif command_type == MessageType.DETACH:
+        LOGGER.info("received detach command")
+
+        procedures.detach(decoded_command["content"])

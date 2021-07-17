@@ -2,7 +2,7 @@ import logging
 
 import hume_storage
 
-import dc_dispatch
+import hc_communication
 import dc_defs
 
 from device.models import Device
@@ -36,7 +36,7 @@ def discover_devices(command_content):
                 f"{[cap['uuid'] for cap in result]}")
     LOGGER.debug(f"full reply content: {result}")
 
-    dc_dispatch.hc_command(
+    hc_communication.hc_command(
         {
             "type": dc_defs.MessageType.DISCOVER_DEVICES,
             "content": result
@@ -61,7 +61,7 @@ def confirm_attach(device_uuid):
             device.attached = True
             hume_storage.save(device)
 
-            dc_dispatch.hc_command(
+            hc_communication.hc_command(
                 {
                     "type": dc_defs.MessageType.CONFIRM_ATTACH,
                     "content": {"device_uuid": device_uuid, "success": True}
@@ -77,7 +77,7 @@ def confirm_attach(device_uuid):
     else:
         LOGGER.error("device to be attached does not exist")
 
-    dc_dispatch.hc_command(
+    hc_communication.hc_command(
         {
             "type": dc_defs.MessageType.CONFIRM_ATTACH,
             "content": {"device_uuid": device_uuid, "success": False}

@@ -4,18 +4,13 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-"""
-This module specifies the handling of device messages.
-"""
-
-
 def attach():
     pass
 
 
-def event():
+def confirm_attach():
     pass
 
 
-def action_state():
+def detach():
     pass

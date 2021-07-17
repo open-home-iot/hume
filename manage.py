@@ -34,10 +34,6 @@ def parse_args():
     runserver_parser.add_argument("hume_uuid",
                                   type=str,
                                   help="UUID for the HUME instance")
-    runserver_parser.add_argument("-t-rds",
-                                  "--test-run-device-simulator",
-                                  help="Run a device simulator alongside DC.",
-                                  action='store_true')
     runserver_parser.set_defaults(func=run_dev_server)
 
     clean_db_parser = subparsers.add_parser("clean-db",

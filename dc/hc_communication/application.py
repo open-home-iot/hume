@@ -11,7 +11,6 @@ from rabbitmq_client import (
 
 from util import get_arg
 from dc_defs import CLI_HUME_UUID, MessageType
-from device import procedures
 
 
 LOGGER = logging.getLogger(__name__)
@@ -96,20 +95,16 @@ def _incoming_command(command):
     LOGGER.info("got command from HC")
 
     decoded_command = json.loads(command.decode('utf-8'))
-
     command_type = decoded_command["type"]
 
+    """
+    Call the appropriate procedure from here:
+    """
     if command_type == MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery")
-
-        procedures.discover_devices(decoded_command["content"])
 
     elif command_type == MessageType.CONFIRM_ATTACH:
         LOGGER.info("received confirm attach")
 
-        procedures.confirm_attach(decoded_command["content"])
-
     elif command_type == MessageType.DETACH:
         LOGGER.info("received detach command")
-
-        procedures.detach(decoded_command["content"])

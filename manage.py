@@ -107,6 +107,9 @@ def clean_db(_):
     psql_db.connect()
     psql_db.drop_tables([Device, BrokerCredentials, HumeUser])
 
+    # Remove the two added paths
+    sys.path = sys.path[:-2]
+
 
 def test(_):
     """

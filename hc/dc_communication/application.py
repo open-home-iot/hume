@@ -5,12 +5,13 @@ from rabbitmq_client import (
     RMQConsumer,
     RMQProducer,
     ConsumeParams,
-    QueueParams
+    QueueParams,
+    ConsumeOK
 )
 
-from hc_dispatch.command_handler import incoming_command
 from util import get_arg
-from hc_defs import CLI_HUME_UUID
+from hc_defs import CLI_HUME_UUID, MessageType
+from hint import command_library
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,8 +24,8 @@ _hc_command_queue_params: QueueParams
 
 
 """
-This module is the starting point of the hc_communication application, responsible
-for registering callbacks for various HUME internal comm. types.
+This module is the starting point of the dc_communication application,
+responsible for registering callbacks for various HUME internal comm. types.
 """
 
 
@@ -57,7 +58,7 @@ def start():
 
     _consumer.start()
     _consumer.consume(
-        ConsumeParams(incoming_command),
+        ConsumeParams(_incoming_command),
         queue_params=_hc_command_queue_params
     )
     _producer.start()
@@ -93,3 +94,30 @@ def dc_command(command_content):
         json.dumps(command_content).encode('utf-8'),
         queue_params=_dc_command_queue_params  # noqa
     )
+
+
+def _incoming_command(command):
+    """
+    :param command: DC command
+    :type command: bytes
+    """
+    if isinstance(command, ConsumeOK):
+        LOGGER.info("dc command handler got ConsumeOK")
+        return
+
+    LOGGER.info("got command from DC")
+
+    decoded_command = json.loads(command.decode('utf-8'))
+
+    command_type = decoded_command["type"]
+
+    if command_type == MessageType.DISCOVER_DEVICES:
+        LOGGER.info("received a discover devices complete from DC")
+
+        # Forward the whole thing, nothing needs to be changed.
+        command_library.discover_devices_done(decoded_command)
+
+    elif command_type == MessageType.CONFIRM_ATTACH:
+        LOGGER.info("received a confirm attach result from DC")
+
+        command_library.confirm_attach_result(decoded_command)

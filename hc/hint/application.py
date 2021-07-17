@@ -16,9 +16,9 @@ from hint.models import (
     HintAuthentication
 )
 from hint import (
-    hint_req_lib,
-    hint_command_handler,
-    hint_command_lib
+    request_library,
+    command_handler,
+    command_library
 )
 from util import get_arg
 from hc_defs import (
@@ -61,7 +61,7 @@ def pre_start():
         3. Get broker credentials (authenticated view)
         """
         LOGGER.debug("first time HUME setup running")
-        user_info = hint_req_lib.pair()
+        user_info = request_library.pair()
 
         if user_info:
             LOGGER.debug("pairing successful, got credentials")
@@ -70,13 +70,13 @@ def pre_start():
             hume_user = HumeUser(username=username, password=password)
             storage.save(hume_user)
 
-            session_id = hint_req_lib.login(hume_user)
+            session_id = request_library.login(hume_user)
             if session_id:
                 LOGGER.debug("login success")
                 hint_auth = HintAuthentication(session_id)
                 storage.save(hint_auth)
 
-                broker_credentials = hint_req_lib.broker_credentials(
+                broker_credentials = request_library.broker_credentials(
                     session_id
                 )
                 if broker_credentials:
@@ -111,7 +111,7 @@ def pre_start():
         :type hume_user: HumeUser
         """
         LOGGER.info("getting the HUME in the correct starting state")
-        session_id = hint_req_lib.login(hume_user)
+        session_id = request_library.login(hume_user)
         if session_id:
             LOGGER.debug("login success")
             hint_auth = HintAuthentication(session_id)
@@ -123,7 +123,7 @@ def pre_start():
                 pass
             else:
                 LOGGER.debug("fetching broker credentials")
-                broker_credentials = hint_req_lib.broker_credentials(
+                broker_credentials = request_library.broker_credentials(
                     session_id
                 )
                 if broker_credentials:
@@ -181,11 +181,11 @@ def start():
     _producer.start()
 
     # Initialize command lib with producer instance
-    hint_command_lib.init(_producer)
+    command_library.init(_producer)
 
     # Consumer from the HUME's input command queue.
     _hume_queue_params = QueueParams(f"{get_arg(CLI_HUME_UUID)}", durable=True)
-    _consumer.consume(ConsumeParams(hint_command_handler.incoming_command),
+    _consumer.consume(ConsumeParams(command_handler.incoming_command),
                       queue_params=_hume_queue_params)
 
 

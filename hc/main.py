@@ -7,7 +7,7 @@ import argparse
 import hume_storage
 
 from util import set_args, set_up_logger_for, HANDLER_STREAM
-from hc_dispatch import application as dispatch
+from dc_communication import application as dispatch
 from hint import application as hint
 
 

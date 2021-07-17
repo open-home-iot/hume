@@ -1,5 +1,6 @@
 import logging
 import pika
+import sys
 
 import hume_storage as storage
 
@@ -16,10 +17,10 @@ from hint.models import (
     HintAuthentication
 )
 from hint import (
-    request_library,
-    command_handler,
-    command_library
+    command_handler
 )
+from hint.procedures import command_library
+from hint import pair, login_to_hint
 from util import get_arg
 from hc_defs import (
     CLI_HUME_UUID,
@@ -51,104 +52,14 @@ def pre_start():
     """
     LOGGER.info("pre-start")
 
-    def first_time_startup():
-        """
-        Called when HUME has no user account, usually on first startup.
-
-        1. Pair the HUME with HINT, this should yield user information for
-           the HUME.
-        2. Use the credentials to authenticate.
-        3. Get broker credentials (authenticated view)
-        """
-        LOGGER.debug("first time HUME setup running")
-        user_info = request_library.pair()
-
-        if user_info:
-            LOGGER.debug("pairing successful, got credentials")
-            username = user_info['username']
-            password = user_info['password']
-            hume_user = HumeUser(username=username, password=password)
-            storage.save(hume_user)
-
-            session_id = request_library.login(hume_user)
-            if session_id:
-                LOGGER.debug("login success")
-                hint_auth = HintAuthentication(session_id)
-                storage.save(hint_auth)
-
-                broker_credentials = request_library.broker_credentials(
-                    session_id
-                )
-                if broker_credentials:
-                    LOGGER.debug("got broker credentials successfully")
-                    username = broker_credentials['username']
-                    password = broker_credentials['password']
-                    new_broker_credentials = BrokerCredentials(
-                        username=username,
-                        password=password
-                    )
-                    storage.save(new_broker_credentials)
-                else:
-                    LOGGER.critical("broker credentials could not be "
-                                    "gotten for some reason")
-            else:  # session_id
-                LOGGER.critical("newly gotten HUME user credentials "
-                                "faulty, could not be used to "
-                                "authenticate the HUME")
-        else:  # user_info
-            LOGGER.critical("HUME deadlocked, no user exists and pairing "
-                            "failed")
-
-    def verify_start_state(hume_user):
-        """
-        Verify the HUME reaches its starting state.
-
-        1. Login (session id is not stored persistently)
-        2. Check broker credentials present
-           - If not, get credentials
-
-        :param hume_user: HUME user info
-        :type hume_user: HumeUser
-        """
-        LOGGER.info("getting the HUME in the correct starting state")
-        session_id = request_library.login(hume_user)
-        if session_id:
-            LOGGER.debug("login success")
-            hint_auth = HintAuthentication(session_id)
-            storage.save(hint_auth)
-
-            broker_credentials = storage.get(BrokerCredentials, None)
-            if broker_credentials:
-                LOGGER.debug("already have broker credentials")
-                pass
-            else:
-                LOGGER.debug("fetching broker credentials")
-                broker_credentials = request_library.broker_credentials(
-                    session_id
-                )
-                if broker_credentials:
-                    LOGGER.debug("got broker credentials successfully")
-                    username = broker_credentials['username']
-                    password = broker_credentials['password']
-                    new_broker_credentials = BrokerCredentials(
-                        username=username,
-                        password=password
-                    )
-                    storage.save(new_broker_credentials)
-                else:
-                    LOGGER.critical("broker credentials could not be "
-                                    "gotten for some reason")
-        else:  # session_id
-            LOGGER.critical("unable to authenticate using stored HUME "
-                            "user credentials")
-
     hume_user = storage.get(HumeUser, None)
-
     if hume_user is None:
-        # first time startup
-        first_time_startup()
+        pair()  # first time startup, call pairing procedure
     else:
-        verify_start_state(hume_user)
+        if not login_to_hint(hume_user):
+            sys.exit(1)  # not recoverable right now
+
+        # Skip checking broker credentials
 
 
 def start():

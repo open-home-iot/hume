@@ -2,11 +2,7 @@ import logging
 import requests
 
 from util import get_arg
-from hc_defs import (
-    CLI_HINT_IP_ADDRESS,
-    CLI_HINT_PORT,
-    CLI_HUME_UUID
-)
+from hc_defs import CLI_HINT_IP_ADDRESS, CLI_HINT_PORT, CLI_HUME_UUID
 from hint.models import HumeUser
 
 
@@ -28,7 +24,7 @@ def _hint_api_url():
 
 def pair():
     """
-    Pairing procedure. Login will follow a successful pairing.
+    Send a pairing request.
 
     :returns: result of the pairing request, None if failed
     :rtype: dict | None
@@ -48,7 +44,7 @@ def pair():
     else:
         # Either format error (caused by what?) or UUID taken. Either case,
         # severe error
-        LOGGER.error("paring failed")
+        LOGGER.critical("paring request failed")
 
 
 def login(hume_user: HumeUser):

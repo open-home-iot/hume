@@ -11,8 +11,7 @@ from rabbitmq_client import (
 
 from util import get_arg
 from hc_defs import CLI_HUME_UUID, MessageType
-from hint import command_library
-
+from hint.procedures import command_library
 
 LOGGER = logging.getLogger(__name__)
 
@@ -108,16 +107,14 @@ def _incoming_command(command):
     LOGGER.info("got command from DC")
 
     decoded_command = json.loads(command.decode('utf-8'))
-
     command_type = decoded_command["type"]
 
     if command_type == MessageType.DISCOVER_DEVICES:
         LOGGER.info("received a discover devices complete from DC")
-
-        # Forward the whole thing, nothing needs to be changed.
+        # Just forward the whole thing, no need for a special procedure
         command_library.discover_devices_done(decoded_command)
 
     elif command_type == MessageType.CONFIRM_ATTACH:
         LOGGER.info("received a confirm attach result from DC")
-
+        # Just forward the whole thing, no need for a special procedure
         command_library.confirm_attach_result(decoded_command)

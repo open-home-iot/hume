@@ -5,7 +5,7 @@ import dc_defs
 
 from rabbitmq_client import ConsumeOK
 
-from device import device_procedures
+from device import procedures
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,14 +34,14 @@ def incoming_command(command):
     if command_type == dc_defs.MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery")
 
-        device_procedures.discover_devices(decoded_command["content"])
+        procedures.discover_devices(decoded_command["content"])
 
     elif command_type == dc_defs.MessageType.CONFIRM_ATTACH:
         LOGGER.info("received confirm attach")
 
-        device_procedures.confirm_attach(decoded_command["content"])
+        procedures.confirm_attach(decoded_command["content"])
 
     elif command_type == dc_defs.MessageType.DETACH:
         LOGGER.info("received detach command")
 
-        device_procedures.detach(decoded_command["content"])
+        procedures.detach(decoded_command["content"])

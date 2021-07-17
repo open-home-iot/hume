@@ -6,7 +6,7 @@ import dc_dispatch
 import dc_defs
 
 from device.models import Device
-from device import device_req_lib
+from device import request_library
 
 
 LOGGER = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ def discover_devices(command_content):
     for device in devices:
         if not device.attached:
 
-            device_capability = device_req_lib.capability_request(device)
+            device_capability = request_library.capability_request(device)
             if device_capability is not None:
                 result.append(device_capability)
 
@@ -55,7 +55,7 @@ def confirm_attach(device_uuid):
 
     if device:
 
-        if device_req_lib.heartbeat_request(device):
+        if request_library.heartbeat_request(device):
             LOGGER.debug("heartbeat request succeeded")
 
             device.attached = True

@@ -8,9 +8,6 @@ import threading
 
 import peewee
 
-from dc.device.models import Device
-from hc.hint.models import BrokerCredentials, HumeUser
-
 
 def parse_args():
     """
@@ -62,8 +59,6 @@ def run_dev_server(runserver_args):
 
     def start_dc(args):
         optional_args = []
-        optional_args.append("--t-rds") if args.test_run_device_simulator \
-            else None
 
         base_cmd = ["python", "dc/main.py", args.hume_uuid]
         base_cmd.extend(optional_args)
@@ -93,6 +88,17 @@ def clean_db(_):
 
     :param _: CLI args
     """
+    # Fix path to solve import errors
+    root_path = os.getcwd()
+    subproject_dc = "dc"
+    subproject_hc = "hc"
+
+    sys.path.append(f"{root_path}/{subproject_dc}")
+    sys.path.append(f"{root_path}/{subproject_hc}")
+
+    from dc.device.models import Device
+    from hc.hint.models import BrokerCredentials, HumeUser
+
     print("clearing the local Postgres DB 'hume' of all tables...\n")
 
     psql_db = peewee.PostgresqlDatabase("hume",
@@ -147,4 +153,8 @@ if __name__ == "__main__":
     cli_args = parse_args()
     if cli_args.clean_db:
         clean_db(None)
-    cli_args.func(cli_args)
+
+    try:
+        cli_args.func(cli_args)
+    except AttributeError:
+        print("no command specified...")

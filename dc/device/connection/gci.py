@@ -34,13 +34,6 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def disconnect(cls, device: Device):
-        """
-        Disconnects the given device.
-        """
-        pass
-
-    @abc.abstractmethod
     def send(cls, msg: Message, device: Device) -> bool:
         """
         Sends the parameter message to the given device.
@@ -50,7 +43,14 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def notify(cls, callback: callable(bytes), device: Device):
+    def disconnect(cls, device: Device):
+        """
+        Disconnects the given device.
+        """
+        pass
+
+    @abc.abstractmethod
+    def notify(cls, callback: callable(Message), device: Device):
         """
         Subscribes to messages from the given device, each message will be
         relayed to the parameter callback.

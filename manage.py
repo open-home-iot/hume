@@ -77,7 +77,12 @@ def run_dev_server(runserver_args):
                                  args=(runserver_args,))
     dc_thread.start()
     hc_thread.start()
-    threading.Event().wait()
+
+    try:
+        threading.Event().wait()
+        # Prevent stacktrace printout on interrupt
+    except KeyboardInterrupt:
+        pass
 
 
 def clean_db(_):

@@ -7,7 +7,7 @@ import argparse
 import hume_storage
 
 from util import set_args, set_up_logger_for, HANDLER_STREAM
-from dc_communication import application as dispatch
+from dc import application as dc
 from hint import application as hint
 
 
@@ -18,7 +18,7 @@ UTIL = [
 ]
 
 APPLICATIONS = [
-    dispatch, hint
+    dc, hint
 ]
 
 

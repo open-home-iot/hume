@@ -1,7 +1,7 @@
 import logging
 import json
 
-import dc_communication
+import dc
 
 from rabbitmq_client import ConsumeOK
 
@@ -30,12 +30,12 @@ def incoming_command(command):
     """
     if command_type == MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
-        dc_communication.forward_command_to_dc(command)
+        dc.forward_command_to_dc(command)
 
     elif command_type == MessageType.CONFIRM_ATTACH:
         LOGGER.info("received confirm attach command")
-        dc_communication.forward_command_to_dc(command)
+        dc.forward_command_to_dc(command)
 
     elif command_type == MessageType.DETACH:
         LOGGER.info("received detach command")
-        dc_communication.forward_command_to_dc(command)
+        dc.forward_command_to_dc(command)

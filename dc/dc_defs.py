@@ -8,6 +8,9 @@ Definitions for the Device Controller.
 #
 CLI_HUME_UUID = "hume_uuid"
 
+CLI_DEVICE_TRANSPORT = "device_transport"
+CLI_DEVICE_TRANSPORT_BLE = "ble"  # Bluetooth LE (BLE)
+
 
 #
 # Message types

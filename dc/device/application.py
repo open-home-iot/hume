@@ -2,10 +2,15 @@ import logging
 
 import hume_storage as storage
 
+from util.args import get_arg
+from dc_defs import CLI_DEVICE_TRANSPORT, CLI_DEVICE_TRANSPORT_BLE
 from device.models import Device
+from device.connection.ble import application as ble
 
 
 LOGGER = logging.getLogger(__name__)
+
+SUB_APPLICATIONS = []
 
 
 def model_init():
@@ -22,6 +27,10 @@ def pre_start():
     """
     LOGGER.info("pre-start")
 
+    transport = get_arg(CLI_DEVICE_TRANSPORT)
+    if transport == CLI_DEVICE_TRANSPORT_BLE:
+        SUB_APPLICATIONS.append(ble)
+
 
 def start():
     """
@@ -29,9 +38,18 @@ def start():
     """
     LOGGER.info("device start")
 
+    for sub_app in SUB_APPLICATIONS:
+        sub_app.pre_start()
+
+    for sub_app in SUB_APPLICATIONS:
+        sub_app.start()
+
 
 def stop():
     """
     Stop the HTTP listener.
     """
     LOGGER.info("device stop")
+
+    for sub_app in SUB_APPLICATIONS:
+        sub_app.stop()

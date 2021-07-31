@@ -7,6 +7,11 @@ import logging
 import hume_storage
 
 from util import set_args, set_up_logger_for, HANDLER_STREAM
+from dc_defs import (
+    CLI_HUME_UUID,
+    CLI_DEVICE_TRANSPORT,
+    CLI_DEVICE_TRANSPORT_BLE,
+)
 from device import application as device
 from hc import application as hc
 
@@ -35,9 +40,15 @@ def parse_args():
     #
 
     # HUME identification
-    parser.add_argument('hume_uuid',
+    parser.add_argument(CLI_HUME_UUID,
                         metavar="HUME_UUID",
                         help="HUME UUID")
+    parser.add_argument(CLI_DEVICE_TRANSPORT,
+                        metavar="DEVICE_TRANSPORT",
+                        choices=(CLI_DEVICE_TRANSPORT_BLE,),
+                        help="Transport medium to use towards devices",
+                        nargs="?",
+                        default=CLI_DEVICE_TRANSPORT_BLE)
 
     #
     # Optional arguments

@@ -2,9 +2,7 @@
 
 import os
 import sys
-import subprocess
 import argparse
-import threading
 
 import peewee
 
@@ -24,22 +22,9 @@ def parse_args():
 
     subparsers = parser.add_subparsers(help="supported commands")
 
-    runserver_parser = subparsers.add_parser("runserver",
-                                             help="Run a local HUME "
-                                                  "development server.")
-
-    runserver_parser.add_argument("hume_uuid",
-                                  type=str,
-                                  help="UUID for the HUME instance")
-    runserver_parser.set_defaults(func=run_dev_server)
-
     clean_db_parser = subparsers.add_parser("clean-db",
                                             help="Clean the local DB.")
     clean_db_parser.set_defaults(func=clean_db)
-
-    test_parser = subparsers.add_parser("test",
-                                        help="Run tests.")
-    test_parser.set_defaults(func=test)
 
     return parser.parse_args()
 
@@ -47,42 +32,6 @@ def parse_args():
 """
 Subparsers below
 """
-
-
-def run_dev_server(runserver_args):
-    """
-    Runs a local development server for HUME, starting both HC and DC.
-
-    :param runserver_args: arguments for the 'runserver' command
-    """
-    print("starting HUME development server...\n")
-
-    def start_dc(args):
-        optional_args = []
-
-        base_cmd = ["python", "dc/main.py", args.hume_uuid]
-        base_cmd.extend(optional_args)
-        subprocess.run(base_cmd)
-
-    def start_hc(args):
-        optional_args = []
-
-        base_cmd = ["python", "hc/main.py", args.hume_uuid]
-        base_cmd.extend(optional_args)
-        subprocess.run(base_cmd)
-
-    dc_thread = threading.Thread(target=start_dc,
-                                 args=(runserver_args,))
-    hc_thread = threading.Thread(target=start_hc,
-                                 args=(runserver_args,))
-    dc_thread.start()
-    hc_thread.start()
-
-    try:
-        threading.Event().wait()
-        # Prevent stacktrace printout on interrupt
-    except KeyboardInterrupt:
-        pass
 
 
 def clean_db(_):
@@ -95,14 +44,14 @@ def clean_db(_):
     """
     # Fix path to solve import errors
     root_path = os.getcwd()
-    subproject_dc = "dc"
+    subproject_dc = "hume"
     subproject_hc = "hc"
 
     sys.path.append(f"{root_path}/{subproject_dc}")
     sys.path.append(f"{root_path}/{subproject_hc}")
 
-    from dc.device.models import Device
-    from hc.hint.models import BrokerCredentials, HumeUser
+    from hume.device.models import Device
+    from hume.hint.models import BrokerCredentials, HumeUser
 
     print("clearing the local Postgres DB 'hume' of all tables...\n")
 
@@ -114,47 +63,6 @@ def clean_db(_):
 
     # Remove the two added paths
     sys.path = sys.path[:-2]
-
-
-def test(_):
-    """
-    Run all tests for HUME.
-    :param _: CLI args
-    """
-
-    def prep_path_for_tests_in(path=None):
-        test_path = f"{root_path}/{path}" if path else root_path
-        os.chdir(test_path)
-        sys.path.append(test_path)
-
-    def run_coverage_tests(discover_args=None):
-        cmd = ["coverage", "run", "-m", "unittest", "discover"]
-        cmd.extend(discover_args) if discover_args else None
-        proc_res = subprocess.run(cmd)
-        if proc_res.returncode != 0:
-            sys.exit(proc_res.returncode)
-
-    subproject_dc = "dc"
-    subproject_hc = "hc"
-    root_path = os.getcwd()
-
-    prep_path_for_tests_in(subproject_dc)
-    print("Running DC unit tests")
-    run_coverage_tests()
-
-    # Remove DC path before executing HC tests
-    sys.path = sys.path[:-1]
-
-    prep_path_for_tests_in(subproject_hc)
-    print("Running HC unit tests")
-    run_coverage_tests()
-
-    # Remove HC path before executing integration tests
-    sys.path = sys.path[:-1]
-
-    prep_path_for_tests_in()  # Needed to set the cwd
-    print("Running integration tests")
-    run_coverage_tests(discover_args=["-s", "tests"])
 
 
 if __name__ == "__main__":

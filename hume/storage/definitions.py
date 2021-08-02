@@ -1,0 +1,1 @@
+SINGLETON = 1

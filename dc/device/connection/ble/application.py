@@ -13,13 +13,13 @@ def pre_start():
 
 def start():
     """
-    Starts up the device application.
+    Starts up the ble application.
     """
-    LOGGER.info("device start")
+    LOGGER.info("start")
 
 
 def stop():
     """
-    Stop the HTTP listener.
+    Stop the ble application.
     """
-    LOGGER.info("device stop")
+    LOGGER.info("stop")

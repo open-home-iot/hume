@@ -47,7 +47,7 @@ def start():
 
 def stop():
     """
-    Stop the HTTP listener.
+    Stop the device application.
     """
     LOGGER.info("device stop")
 

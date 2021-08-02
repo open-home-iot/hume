@@ -1,6 +1,5 @@
 import asyncio
 
-import bleak
 from bleak import BleakScanner
 
 
@@ -20,21 +19,49 @@ from bleak import BleakScanner
 """
 
 
+def cb(wat, device):
+    print(wat)
+    print(device)
+    print(device.__dict__)
+
+
 async def run():
-    devices = await BleakScanner.discover()
+    devices = await BleakScanner.discover(timeout=5.0)
+
     device = None
     for d in devices:
-        print(f"{d.address}: {d.name}")
-
-        if d.name == "Feather nRF52832":
+        if d.name == "Basic LED":
             device = d
+            print(f"\n{d.address}: {d.name}")
+            for k, v in d.__dict__.items():
+                if isinstance(v, dict):
+                    print(f"{k}:")
+                    for subk, subv in v.items():
+                        print(f"\t{subk}: {subv}")
 
-    client = bleak.BleakClient(device.address)
-    await client.connect()
+                    continue
 
-    await asyncio.sleep(3)
+                print(f"{k}: {v}")
 
-    await client.disconnect()
+    nus_svc = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+
+    print("")
+    print("> Checking NUS status ...")
+    if nus_svc in device.metadata["uuids"]:
+        print("> NUS present, proceeding to check for HOME service ID")
+
+    home_svc_data_uuid = "0000a1b2-0000-1000-8000-00805f9b34fb"
+    expected_home_svc_val = "1337"
+    home_svc_data = device.metadata['service_data'][home_svc_data_uuid].hex()
+    if expected_home_svc_val == home_svc_data:
+        print("> Yay, HOME SVC value was correct: 1337!")
+
+    # client = bleak.BleakClient(device.address)
+    # await client.connect()
+    #
+    # await asyncio.sleep(3)
+    #
+    # await client.disconnect()
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(run())

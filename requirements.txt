@@ -9,11 +9,11 @@ peewee==3.14.4
 pika==1.2.0
 psycopg2-binary==2.8.6
 pycodestyle==2.7.0
+dbus-next>=0.2.2;sys_platform == "linux"
+pyobjc-core>=7.0.1;sys_platform == 'darwin'
+pyobjc-framework-CoreBluetooth>=7.0.1;sys_platform == 'darwin'
+pyobjc-framework-libdispatch>=7.0.1;sys_platform == 'darwin'
 pyflakes==2.3.1
-pyobjc-core==7.3
-pyobjc-framework-Cocoa==7.3
-pyobjc-framework-CoreBluetooth==7.3
-pyobjc-framework-libdispatch==7.3
 rabbitmq-client==2.0.3
 requests==2.26.0
 urllib3==1.26.6

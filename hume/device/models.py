@@ -9,7 +9,7 @@ class Device(PersistentModel):
     transport = peewee.CharField(choices=(CLI_DEVICE_TRANSPORT_BLE,))
     address = peewee.CharField(unique=True)
     name = peewee.CharField(max_length=255)
-    uuid = peewee.CharField(unique=True, max_length=36)
+    uuid = peewee.CharField(unique=True, max_length=36, null=True)
 
     @staticmethod
     def local_key_field():

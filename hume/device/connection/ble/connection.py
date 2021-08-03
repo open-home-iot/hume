@@ -4,6 +4,7 @@ import logging
 
 from bleak import BleakScanner
 
+import storage
 from defs import CLI_DEVICE_TRANSPORT
 from util import get_arg
 from device.connection.gci import GCI
@@ -63,13 +64,20 @@ class BLEConnection(GCI):
             if home_svc_data_val is not None and (
                     home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
 
-                # Store discovered device
+                # Store discovered device if not exists
                 discovered_device = Device(
                     transport=get_arg(CLI_DEVICE_TRANSPORT),
                     address=device.address,
-                    name=device.name
+                    name=device.name,
+                    # Will get updated once/if device is attached, enables
+                    # quick lookup for duplicates on multiple discoveries
+                    uuid=device.address,
                 )
-                discovered_device.save()
+
+                existing_device = storage.get(Device, device.address)
+                if existing_device is None:
+                    discovered_device.save()
+
                 # Push device discovered to callback
                 on_devices_discovered([discovered_device])
 

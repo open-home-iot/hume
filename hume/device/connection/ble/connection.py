@@ -4,6 +4,8 @@ import logging
 
 from bleak import BleakScanner
 
+from defs import CLI_DEVICE_TRANSPORT
+from util import get_arg
 from device.connection.gci import GCI
 from device.models import Device
 from device.connection.ble.defs import (
@@ -61,9 +63,15 @@ class BLEConnection(GCI):
             if home_svc_data_val is not None and (
                     home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
 
+                # Store discovered device
+                discovered_device = Device(
+                    transport=get_arg(CLI_DEVICE_TRANSPORT),
+                    address=device.address,
+                    name=device.name
+                )
+                discovered_device.save()
                 # Push device discovered to callback
-                on_devices_discovered([Device(address=device.address,
-                                              name=device.name)])
+                on_devices_discovered([discovered_device])
 
     def connect(self, device: Device) -> bool:
         pass

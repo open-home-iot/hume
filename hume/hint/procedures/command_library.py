@@ -4,8 +4,7 @@ import logging
 from rabbitmq_client import RMQProducer, QueueParams
 
 from util import get_arg
-from defs import CLI_HUME_UUID
-
+from defs import CLI_HUME_UUID, MessageType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +41,9 @@ def devices_discovered(devices):
     :type devices: [Device]
     """
     command = {
-
+        "type": MessageType.DISCOVER_DEVICES,
+        "content": [{"uuid": device.uuid, "name": device.name}
+                    for device in devices]
     }
 
     LOGGER.info("sending discover devices result to HINT")

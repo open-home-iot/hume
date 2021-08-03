@@ -8,6 +8,22 @@ import abc
 from device.models import Device
 
 
+class GCIImplementer:
+
+    def __init__(self):
+        self._instance = None
+
+    @property
+    def instance(self):
+        return self._instance
+
+    @instance.setter
+    def instance(self, new):
+        # TODO: add validation of set GCI implementer, verify interface
+        #  functions are overridden.
+        self._instance = new
+
+
 class GCI(abc.ABC):
 
     class Message:
@@ -16,11 +32,12 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def discover(self) -> [Device]:
+    def discover(self, on_devices_discovered) -> None:
         """
         Discover devices in the local network that are not yet connected.
 
-        :returns: discovered devices
+        :param on_devices_discovered: callable([Device]), called when one or
+            more devices are found
         """
         pass
 

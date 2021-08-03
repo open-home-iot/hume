@@ -30,4 +30,4 @@ def incoming_command(command):
     """
     if command_type == MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
-        discover_devices(on_devices_discovered=devices_discovered)
+        discover_devices(devices_discovered)

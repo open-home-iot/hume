@@ -1,7 +1,7 @@
 import unittest
 
 
-class TestStuff(unittest.TestCase):
+class TestBLEConnection(unittest.TestCase):
 
     def test_stuff(self):
         pass

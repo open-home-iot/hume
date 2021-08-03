@@ -6,6 +6,11 @@ from bleak import BleakScanner
 
 from device.connection.gci import GCI
 from device.models import Device
+from device.connection.ble.defs import (
+    NUS_SVC_UUID,
+    HOME_SVC_DATA_UUID,
+    HOME_SVC_DATA_VAL_HEX,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -36,15 +41,29 @@ class BLEConnection(GCI):
     @staticmethod
     def on_device_found(on_devices_discovered,
                         device,
-                        advertisement_data):
+                        _advertisement_data):
         """
         Handle a bleak scanner device found event. Forward information to the
         on_devices_discovered callback, but format it first to something HUME
-        understands.
+        understands. Only devices that are HOME compatible will be forwarded
+        to the caller's callback.
+
+        :param on_devices_discovered: callable([Device])
+        :param device: bleak.backends.device.BLEDevice
+        :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        LOGGER.info(on_devices_discovered)
-        LOGGER.info(device)
-        LOGGER.info(advertisement_data)
+        # Interesting device, look for HOME compatibility
+        if NUS_SVC_UUID in device.metadata["uuids"]:
+
+            # Check for HOME service data
+            home_svc_data_val = (
+                device.metadata["service_data"].get(HOME_SVC_DATA_UUID))
+            if home_svc_data_val is not None and (
+                    home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
+
+                # Push device discovered to callback
+                on_devices_discovered([Device(address=device.address,
+                                              name=device.name)])
 
     def connect(self, device: Device) -> bool:
         pass

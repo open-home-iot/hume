@@ -8,7 +8,7 @@ import abc
 from device.models import Device
 
 
-class GCI(abc.ABCMeta):
+class GCI(abc.ABC):
 
     class Message:
         # TODO: figure out generic message interface to be able to properly
@@ -16,7 +16,7 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def discover(cls) -> [Device]:
+    def discover(self) -> [Device]:
         """
         Discover devices in the local network that are not yet connected.
 
@@ -25,7 +25,7 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def connect(cls, device: Device) -> bool:
+    def connect(self, device: Device) -> bool:
         """
         Connect to the given device.
 
@@ -34,7 +34,7 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def send(cls, msg: Message, device: Device) -> bool:
+    def send(self, msg: Message, device: Device) -> bool:
         """
         Sends the parameter message to the given device.
 
@@ -43,14 +43,14 @@ class GCI(abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def disconnect(cls, device: Device):
+    def disconnect(self, device: Device):
         """
         Disconnects the given device.
         """
         pass
 
     @abc.abstractmethod
-    def notify(cls, callback: callable(Message), device: Device):
+    def notify(self, callback: callable(Message), device: Device):
         """
         Subscribes to messages from the given device, each message will be
         relayed to the parameter callback.

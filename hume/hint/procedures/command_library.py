@@ -28,25 +28,22 @@ def encode_hint_command(command):
     return json.dumps(command)
 
 
-def discover_devices_done(command):
+def publish(command):
+    """Publish to the HINT master queue."""
+    producer.publish(encode_hint_command(command),  # noqa
+                     queue_params=_hint_queue_params)
+
+
+def devices_discovered(devices):
     """
     This is just a forward of what was returned by DC since the messages look
     exactly the same.
 
-    :type command: dict
+    :type devices: [Device]
     """
+    command = {
+
+    }
+
     LOGGER.info("sending discover devices result to HINT")
-    producer.publish(encode_hint_command(command),  # noqa
-                     queue_params=_hint_queue_params)
-
-
-def confirm_attach_result(command):
-    """
-    This is just a forward of what was returned by DC since the messages look
-    exactly the same.
-
-    :type command: dict
-    """
-    LOGGER.info("sending confirm attach result to HINT")
-    producer.publish(encode_hint_command(command),  # noqa
-                     queue_params=_hint_queue_params)
+    publish(command)

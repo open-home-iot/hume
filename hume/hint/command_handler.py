@@ -5,6 +5,7 @@ from rabbitmq_client import ConsumeOK
 
 from defs import MessageType
 from device import discover as discover_devices
+from hint.procedures.command_library import devices_discovered
 
 
 LOGGER = logging.getLogger(__name__)
@@ -29,4 +30,4 @@ def incoming_command(command):
     """
     if command_type == MessageType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
-        discover_devices()
+        discover_devices(on_devices_discovered=devices_discovered)

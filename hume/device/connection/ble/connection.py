@@ -26,8 +26,8 @@ class BLEConnection(GCI):
 
     def discover(self, on_devices_discovered):
         """
-        :param on_devices_discovered: callable([Device]) will be called when one
-                                      or more devices have been discovered
+        :param on_devices_discovered: callable([Device]) will be called when
+            one or more devices have been discovered
         """
         LOGGER.info("BLEConnection starting device discovery")
 

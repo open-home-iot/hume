@@ -19,6 +19,26 @@ from device.connection.ble.defs import (
 LOGGER = logging.getLogger(__name__)
 
 
+def is_home_compatible(device):
+    """
+    Check a device returned by scanner for HOME compatibility.
+
+    :param device: bleak.backends.device.BLEDevice
+    :return: bool
+    """
+    # Interesting device, look for HOME compatibility
+    if NUS_SVC_UUID in device.metadata["uuids"]:
+
+        # Check for HOME service data
+        home_svc_data_val = (
+            device.metadata["service_data"].get(HOME_SVC_DATA_UUID))
+        if home_svc_data_val is not None and (
+                home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
+            return True
+    return False
+
+
+
 class BLEConnection(GCI):
 
     def __init__(self, event_loop: asyncio.AbstractEventLoop):
@@ -55,31 +75,23 @@ class BLEConnection(GCI):
         :param device: bleak.backends.device.BLEDevice
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        # Interesting device, look for HOME compatibility
-        if NUS_SVC_UUID in device.metadata["uuids"]:
+        if is_home_compatible(device):
+            # Store discovered device if not exists
+            discovered_device = Device(
+                transport=get_arg(CLI_DEVICE_TRANSPORT),
+                address=device.address,
+                name=device.name,
+                # Will get updated once/if device is attached, enables
+                # quick lookup for duplicates on multiple discoveries
+                uuid=device.address,
+            )
 
-            # Check for HOME service data
-            home_svc_data_val = (
-                device.metadata["service_data"].get(HOME_SVC_DATA_UUID))
-            if home_svc_data_val is not None and (
-                    home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
+            existing_device = storage.get(Device, device.address)
+            if existing_device is None:
+                discovered_device.save()
 
-                # Store discovered device if not exists
-                discovered_device = Device(
-                    transport=get_arg(CLI_DEVICE_TRANSPORT),
-                    address=device.address,
-                    name=device.name,
-                    # Will get updated once/if device is attached, enables
-                    # quick lookup for duplicates on multiple discoveries
-                    uuid=device.address,
-                )
-
-                existing_device = storage.get(Device, device.address)
-                if existing_device is None:
-                    discovered_device.save()
-
-                # Push device discovered to callback
-                on_devices_discovered([discovered_device])
+            # Push device discovered to callback
+            on_devices_discovered([discovered_device])
 
     def connect(self, device: Device) -> bool:
         pass

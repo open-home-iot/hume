@@ -41,10 +41,10 @@ def pair():
         user_info = response_content['hume_user']
 
         return user_info
-    else:
-        # Either format error (caused by what?) or UUID taken. Either case,
-        # severe error
-        LOGGER.error("paring request failed")
+
+    # Either format error (caused by what?) or UUID taken. Either case,
+    # severe error
+    LOGGER.error("paring request failed")
 
 
 def login(hume_user: HumeUser):
@@ -53,7 +53,7 @@ def login(hume_user: HumeUser):
 
     :param hume_user: HUME user account information
     :returns: result of the login request
-    :rtype: bool
+    :rtype: str | None
     """
     LOGGER.info("logging in to HINT")
 
@@ -66,9 +66,8 @@ def login(hume_user: HumeUser):
         LOGGER.debug(f"session id gotten: {session_id}")
 
         return session_id
-    else:
-        LOGGER.error("failed to log in to HINT")
-        return False
+
+    LOGGER.error("failed to log in to HINT")
 
 
 def broker_credentials(session_id):

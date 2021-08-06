@@ -21,7 +21,6 @@ CLI_BROKER_PORT = "broker_port"
 #
 # Message types
 #
-class MessageType:
+class CommandType:
     DISCOVER_DEVICES = 0
-    CONFIRM_ATTACH = 1
-    DETACH = 2
+    ATTACH_DEVICE = 1

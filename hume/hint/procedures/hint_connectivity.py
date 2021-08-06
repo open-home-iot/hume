@@ -5,7 +5,6 @@ import storage as storage
 
 from hint.procedures import request_library
 from hint.models import HumeUser, BrokerCredentials, HintAuthentication
-from hint.procedures.auth import login_to_hint
 
 
 LOGGER = logging.getLogger(__name__)
@@ -53,7 +52,7 @@ def pair():
         password = broker_credentials['password']
         new_broker_credentials = BrokerCredentials(
             username=username,
-            password=password
+            password=password,
         )
         storage.save(new_broker_credentials)
     else:
@@ -63,3 +62,22 @@ def pair():
 
 def unpair():
     pass
+
+
+def login_to_hint(hume_user):
+    """
+    Log in to HINT and store the authentication token for future use.
+
+    :param hume_user: HumeUser
+    :returns: True on success, else False
+    """
+    session_id = request_library.login(hume_user)
+    if session_id is not None:
+        LOGGER.info("logged in to HINT")
+        hint_auth = HintAuthentication(session_id)
+        storage.save(hint_auth)
+        return True
+
+    LOGGER.error("failed to authenticate with HINT")
+    return False
+

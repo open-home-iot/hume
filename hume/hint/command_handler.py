@@ -3,9 +3,15 @@ import json
 
 from rabbitmq_client import ConsumeOK
 
-from defs import MessageType
-from device import discover as discover_devices
-from hint.procedures.command_library import devices_discovered
+from defs import CommandType
+from device import (
+    discover_devices,
+    attach_device,
+)
+from hint.procedures.command_library import (
+    devices_discovered,
+    device_attached,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -28,6 +34,12 @@ def incoming_command(command):
     """
     Call appropriate procedure from here, or forward to DC for further handling
     """
-    if command_type == MessageType.DISCOVER_DEVICES:
+    if command_type == CommandType.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
         discover_devices(devices_discovered)
+
+    elif command_type == CommandType.ATTACH_DEVICE:
+        LOGGER.info(f"received device attach command for "
+                    f"{decoded_command['device_address']}")
+
+        attach_device(decoded_command["device_address"], device_attached)

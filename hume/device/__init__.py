@@ -1,3 +1,4 @@
 from device.procedures import (  # noqa
-    discover,
+    discover_devices,
+    attach_device,
 )

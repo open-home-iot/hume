@@ -1,1 +1,5 @@
-from hint.procedures import pair, unpair, login_to_hint  # noqa
+from hint.procedures import (  # noqa
+    pair,
+    unpair,
+    login_to_hint,
+)

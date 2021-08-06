@@ -21,7 +21,11 @@ LOGGER = logging.getLogger(__name__)
 
 def is_home_compatible(device):
     """
-    Check a device returned by scanner for HOME compatibility.
+    Check a device returned by scanner for HOME compatibility. To be HOME
+    compatible, a BLE device should:
+
+     1. Have the Nordic Semiconductor UART service (NUS) available.
+     2. Have a HOME-specific service-data entry.
 
     :param device: bleak.backends.device.BLEDevice
     :return: bool
@@ -36,7 +40,6 @@ def is_home_compatible(device):
                 home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
             return True
     return False
-
 
 
 class BLEConnection(GCI):
@@ -76,6 +79,8 @@ class BLEConnection(GCI):
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
         if is_home_compatible(device):
+            LOGGER.info(f"device {device.name} was HOME compatible!")
+
             # Store discovered device if not exists
             discovered_device = Device(
                 transport=get_arg(CLI_DEVICE_TRANSPORT),

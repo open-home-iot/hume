@@ -20,12 +20,12 @@ from hint import (
     command_handler
 )
 from hint.procedures import command_library
-from hint import pair, login_to_hint
+from hint.procedures.hint_connectivity import login_to_hint, pair
 from util import get_arg
 from defs import (
     CLI_HUME_UUID,
     CLI_BROKER_IP_ADDRESS,
-    CLI_BROKER_PORT
+    CLI_BROKER_PORT,
 )
 
 LOGGER = logging.getLogger(__name__)

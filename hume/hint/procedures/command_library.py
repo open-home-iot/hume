@@ -4,7 +4,7 @@ import logging
 from rabbitmq_client import RMQProducer, QueueParams
 
 from util import get_arg
-from defs import CLI_HUME_UUID, MessageType
+from defs import CLI_HUME_UUID, CommandType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -41,10 +41,28 @@ def devices_discovered(devices):
     :type devices: [Device]
     """
     command = {
-        "type": MessageType.DISCOVER_DEVICES,
+        "type": CommandType.DISCOVER_DEVICES,
         "content": [{"name": device.name,
                      "address": device.address} for device in devices]
     }
 
     LOGGER.info("sending discover devices result to HINT")
     publish(command)
+
+
+def device_attached(success, device):
+    """
+    Sends a command to HINT indicating the success of attaching a device.
+
+    :type success: bool
+    :type device: Device
+    :return:
+    """
+    # command = {
+    #     "type": CommandType.ATTACH_DEVICE,
+    #     "content": {
+    #         "success": success,
+    #         "device_address":
+    #     }
+    # }
+    pass

@@ -1,1 +1,4 @@
-from device.procedures.discover import discover  # noqa
+from device.procedures.device_connectivity import (  # noqa
+    discover_devices,
+    attach_device,
+)

@@ -82,10 +82,9 @@ class BLEConnection(GCI):
             cb = functools.partial(BLEConnection.on_device_found,
                                    on_devices_discovered)
 
-        future = asyncio.run_coroutine_threadsafe(
+        asyncio.run_coroutine_threadsafe(
             BleakScanner.discover(detection_callback=cb), self.event_loop
         )
-        await_future(future, timeout=DISCOVERY_TIMEOUT)
 
     @staticmethod
     def on_device_found(on_devices_discovered,

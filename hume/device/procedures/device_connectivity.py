@@ -42,7 +42,11 @@ def attach_device(device_address, callback):
 
     if connected:
         # 1: Fetch capabilities
+
+
         # 2a: Send HINT the capabilities
+
+
         # 2b: If failed to get capabilities, device attach failure event to
         #     HINT!
 

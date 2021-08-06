@@ -49,7 +49,7 @@ def start():
 
     for device in devices:
         # connect to each attached device
-        if not device.attached:
+        if device.attached:
             connected = _gci_implementer.instance.connect(device)
 
             if not connected:

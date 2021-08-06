@@ -30,4 +30,4 @@ def connect(device: Device) -> bool:
     """
     LOGGER.info("connection interface calling for a device connection")
 
-    return _gci_implementer.instance.connect()
+    return _gci_implementer.instance.connect(device)

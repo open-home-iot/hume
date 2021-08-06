@@ -1,6 +1,9 @@
 import logging
 
+import storage
+
 from device import connection
+from device.models import Device
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,4 +36,14 @@ def attach_device(device_address, callback):
         should follow the format: callable(bool, Device)
     :return: True on success
     """
-    pass
+    LOGGER.info("attach device procedure started")
+
+    connected = connection.connect(storage.get(Device, device_address))
+
+    if connected:
+        # 1: Fetch capabilities
+        # 2a: Send HINT the capabilities
+        # 2b: If failed to get capabilities, device attach failure event to
+        #     HINT!
+
+        pass

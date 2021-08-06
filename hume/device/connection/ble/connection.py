@@ -2,7 +2,7 @@ import asyncio
 import functools
 import logging
 
-from bleak import BleakScanner
+from bleak import BleakScanner, BleakClient
 
 import storage
 from defs import CLI_DEVICE_TRANSPORT
@@ -42,11 +42,33 @@ def is_home_compatible(device):
     return False
 
 
+FUTURE_TIMEOUT = 5.0
+DISCOVERY_TIMEOUT = 5.0
+
+
+def await_future(f, timeout=FUTURE_TIMEOUT):
+    """
+    Generic future handling from sync context.
+
+    :returns: future result if gotten within timeout
+    """
+    result = None
+
+    try:
+        result = f.result(timeout=timeout)
+    except asyncio.TimeoutError:
+        pass
+
+    return result
+
+
 class BLEConnection(GCI):
 
-    def __init__(self, event_loop: asyncio.AbstractEventLoop):
+    def __init__(self, event_loop):
         super().__init__()
         self.event_loop = event_loop
+        # str(address): BleakClient
+        self.clients = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -60,9 +82,10 @@ class BLEConnection(GCI):
             cb = functools.partial(BLEConnection.on_device_found,
                                    on_devices_discovered)
 
-        asyncio.run(
-            BleakScanner.discover(detection_callback=cb)
+        future = asyncio.run_coroutine_threadsafe(
+            BleakScanner.discover(detection_callback=cb), self.event_loop
         )
+        await_future(future, timeout=DISCOVERY_TIMEOUT)
 
     @staticmethod
     def on_device_found(on_devices_discovered,
@@ -99,13 +122,47 @@ class BLEConnection(GCI):
             on_devices_discovered([discovered_device])
 
     def connect(self, device: Device) -> bool:
-        pass
+        """
+        Connect to the device and indicate if the connection was successful
+        through the returned bool.
+        """
+        async def connect(client: BleakClient):
+            return await client.connect()
+
+        device_client = BleakClient(device.address)
+        future = asyncio.run_coroutine_threadsafe(
+            connect(device_client), self.event_loop
+        )
+        connected = await_future(future)
+        if connected:
+            self.clients[device.address] = device_client
+
+        return connected
 
     def send(self, msg: GCI.Message, device: Device) -> bool:
         pass
 
     def disconnect(self, device: Device):
         pass
+
+    @staticmethod
+    async def disconnect_client(client: BleakClient):
+        """Disconnect the input client"""
+        return await client.disconnect()
+
+    def disconnect_all(self) -> bool:
+        """
+        Disconnect all devices, used as cleanup before shutdown. Returns false
+        if ANY disconnection has failed.
+        """
+        disconnections = []
+
+        for client in self.clients.values():
+            disconnections.append(asyncio.run_coroutine_threadsafe(
+                self.disconnect_client(client), self.event_loop)
+            )
+
+        return False not in disconnections
 
     def notify(self, callback: callable(GCI.Message), device: Device):
         pass

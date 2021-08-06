@@ -191,5 +191,4 @@ if __name__ == "__main__":
     set_up_interrupt()
     start()
 
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_forever()
+    threading.Event().wait()

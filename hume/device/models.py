@@ -10,6 +10,7 @@ class Device(PersistentModel):
     address = peewee.CharField(unique=True)
     name = peewee.CharField(max_length=255)
     uuid = peewee.CharField(unique=True, max_length=36, null=True)
+    attached = peewee.BooleanField(default=False)
 
     @staticmethod
     def local_key_field():

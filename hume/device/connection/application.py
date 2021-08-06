@@ -3,6 +3,8 @@ import logging
 
 import storage
 
+from threading import Thread
+
 from defs import CLI_DEVICE_TRANSPORT, CLI_DEVICE_TRANSPORT_BLE
 from util.args import get_arg
 from device.models import Device
@@ -11,6 +13,9 @@ from device.connection.ble.connection import BLEConnection
 
 
 LOGGER = logging.getLogger(__name__)
+
+event_loop = asyncio.get_event_loop()
+event_loop_thread: Thread
 
 _gci_implementer = GCIImplementer()
 
@@ -23,7 +28,15 @@ def pre_start():
 
     # Select connection type
     if get_arg(CLI_DEVICE_TRANSPORT) == CLI_DEVICE_TRANSPORT_BLE:
-        _gci_implementer.instance = BLEConnection(asyncio.get_event_loop())
+
+        def run_event_loop(loop):
+            loop.run_forever()
+
+        global event_loop_thread
+        event_loop_thread = Thread(target=run_event_loop, args=(event_loop,))
+        event_loop_thread.start()
+
+        _gci_implementer.instance = BLEConnection(event_loop)
 
 
 def start():
@@ -35,8 +48,12 @@ def start():
     devices = storage.get_all(Device)
 
     for device in devices:
-        # connect to each device
-        pass
+        # connect to each attached device
+        if not device.attached:
+            connected = _gci_implementer.instance.connect(device)
+
+            if not connected:
+                LOGGER.error(f"failed to connect to device {device.address}")
 
 
 def stop():
@@ -44,3 +61,11 @@ def stop():
     Stop the ble application.
     """
     LOGGER.info("stop")
+
+    disconnected = _gci_implementer.instance.disconnect_all()
+
+    if not disconnected:
+        LOGGER.error("failed to disconnect at least one device")
+
+    event_loop.stop()
+    event_loop_thread.join()

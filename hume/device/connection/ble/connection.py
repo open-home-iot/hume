@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import logging
+import copy
 
 from bleak import BleakScanner, BleakClient
 
@@ -11,6 +12,8 @@ from device.connection.gci import GCI
 from device.models import Device
 from device.connection.ble.defs import (
     NUS_SVC_UUID,
+    NUS_RX_UUID,
+    NUS_TX_UUID,
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
 )
@@ -123,7 +126,11 @@ class BLEConnection(GCI):
     def connect(self, device: Device) -> bool:
         """
         Connect to the device and indicate if the connection was successful
-        through the returned bool.
+        through the returned bool. Also starts notify on the device's TX
+        characteristic.
+
+        :param device: device to connect to
+        :returns: True if successful
         """
         async def connect(client: BleakClient):
             return await client.connect()
@@ -136,13 +143,40 @@ class BLEConnection(GCI):
         if connected:
             self.clients[device.address] = device_client
 
+            cb = functools.partial(self.on_device_msg, device.address)
+            future = asyncio.run_coroutine_threadsafe(
+                device_client.start_notify(NUS_TX_UUID, cb), self.event_loop)
+            await_future(future)
+
         return connected
 
-    def send(self, msg: GCI.Message, device: Device) -> bool:
-        pass
+    def on_device_msg(self, device_address: str, sender: int, data: bytearray):
+        """
+        Bleak-standard callback for characteristic notifications, called when a
+        connected device sends a message on its TX characteristic.
 
-    def disconnect(self, device: Device):
-        pass
+        :param device_address:
+        :param sender:
+        :param data:
+        :return:
+        """
+        LOGGER.info(f"device address {device_address} sent message {data} from sender {sender}")
+
+    def is_connected(self, device: Device):
+        return self.clients.get(device.address) is not None
+
+    def disconnect(self, device: Device) -> bool:
+        LOGGER.info(f"disconnecting device {device.address}")
+
+        device_client = self.clients.pop(device.address)
+        disconnected = await_future(
+            asyncio.run_coroutine_threadsafe(
+                self.disconnect_client(device_client),
+                self.event_loop
+            )
+        )
+
+        return disconnected
 
     @staticmethod
     async def disconnect_client(client: BleakClient):
@@ -154,14 +188,33 @@ class BLEConnection(GCI):
         Disconnect all devices, used as cleanup before shutdown. Returns false
         if ANY disconnection has failed.
         """
+        LOGGER.info("disconnecting all connected devices")
+
         disconnections = []
 
         for client in self.clients.values():
-            disconnections.append(asyncio.run_coroutine_threadsafe(
-                self.disconnect_client(client), self.event_loop)
+            disconnections.append(
+                await_future(
+                    asyncio.run_coroutine_threadsafe(
+                        self.disconnect_client(client), self.event_loop
+                    )
+                )
             )
 
+        self.clients = dict()
+
         return False not in disconnections
+
+    def send(self, msg: GCI.Message, device: Device) -> bool:
+        async def write(client: BleakClient):
+            await client.write_gatt_char(NUS_RX_UUID, msg.content)
+
+        future = asyncio.run_coroutine_threadsafe(
+            write(self.clients[device.address]), self.event_loop)
+
+        await_future(future)
+
+        return True
 
     def notify(self, callback: callable(GCI.Message), device: Device):
         pass

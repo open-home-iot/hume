@@ -111,7 +111,7 @@ def set_up_logging():
     """Sets up DC logging."""
     set_up_logger_for("HUME",
                       None,  # root logger
-                      logging.INFO,
+                      logging.DEBUG,
                       HANDLER_STREAM)
     set_up_logger_for("HUME",
                       "rabbitmq_client",

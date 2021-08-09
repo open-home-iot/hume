@@ -19,17 +19,14 @@ class GCIImplementer:
 
     @instance.setter
     def instance(self, new):
-        # TODO: add validation of set GCI implementer, verify interface
-        #  functions are overridden.
         self._instance = new
 
 
 class GCI(abc.ABC):
 
     class Message:
-        # TODO: figure out generic message interface to be able to properly
-        #  address different device capabilities/heartbeats/capability.
-        pass
+        def __init__(self, content: bytes):
+            self.content = content
 
     @abc.abstractmethod
     def discover(self, on_devices_discovered) -> None:

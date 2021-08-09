@@ -14,6 +14,7 @@ def model_init():
     Initialize models.
     """
     LOGGER.info("model-init")
+
     storage.register(Device)
 
 
@@ -23,6 +24,8 @@ def pre_start():
     """
     LOGGER.info("pre-start")
 
+    connection.pre_start()
+
 
 def start():
     """
@@ -30,7 +33,6 @@ def start():
     """
     LOGGER.info("device start")
 
-    connection.pre_start()
     connection.start()
 
 

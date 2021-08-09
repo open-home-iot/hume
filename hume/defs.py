@@ -21,6 +21,13 @@ CLI_BROKER_PORT = "broker_port"
 #
 # Message types
 #
-class CommandType:
+
+# HINT <-> HUME
+class HINTCommand:
     DISCOVER_DEVICES = 0
     ATTACH_DEVICE = 1
+
+
+# HUME <-> Device
+class DeviceRequest:
+    CAPABILITY = 0

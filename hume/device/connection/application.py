@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import signal
+import time
 
 import storage
 
@@ -14,7 +16,7 @@ from device.connection.ble.connection import BLEConnection
 
 LOGGER = logging.getLogger(__name__)
 
-event_loop = asyncio.get_event_loop()
+event_loop = asyncio.new_event_loop()
 event_loop_thread: Thread
 
 _gci_implementer = GCIImplementer()
@@ -29,7 +31,7 @@ def pre_start():
     # Select connection type
     if get_arg(CLI_DEVICE_TRANSPORT) == CLI_DEVICE_TRANSPORT_BLE:
 
-        def run_event_loop(loop):
+        def run_event_loop(loop: asyncio.AbstractEventLoop):
             loop.run_forever()
 
         global event_loop_thread
@@ -67,5 +69,6 @@ def stop():
     if not disconnected:
         LOGGER.error("failed to disconnect at least one device")
 
-    event_loop.stop()
+    event_loop.call_soon_threadsafe(event_loop.stop)
     event_loop_thread.join()
+    LOGGER.debug("thread joined, device connection app stopped completely")

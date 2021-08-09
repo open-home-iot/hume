@@ -7,6 +7,7 @@ calling discovery from a synchronous context.
 import logging
 
 from device.connection.application import _gci_implementer
+from device.connection.gci import GCI
 from device.models import Device
 
 LOGGER = logging.getLogger(__name__)
@@ -31,3 +32,41 @@ def connect(device: Device) -> bool:
     LOGGER.info("connection interface calling for a device connection")
 
     return _gci_implementer.instance.connect(device)
+
+
+def is_connected(device: Device) -> bool:
+    """
+    Interface function for the is_connected check, not part of the GCI.
+
+    :param device: Device
+    :return: True if connected
+    """
+    LOGGER.info("connection interface calling for checking if a device is "
+                "connected")
+
+    return _gci_implementer.instance.is_connected(device)
+
+
+def disconnect(device: Device) -> bool:
+    """
+    Interface function for the disconnect action of the GCI.
+
+    :param device: Device
+    :return: True if successful
+    """
+    LOGGER.info("connection interface calling for a device disconnect")
+
+    return _gci_implementer.instance.disconnect(device)
+
+
+def send(msg: GCI.Message, device: Device) -> bool:
+    """
+    Interface function for the send action of the GCI.
+
+    :param msg: str
+    :param device:
+    :return:
+    """
+    LOGGER.info("connection interface calling for a device message")
+
+    return _gci_implementer.instance.send(msg, device)

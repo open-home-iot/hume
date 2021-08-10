@@ -85,3 +85,22 @@ def broker_credentials(session_id):
 
     if response.status_code == requests.codes.ok:
         return response.json()
+
+
+def create_device(capabilities: dict, session_id: str) -> bool:
+    """
+    Sends a create device request to HINT with the provided capabilities.
+
+    :param capabilities: HOME-compliant capabilities, to be encoded as JSON
+    :param session_id: session ID to authenticate the request
+    :return: True if successful
+    """
+    LOGGER.info("sending create device request")
+
+    response = requests.post(_hint_api_url() + "devices",
+                             json=capabilities,
+                             cookies={"sessionid": session_id})
+
+    if response.status_code == requests.codes.ok:
+        return True
+    return False

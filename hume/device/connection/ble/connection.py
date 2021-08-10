@@ -8,7 +8,7 @@ import storage
 from defs import CLI_DEVICE_TRANSPORT
 from util import get_arg
 from device.connection.gci import GCI
-from device.models import Device
+from device.models import Device, DeviceAddress
 from device.connection.ble.defs import (
     NUS_SVC_UUID,
     NUS_RX_UUID,
@@ -148,18 +148,20 @@ class BLEConnection(GCI):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
             # Store discovered device if not exists
-            discovered_device = Device(
+            device_address = DeviceAddress(
                 transport=get_arg(CLI_DEVICE_TRANSPORT),
                 address=device.address,
-                name=device.name,
-                # Will get updated once/if device is attached, enables
-                # quick lookup for duplicates on multiple discoveries
-                uuid=device.address,
+                uuid=device.address
             )
+            discovered_device = Device(uuid=device.address,
+                                       address=device.address,
+                                       name=device.name)
 
-            existing_device = storage.get(Device, device.address)
-            if existing_device is None:
-                discovered_device.save()
+            existing_address_entry = storage.get(DeviceAddress, device.address)
+            if existing_address_entry is None:
+                LOGGER.info("no existing address entry, storing")
+                storage.save(device_address)
+                storage.save(discovered_device)
 
             # Push device discovered to callback
             on_devices_discovered([discovered_device])
@@ -173,6 +175,8 @@ class BLEConnection(GCI):
         :param device: device to connect to
         :returns: True if successful
         """
+        LOGGER.info(f"connecting to device {device.address}")
+
         async def connect(client: BleakClient):
             return await client.connect()
 
@@ -260,8 +264,7 @@ class BLEConnection(GCI):
         :param _sender: char handle
         :param data: bytes
         """
-        LOGGER.info(f"device {device.name} sent message {data} from char {_sender}")
-        LOGGER.info(f"device UUID: {device.uuid}")
+        LOGGER.debug(f"device {device.name} sent message {data} from char {_sender}")
 
         # some messages are too long for the arduino message buffer, meaning
         # they will come as two separate messages. Find the start and end tags
@@ -273,6 +276,8 @@ class BLEConnection(GCI):
 
         body, ends, more = scan_data(data)
         LOGGER.debug(f"body: {body} ends: {ends} more: {more}")
+
+        # check existing request content
         request = self.requests.get(device.address)
         if request is None:  # stop handling
             LOGGER.error("missed a start tag somewhere, no in progress request"
@@ -287,11 +292,13 @@ class BLEConnection(GCI):
             self.requests[device.address] = (
                 request_type, existing_body + body,)
             return
+        LOGGER.debug("finalized message body, calling registered callback")
 
         # End tag found, call registered callback
         self.listeners[device.address](
             device, request_type, existing_body + body
         )
+        self.requests[device.address] = None  # Cleared when done
 
         # more is the index at which the additional message data starts, if 0,
         # there is no more data to parse.

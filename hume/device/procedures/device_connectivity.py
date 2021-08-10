@@ -4,7 +4,7 @@ import logging
 import storage
 
 from device import connection
-from device.models import Device
+from device.models import Device, DeviceAddress
 from device.procedures.request_library import capability
 from device.request_handler import incoming_message
 
@@ -38,7 +38,8 @@ def attach_device(device_address):
     """
     LOGGER.info("attach device procedure started")
 
-    device = storage.get(Device, device_address)
+    device_address = storage.get(DeviceAddress, device_address)
+    device = storage.get(Device, device_address.uuid)
     if connection.is_connected(device):
         connection.disconnect(device)
 

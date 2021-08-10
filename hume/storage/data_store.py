@@ -45,7 +45,7 @@ def save(obj):
     _store.save(obj)
 
 
-def get(cls, key):
+def get(cls, key, **kwargs):
     """
     Get a single object matching the provided key. Will always check local
     storage only as it should be up to date with persistent storage.
@@ -55,7 +55,7 @@ def get(cls, key):
     :return: class object matching key
     """
     LOGGER.info("getting object")
-    return _store.get(cls, key)
+    return _store.get(cls, key, **kwargs)
 
 
 def get_all(cls):
@@ -147,7 +147,7 @@ class DataStore:
         LOGGER.debug("saving locally")
         self._local_storage.save(obj)
 
-    def get(self, cls, key):
+    def get(self, cls, key, **kwargs):
         """
         Get a single object matching the provided key. Will always check local
         storage only as it should be up to date with persistent storage.
@@ -156,7 +156,7 @@ class DataStore:
         :param key: key
         :return: class object matching key
         """
-        return self._local_storage.get(cls, key)
+        return self._local_storage.get(cls, key, **kwargs)
 
     def get_all(self, cls):
         """

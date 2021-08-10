@@ -2,7 +2,7 @@ import logging
 
 import storage as storage
 
-from device.models import Device
+from device.models import Device, DeviceAddress
 from device.connection import application as connection
 
 
@@ -16,6 +16,7 @@ def model_init():
     LOGGER.info("model-init")
 
     storage.register(Device)
+    storage.register(DeviceAddress)
 
 
 def pre_start():

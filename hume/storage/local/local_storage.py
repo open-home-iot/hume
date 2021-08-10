@@ -52,7 +52,7 @@ class LocalStorage:
 
         LOGGER.debug(f"resulting local storage state: {self._data_dict}")
 
-    def get(self, cls, key):
+    def get(self, cls, key, **kwargs):
         """
         Get a single object matching the provided key. Will always check local
         storage only as it should be up to date with persistent storage.
@@ -70,7 +70,7 @@ class LocalStorage:
             # Just one object exists.
             return copy.deepcopy(table)
 
-        return copy.copy(table.get(key))
+        return copy.deepcopy(table.get(key))
 
     def get_all(self, cls):
         """

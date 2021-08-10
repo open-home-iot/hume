@@ -6,10 +6,9 @@ from defs import CLI_DEVICE_TRANSPORT_BLE
 
 
 class Device(PersistentModel):
-    transport = peewee.CharField(choices=(CLI_DEVICE_TRANSPORT_BLE,))
+    uuid = peewee.CharField(unique=True, max_length=36, null=True)
     address = peewee.CharField(unique=True)
     name = peewee.CharField(max_length=255)
-    uuid = peewee.CharField(unique=True, max_length=36, null=True)
     attached = peewee.BooleanField(default=False)
 
     @staticmethod
@@ -18,3 +17,13 @@ class Device(PersistentModel):
         :return: name of local dict key field
         """
         return "uuid"
+
+
+class DeviceAddress(PersistentModel):
+    transport = peewee.CharField(choices=(CLI_DEVICE_TRANSPORT_BLE,))
+    address = peewee.CharField(unique=True)
+    uuid = peewee.CharField(unique=True, max_length=36, null=True)
+
+    @staticmethod
+    def local_key_field():
+        return "address"

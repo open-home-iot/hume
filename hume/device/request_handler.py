@@ -59,4 +59,4 @@ def capability_response(device, data):
     storage.save(device_address)
 
     hint_auth = storage.get(HintAuthentication, None)
-    create_device(capabilities, hint_auth.session_id)
+    create_device(capabilities, hint_auth.session_id, hint_auth.csrf_token)

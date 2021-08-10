@@ -29,12 +29,14 @@ class BrokerCredentials(PersistentModel):
 
 class HintAuthentication:
 
-    def __init__(self, session_id):
+    def __init__(self, session_id, csrf_token=None):
         """
         :param session_id: Django session ID used to authenticate consecutive
                            requests
+        :param csrf_token: CSRF token
         """
         self.session_id = session_id
+        self.csrf_token = csrf_token
 
     @staticmethod
     def local_key_field():

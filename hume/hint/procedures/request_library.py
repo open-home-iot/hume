@@ -53,7 +53,7 @@ def login(hume_user: HumeUser):
 
     :param hume_user: HUME user account information
     :returns: result of the login request
-    :rtype: str | None
+    :rtype: tuple
     """
     LOGGER.info("logging in to HINT")
 
@@ -63,9 +63,10 @@ def login(hume_user: HumeUser):
 
     if response.status_code == requests.codes.ok:
         session_id = response.cookies.get("sessionid")
+        csrf_token = response.cookies.get("csrftoken")
         LOGGER.debug(f"session id gotten: {session_id}")
 
-        return session_id
+        return session_id, csrf_token
 
     LOGGER.error("failed to log in to HINT")
 
@@ -87,19 +88,26 @@ def broker_credentials(session_id):
         return response.json()
 
 
-def create_device(capabilities: dict, session_id: str) -> bool:
+def create_device(capabilities: dict,
+                  session_id: str,
+                  csrf_token: str) -> bool:
     """
     Sends a create device request to HINT with the provided capabilities.
 
     :param capabilities: HOME-compliant capabilities, to be encoded as JSON
     :param session_id: session ID to authenticate the request
+    :param csrf_token: CSRF token
     :return: True if successful
     """
     LOGGER.info("sending create device request")
 
-    response = requests.post(_hint_api_url() + "devices",
+    response = requests.post(_hint_api_url() + "devices/",
                              json=capabilities,
-                             cookies={"sessionid": session_id})
+                             cookies={"sessionid": session_id,
+                                      "csrftoken": csrf_token},
+                             headers={"X-CSRFToken": csrf_token})
+
+    print(response.cookies)
 
     if response.status_code == requests.codes.ok:
         return True

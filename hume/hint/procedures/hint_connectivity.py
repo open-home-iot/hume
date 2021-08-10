@@ -71,10 +71,11 @@ def login_to_hint(hume_user):
     :param hume_user: HumeUser
     :returns: True on success, else False
     """
-    session_id = request_library.login(hume_user)
-    if session_id is not None:
+    result = request_library.login(hume_user)
+    if result is not None:
         LOGGER.info("logged in to HINT")
-        hint_auth = HintAuthentication(session_id)
+        session_id, csrf_token = result
+        hint_auth = HintAuthentication(session_id, csrf_token=csrf_token)
         storage.save(hint_auth)
         return True
 

@@ -1,3 +1,4 @@
+import functools
 import logging
 
 import storage
@@ -5,6 +6,7 @@ import storage
 from device import connection
 from device.models import Device
 from device.procedures.request_library import capability
+from device.request_handler import incoming_message
 
 
 LOGGER = logging.getLogger(__name__)
@@ -22,7 +24,7 @@ def discover_devices(on_devices_discovered):
     connection.discover(on_devices_discovered)
 
 
-def attach_device(device_address, callback):
+def attach_device(device_address):
     """
     Attaches a device to the HUME, meaning it can be communicated with from now
     on. Attaching a device will mean that:
@@ -33,8 +35,6 @@ def attach_device(device_address, callback):
         heartbeat checks
 
     :param device_address: address of the device to attach, a connection handle
-    :param callback: callable to be called when attach has been attempted,
-        should follow the format: callable(bool, Device)
     """
     LOGGER.info("attach device procedure started")
 
@@ -43,16 +43,12 @@ def attach_device(device_address, callback):
         connection.disconnect(device)
 
     connected = connection.connect(device)
-    capabilities = None
 
     if connected:
-        # TODO: Perhaps store the gotten capabilities in HUME as well
-        capabilities = capability(device)
+        connection.notify(incoming_message, device)
+        # TODO: For other transport types, the capability response is gotten
+        #  here
+        capability(device)
 
-        # try:
-        #     wait_
-        #
-        # device.attached = True
-        # storage.save(device)
-
-    # callback(device, capabilities)
+    # incoming_message will receive the device response, at least for BLE
+    # devices where requests are not synchronous

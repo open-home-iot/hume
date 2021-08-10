@@ -42,4 +42,4 @@ def incoming_command(command):
         LOGGER.info(f"received device attach command for "
                     f"{decoded_command['device_address']}")
 
-        attach_device(decoded_command["device_address"], device_attached)
+        attach_device(decoded_command["device_address"])

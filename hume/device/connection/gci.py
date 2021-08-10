@@ -64,9 +64,12 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def notify(self, callback: callable(Message), device: Device):
+    def notify(self, callback, device: Device):
         """
         Subscribes to messages from the given device, each message will be
         relayed to the parameter callback.
+
+        :param callback: callable(Device, int, data)
+        :param device: Device
         """
         pass

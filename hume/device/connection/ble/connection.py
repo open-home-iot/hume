@@ -1,7 +1,6 @@
 import asyncio
 import functools
 import logging
-import copy
 
 from bleak import BleakScanner, BleakClient
 
@@ -16,6 +15,9 @@ from device.connection.ble.defs import (
     NUS_TX_UUID,
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
+    MSG_START,
+    MSG_START_ENC,
+    MSG_END_ENC
 )
 
 
@@ -45,6 +47,41 @@ def is_home_compatible(device):
     return False
 
 
+def has_message_start(data: bytearray):
+    """Checks if the input data is the start of a device message."""
+    return data[0] == ord(MSG_START)
+
+
+def get_request_type(data: bytearray) -> int:
+    """:returns: the message request type"""
+    return int(chr(data[1]))
+
+
+def scan_data(data: bytearray) -> (bytearray, bool, int):
+    """
+    Scans input data for message body content, if the message has an ending,
+    and if there is more content to parse after a found ending, the index at
+    which to start parsing, else 0.
+    """
+    start_index = 0
+    try:
+        data.index(MSG_START_ENC)
+        start_index = 2  # skip MSG_START & request type
+    except ValueError:
+        pass
+
+    try:
+        end_index = data.index(MSG_END_ENC)
+        return (
+            data[start_index:end_index],
+            True,
+            # +1 to skip MSG_END character, 0 = does not end
+            end_index+1 if len(data[end_index+1:]) > 0 else 0
+        )
+    except ValueError:
+        return data[start_index:], False, 0
+
+
 FUTURE_TIMEOUT = 5.0
 DISCOVERY_TIMEOUT = 5.0
 
@@ -67,11 +104,15 @@ def await_future(f, timeout=FUTURE_TIMEOUT):
 
 class BLEConnection(GCI):
 
-    def __init__(self, event_loop):
+    def __init__(self, event_loop: asyncio.AbstractEventLoop):
         super().__init__()
         self.event_loop = event_loop
         # str(address): BleakClient
         self.clients = dict()
+        # str(address): bytearray
+        self.requests = dict()
+        # str(address): callable
+        self.listeners = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -143,24 +184,7 @@ class BLEConnection(GCI):
         if connected:
             self.clients[device.address] = device_client
 
-            cb = functools.partial(self.on_device_msg, device.address)
-            future = asyncio.run_coroutine_threadsafe(
-                device_client.start_notify(NUS_TX_UUID, cb), self.event_loop)
-            await_future(future)
-
         return connected
-
-    def on_device_msg(self, device_address: str, sender: int, data: bytearray):
-        """
-        Bleak-standard callback for characteristic notifications, called when a
-        connected device sends a message on its TX characteristic.
-
-        :param device_address:
-        :param sender:
-        :param data:
-        :return:
-        """
-        LOGGER.info(f"device address {device_address} sent message {data} from sender {sender}")
 
     def is_connected(self, device: Device):
         return self.clients.get(device.address) is not None
@@ -216,5 +240,64 @@ class BLEConnection(GCI):
 
         return True
 
-    def notify(self, callback: callable(GCI.Message), device: Device):
-        pass
+    def notify(self, callback: callable, device: Device):
+        self.listeners[device.address] = callback
+
+        device_client = self.clients[device.address]
+
+        cb = functools.partial(self.on_device_msg, device)
+
+        future = asyncio.run_coroutine_threadsafe(
+            device_client.start_notify(NUS_TX_UUID, cb), self.event_loop)
+        await_future(future)
+
+    def on_device_msg(self, device: Device, _sender: int, data: bytearray):
+        """
+        Bleak-standard callback for characteristic notifications, called when a
+        connected device sends a message on its TX characteristic.
+
+        :param device: device which sent data
+        :param _sender: char handle
+        :param data: bytes
+        """
+        LOGGER.info(f"device {device.name} sent message {data} from char {_sender}")
+        LOGGER.info(f"device UUID: {device.uuid}")
+
+        # some messages are too long for the arduino message buffer, meaning
+        # they will come as two separate messages. Find the start and end tags
+        # of messages to make a complete request body for decoding.
+        if has_message_start(data):
+            LOGGER.debug("has start tag, wiping request record for device")
+            request_type = get_request_type(data)
+            self.requests[device.address] = (request_type, bytearray(),)
+
+        body, ends, more = scan_data(data)
+        LOGGER.debug(f"body: {body} ends: {ends} more: {more}")
+        request = self.requests.get(device.address)
+        if request is None:  # stop handling
+            LOGGER.error("missed a start tag somewhere, no in progress request"
+                         " found")
+            return
+
+        # unpack ongoing request
+        request_type, existing_body = request
+
+        if not ends:  # store the gotten body -> end handling
+            LOGGER.debug("does not end, save progress and quit")
+            self.requests[device.address] = (
+                request_type, existing_body + body,)
+            return
+
+        # End tag found, call registered callback
+        self.listeners[device.address](
+            device, request_type, existing_body + body
+        )
+
+        # more is the index at which the additional message data starts, if 0,
+        # there is no more data to parse.
+        if more:
+            LOGGER.debug("there is more, handle it immediately!")
+            # Don't schedule with event loop to ensure the message content gets
+            # handled in the order which it was received, should another device
+            # message arrive during parsing.
+            self.on_device_msg(device, _sender, data[more:])

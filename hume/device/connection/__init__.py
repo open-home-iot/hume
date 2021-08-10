@@ -4,4 +4,5 @@ from .interface import (  # noqa
     is_connected,
     disconnect,
     send,
+    notify,
 )

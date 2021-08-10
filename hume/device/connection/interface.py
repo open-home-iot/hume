@@ -70,3 +70,16 @@ def send(msg: GCI.Message, device: Device) -> bool:
     LOGGER.info("connection interface calling for a device message")
 
     return _gci_implementer.instance.send(msg, device)
+
+
+def notify(callback: callable, device: Device):
+    """
+    Interface function for waiting for a device message, part of the GCI.
+
+    :param callback:
+    :param device:
+    :return:
+    """
+    LOGGER.info("connection interface waiting for a device message")
+
+    _gci_implementer.instance.notify(callback, device)

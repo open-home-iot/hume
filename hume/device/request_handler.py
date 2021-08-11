@@ -45,18 +45,17 @@ def capability_response(device, data):
     #  needed.
     capabilities = json.loads(data)
 
-    # Update the device entry, set correct uuid
-    storage.delete(device)  # Clear old address-resolved entry from local
-    new_device = Device(uuid=capabilities["uuid"],
-                        address=device.address,
-                        name=device.name,
-                        attached=True)
-    storage.save(new_device)
-
-    # Update device address entry to enable bi-directional lookups.
-    device_address = storage.get(DeviceAddress, device.address)
-    device_address.uuid = capabilities["uuid"]
-    storage.save(device_address)
-
     hint_auth = storage.get(HintAuthentication, None)
-    create_device(capabilities, hint_auth.session_id, hint_auth.csrf_token)
+    if create_device(capabilities, hint_auth.session_id, hint_auth.csrf_token):
+        # Update the device entry, set correct uuid
+        storage.delete(device)  # Clear old address-resolved entry from local
+        new_device = Device(uuid=capabilities["uuid"],
+                            address=device.address,
+                            name=device.name,
+                            attached=True)
+        storage.save(new_device)
+
+        # Update device address entry to enable bi-directional lookups.
+        device_address = storage.get(DeviceAddress, device.address)
+        device_address.uuid = capabilities["uuid"]
+        storage.save(device_address)

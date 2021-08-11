@@ -107,11 +107,12 @@ def create_device(capabilities: dict,
     """
     LOGGER.info("sending create device request")
 
-    response = requests.post(_hint_api_url() + "devices/",
-                             json=capabilities,
-                             cookies={"sessionid": session_id,
-                                      "csrftoken": csrf_token},
-                             headers={"X-CSRFToken": csrf_token})
+    response = requests.post(
+        f"{_hint_api_url()}humes/{get_arg(CLI_HUME_UUID)}/devices",
+        json=capabilities,
+        cookies={"sessionid": session_id,
+                 "csrftoken": csrf_token},
+        headers={"X-CSRFToken": csrf_token})
 
     print(response.cookies)
 

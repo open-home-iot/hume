@@ -292,7 +292,7 @@ class BLEConnection(GCI):
             self.requests[device.address] = (
                 request_type, existing_body + body,)
             return
-        LOGGER.debug("finalized message body, calling registered callback")
+        LOGGER.debug(f"finalized message body: {existing_body + body}")
 
         # End tag found, call registered callback
         self.listeners[device.address](

@@ -26,6 +26,11 @@ def parse_args():
                                             help="Clean the local DB.")
     clean_db_parser.set_defaults(func=clean_db)
 
+    clear_device_data_parser = subparsers.add_parser(
+        "clear-device-data", help="Clear the local DB of all device data."
+    )
+    clear_device_data_parser.set_defaults(func=clear_device_data)
+
     return parser.parse_args()
 
 
@@ -60,7 +65,34 @@ def clean_db(_):
     psql_db.drop_tables([Device, DeviceAddress, BrokerCredentials, HumeUser])
 
     # Remove the two added paths
-    sys.path = sys.path[:-2]
+    sys.path = sys.path[:-1]
+
+
+def clear_device_data(_):
+    """
+    Clear the local DB of all device data, deleting the tables for
+    re-definition at a later start.
+
+    :param _: CLI args
+    """
+    # Fix path to solve import errors
+    root_path = os.getcwd()
+    project_root = "hume"
+
+    sys.path.append(f"{root_path}/{project_root}")
+
+    from hume.device.models import Device, DeviceAddress
+
+    print("clearing the local Postgres DB 'hume' of all device tables...\n")
+
+    psql_db = peewee.PostgresqlDatabase("hume",
+                                        user="hume",
+                                        password="password")
+    psql_db.connect()
+    psql_db.drop_tables([Device, DeviceAddress])
+
+    # Remove the two added paths
+    sys.path = sys.path[:-1]
 
 
 if __name__ == "__main__":

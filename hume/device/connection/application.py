@@ -51,11 +51,11 @@ def start():
 
     for device in devices:
         # connect to each attached device
-        if not device.attached:
+        if device.attached:
             connected = _gci_implementer.instance.connect(device)
 
             if not connected:
-                LOGGER.error(f"failed to connect to device {device.address}")
+                LOGGER.error(f"failed to connect device {device.address}")
 
 
 def stop():

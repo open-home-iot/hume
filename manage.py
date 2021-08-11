@@ -44,13 +44,11 @@ def clean_db(_):
     """
     # Fix path to solve import errors
     root_path = os.getcwd()
-    subproject_dc = "hume"
-    subproject_hc = "hc"
+    project_root = "hume"
 
-    sys.path.append(f"{root_path}/{subproject_dc}")
-    sys.path.append(f"{root_path}/{subproject_hc}")
+    sys.path.append(f"{root_path}/{project_root}")
 
-    from hume.device.models import Device
+    from hume.device.models import Device, DeviceAddress
     from hume.hint.models import BrokerCredentials, HumeUser
 
     print("clearing the local Postgres DB 'hume' of all tables...\n")
@@ -59,7 +57,7 @@ def clean_db(_):
                                         user="hume",
                                         password="password")
     psql_db.connect()
-    psql_db.drop_tables([Device, BrokerCredentials, HumeUser])
+    psql_db.drop_tables([Device, DeviceAddress, BrokerCredentials, HumeUser])
 
     # Remove the two added paths
     sys.path = sys.path[:-2]

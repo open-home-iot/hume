@@ -34,6 +34,8 @@ def pair():
     response = requests.post(_hint_api_url() + "humes/",
                              json={"uuid": get_arg(CLI_HUME_UUID)})
 
+    print(response.cookies)
+
     if response.status_code == requests.codes.created:
         response_content = response.json()  # Contains login information.
         LOGGER.debug(f"successful pairing, response: {response_content}")
@@ -61,6 +63,8 @@ def login(hume_user: HumeUser):
                              json={"username": hume_user.username,
                                    "password": hume_user.password})
 
+    print(response.cookies)
+
     if response.status_code == requests.codes.ok:
         session_id = response.cookies.get("sessionid")
         csrf_token = response.cookies.get("csrftoken")
@@ -83,6 +87,8 @@ def broker_credentials(session_id):
 
     response = requests.get(_hint_api_url() + "humes/broker-credentials",
                             cookies={"sessionid": session_id})
+
+    print(response.cookies)
 
     if response.status_code == requests.codes.ok:
         return response.json()

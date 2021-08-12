@@ -26,8 +26,10 @@ CLI_BROKER_PORT = "broker_port"
 class HINTCommand:
     DISCOVER_DEVICES = 0
     ATTACH_DEVICE = 1
+    DEVICE_ACTION = 2
 
 
 # HUME <-> Device
 class DeviceRequest:
     CAPABILITY = 0
+    DEVICE_ACTION = 1

@@ -116,6 +116,6 @@ def create_device(capabilities: dict,
 
     print(response.cookies)
 
-    if response.status_code == requests.codes.ok:
+    if response.status_code == requests.codes.created:
         return True
     return False

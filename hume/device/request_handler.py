@@ -47,6 +47,8 @@ def capability_response(device, data):
 
     hint_auth = storage.get(HintAuthentication, None)
     if create_device(capabilities, hint_auth.session_id, hint_auth.csrf_token):
+        LOGGER.info("device created in HINT successfully")
+
         # Update the device entry, set correct uuid
         storage.delete(device)  # Clear old address-resolved entry from local
         new_device = Device(uuid=capabilities["uuid"],

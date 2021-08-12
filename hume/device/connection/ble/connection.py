@@ -234,6 +234,8 @@ class BLEConnection(GCI):
         return False not in disconnections
 
     def send(self, msg: GCI.Message, device: Device) -> bool:
+        LOGGER.debug(f"sending device {device.address} message {msg.content}")
+
         async def write(client: BleakClient):
             await client.write_gatt_char(NUS_RX_UUID, msg.content)
 

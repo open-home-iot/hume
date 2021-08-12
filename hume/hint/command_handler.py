@@ -7,10 +7,10 @@ from defs import HINTCommand
 from device import (
     discover_devices,
     attach_device,
+    device_action,
 )
 from hint.procedures.command_library import (
     devices_discovered,
-    device_attached,
 )
 
 
@@ -43,3 +43,13 @@ def incoming_command(command):
                     f"{decoded_command['device_address']}")
 
         attach_device(decoded_command["device_address"])
+
+    elif command_type == HINTCommand.DEVICE_ACTION:
+        LOGGER.info(f"received a device action command for: "
+                    f"{decoded_command['device_uuid']}")
+        device_uuid = decoded_command.pop("device_uuid")
+        decoded_command.pop("type")
+        device_action(device_uuid, **decoded_command)
+
+    else:
+        LOGGER.info(f"got unknown command: {decoded_command}")

@@ -47,8 +47,8 @@ jobs:
 
     - name: Run tests
       run: |
-        coverage run -m unittest \
-                  tests.test_stuff -f
+        coverage run -m unittest hume -f
+        coverage run -m unittest tests -f
     # coverage report -m --fail-under 96
 
     # TODO: Add "fail under" clause: coverage report -m --fail-under 96

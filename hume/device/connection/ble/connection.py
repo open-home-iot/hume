@@ -266,7 +266,8 @@ class BLEConnection(GCI):
         :param _sender: char handle
         :param data: bytes
         """
-        LOGGER.debug(f"device {device.name} sent message {data} from char {_sender}")
+        LOGGER.debug(f"device {device.name} sent message {data} from char "
+                     f"{_sender}")
 
         # some messages are too long for the arduino message buffer, meaning
         # they will come as two separate messages. Find the start and end tags

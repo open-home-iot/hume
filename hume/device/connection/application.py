@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import signal
-import time
 
 import storage
 

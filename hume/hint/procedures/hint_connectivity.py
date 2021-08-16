@@ -81,4 +81,3 @@ def login_to_hint(hume_user):
 
     LOGGER.error("failed to authenticate with HINT")
     return False
-

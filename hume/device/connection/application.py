@@ -68,5 +68,7 @@ def stop():
         LOGGER.error("failed to disconnect at least one device")
 
     event_loop.call_soon_threadsafe(event_loop.stop)
+
+    global event_loop_thread
     event_loop_thread.join()
     LOGGER.debug("thread joined, device connection app stopped completely")

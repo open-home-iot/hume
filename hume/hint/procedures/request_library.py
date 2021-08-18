@@ -31,7 +31,7 @@ def pair():
     """
     LOGGER.info("sending pairing request")
 
-    response = requests.post(_hint_api_url() + "humes/",
+    response = requests.post(_hint_api_url() + "humes",
                              json={"uuid": get_arg(CLI_HUME_UUID)})
 
     print(response.cookies)

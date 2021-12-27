@@ -18,7 +18,7 @@ def init(producer_instance):
     :type producer_instance: rabbitmq_client.RMQProducer
     """
     global _producer
-    producer = producer_instance
+    _producer = producer_instance
 
 
 def encode_hint_command(command):

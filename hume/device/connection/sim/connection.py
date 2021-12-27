@@ -1,36 +1,35 @@
-import asyncio
-import functools
 import logging
 
-from bleak import BleakScanner, BleakClient
-
-import storage
-from defs import CLI_DEVICE_TRANSPORT
-from util import get_arg
 from device.connection.gci import GCI
-from device.models import Device, DeviceAddress
-from device.connection.ble.defs import (
-    NUS_SVC_UUID,
-    NUS_RX_UUID,
-    NUS_TX_UUID,
-    HOME_SVC_DATA_UUID,
-    HOME_SVC_DATA_VAL_HEX,
-    MSG_START,
-    MSG_START_ENC,
-    MSG_END_ENC
-)
+from device.connection.sim.specs import BASIC_LED_CAPS
+from device.models import Device
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def discovered_device(device_dict):
+    return Device(name=device_dict["name"],
+                  address=device_dict["uuid"],
+                  uuid=device_dict["uuid"])
 
 
 class SimConnection(GCI):
 
     def __init__(self):
         super().__init__()
+        # device.uuid -> Device
+        self.device_registry = dict()
 
     def discover(self, on_devices_discovered):
-        LOGGER.info("BLEConnection starting device discovery")
+        LOGGER.info("starting device discovery")
+        on_devices_discovered(self._unattached_devices())
+
+    def _unattached_devices(self) -> [Device]:
+        # Ok for now, needs to be changed when new device types are added to
+        # the sim.
+        if len(self.device_registry) == 0:
+            return [discovered_device(BASIC_LED_CAPS)]
 
     def connect(self, device: Device) -> bool:
         LOGGER.info(f"connecting to device {device.address}")

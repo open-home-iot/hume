@@ -21,15 +21,3 @@ def capability(device: Device):
     """
     content = f"^{DeviceRequest.CAPABILITY}$".encode("utf-8")
     connection.send(GCI.Message(content), device)
-
-
-def action():
-    pass
-
-
-def heartbeat():
-    pass
-
-
-def action_state():
-    pass

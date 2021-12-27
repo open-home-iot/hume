@@ -11,6 +11,7 @@ from defs import (
     CLI_HUME_UUID,
     CLI_DEVICE_TRANSPORT,
     CLI_DEVICE_TRANSPORT_BLE,
+    CLI_DEVICE_TRANSPORT_SIMULATED,
 )
 from device import application as device
 from hint import application as hint
@@ -45,7 +46,8 @@ def parse_args():
                         help="HUME UUID")
     parser.add_argument(CLI_DEVICE_TRANSPORT,
                         metavar="DEVICE_TRANSPORT",
-                        choices=(CLI_DEVICE_TRANSPORT_BLE,),
+                        choices=(CLI_DEVICE_TRANSPORT_BLE,
+                                 CLI_DEVICE_TRANSPORT_SIMULATED),
                         help="Transport medium to use towards devices",
                         nargs="?",
                         default=CLI_DEVICE_TRANSPORT_BLE)

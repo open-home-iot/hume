@@ -9,7 +9,7 @@ from defs import CLI_HUME_UUID, HINTCommand
 LOGGER = logging.getLogger(__name__)
 
 HINT_MASTER_COMMAND_QUEUE = "hint_master"
-producer: RMQProducer
+_producer: RMQProducer
 _hint_queue_params = QueueParams(HINT_MASTER_COMMAND_QUEUE, durable=True)
 
 
@@ -17,7 +17,7 @@ def init(producer_instance):
     """
     :type producer_instance: rabbitmq_client.RMQProducer
     """
-    global producer
+    global _producer
     producer = producer_instance
 
 
@@ -29,8 +29,8 @@ def encode_hint_command(command):
 
 def publish(command):
     """Publish to the HINT master queue."""
-    producer.publish(encode_hint_command(command),  # noqa
-                     queue_params=_hint_queue_params)
+    _producer.publish(encode_hint_command(command),  # noqa
+                      queue_params=_hint_queue_params)
 
 
 def devices_discovered(devices):

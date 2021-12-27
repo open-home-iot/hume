@@ -43,7 +43,7 @@ def devices_discovered(devices):
     command = {
         "type": HINTCommand.DISCOVER_DEVICES,
         "content": [{"name": device.name,
-                     "address": device.address} for device in devices]
+                     "identifier": device.uuid} for device in devices]
     }
 
     LOGGER.info("sending discover devices result to HINT")

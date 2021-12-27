@@ -10,7 +10,7 @@ LOGGER = logging.getLogger(__name__)
 
 def discovered_device(device_dict):
     return Device(name=device_dict["name"],
-                  address=device_dict["uuid"],
+                  address="bollocks",  # because simulated
                   uuid=device_dict["uuid"])
 
 

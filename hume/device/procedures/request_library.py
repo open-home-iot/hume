@@ -19,5 +19,5 @@ def capability(device: Device):
 
     :param device: device to send the capability request to
     """
-    content = f"^{DeviceRequest.CAPABILITY}$".encode("utf-8")
+    content = f"{DeviceRequest.CAPABILITY}"
     connection.send(GCI.Message(content), device)

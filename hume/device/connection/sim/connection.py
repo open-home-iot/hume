@@ -25,31 +25,44 @@ class SimConnection(GCI):
 
     def discover(self, on_devices_discovered):
         LOGGER.info("starting device discovery")
-        on_devices_discovered(self._unattached_devices())
+        on_devices_discovered(self._unattached_devices)
 
+    @property
     def _unattached_devices(self) -> [Device]:
         # Ok for now, needs to be changed when new device types are added to
         # the sim.
         if len(self.device_registry) == 0:
             return [discovered_device(BASIC_LED_CAPS)]
 
+    def is_connected(self, device: Device) -> bool:
+        return self.device_registry.get(device.uuid) is not None
+
     def connect(self, device: Device) -> bool:
         LOGGER.info(f"connecting to device {device.address}")
+
+        self.device_registry[device.uuid] = device
 
         return True
 
     def disconnect(self, device: Device) -> bool:
         LOGGER.info(f"disconnecting device {device.address}")
 
+        self.device_registry.pop(device.uuid)
+
         return True
 
     def disconnect_all(self) -> bool:
+        self.device_registry = dict()
         return True
 
     def send(self, msg: GCI.Message, device: Device) -> bool:
         LOGGER.debug(f"sending device {device.address} message {msg.content}")
 
+
+
         return True
 
     def notify(self, callback: callable, device: Device):
+        # No need to implement, send all messages to 'incoming_message' for
+        # now.
         ...

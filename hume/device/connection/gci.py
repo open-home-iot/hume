@@ -25,8 +25,8 @@ class GCIImplementer:
 class GCI(abc.ABC):
 
     class Message:
-        def __init__(self, content: bytes):
-            self.content = content
+        def __init__(self, content: str):
+            self.content = f"^{content}$".encode("utf-8")
 
     @abc.abstractmethod
     def discover(self, on_devices_discovered) -> None:

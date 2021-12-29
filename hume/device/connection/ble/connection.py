@@ -1,11 +1,12 @@
 import asyncio
 import functools
 import logging
+import storage
 
 from bleak import BleakScanner, BleakClient
 
-import storage
 from defs import CLI_DEVICE_TRANSPORT
+from device.connection.messages import has_message_start, get_request_type
 from util import get_arg
 from device.connection.gci import GCI
 from device.models import Device, DeviceAddress
@@ -15,7 +16,6 @@ from device.connection.ble.defs import (
     NUS_TX_UUID,
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
-    MSG_START,
     MSG_START_ENC,
     MSG_END_ENC
 )
@@ -45,16 +45,6 @@ def is_home_compatible(device):
                 home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
             return True
     return False
-
-
-def has_message_start(data: bytearray):
-    """Checks if the input data is the start of a device message."""
-    return data[0] == ord(MSG_START)
-
-
-def get_request_type(data: bytearray) -> int:
-    """:returns: the message request type"""
-    return int(chr(data[1]))
 
 
 def scan_data(data: bytearray) -> (bytearray, bool, int):

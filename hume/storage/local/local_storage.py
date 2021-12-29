@@ -114,3 +114,13 @@ class LocalStorage:
             table.pop(getattr(obj, obj.local_key_field()))
 
         LOGGER.debug(f"resulting local storage state: {self._data_dict}")
+
+    def delete_all(self):
+        """Delete all table data."""
+        LOGGER.debug("deleting all local storage data")
+
+        for key in self._data_dict.keys():
+            if isinstance(self._data_dict[key], dict):
+                self._data_dict[key] = dict()
+            else:
+                self._data_dict[key] = None

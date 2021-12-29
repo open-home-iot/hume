@@ -28,6 +28,7 @@ class HINTCommand:
     DISCOVER_DEVICES = 0
     ATTACH_DEVICE = 1
     DEVICE_ACTION = 2
+    UNPAIR = 3
 
 
 # HUME <-> Device

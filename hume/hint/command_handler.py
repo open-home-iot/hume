@@ -1,5 +1,6 @@
 import logging
 import json
+import storage
 
 from rabbitmq_client import ConsumeOK
 
@@ -50,6 +51,10 @@ def incoming_command(command):
         device_uuid = decoded_command.pop("device_uuid")
         decoded_command.pop("type")
         device_action(device_uuid, **decoded_command)
+
+    elif command_type == HINTCommand.UNPAIR:
+        LOGGER.info(f"received an unpair command, factory resetting hume")
+        storage.delete_all()
 
     else:
         LOGGER.info(f"got unknown command: {decoded_command}")

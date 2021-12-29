@@ -80,6 +80,14 @@ def delete(obj):
     _store.delete(obj)
 
 
+def delete_all():
+    """
+    Delete all data.
+    """
+    LOGGER.info("deleting all data")
+    _store.delete_all()
+
+
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
@@ -175,6 +183,13 @@ class DataStore:
         """
         self._persistent_storage.delete(obj)
         self._local_storage.delete(obj)
+
+    def delete_all(self):
+        """
+        Clears data from all registered tables.
+        """
+        self._local_storage.delete_all()
+        self._persistent_storage.delete_all()
 
 
 _store = DataStore()

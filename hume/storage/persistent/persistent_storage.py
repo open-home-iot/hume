@@ -17,6 +17,7 @@ class PersistentStorage:
         LOGGER.debug("PersistentStorage __init__")
 
         self._pg_proxy = PostgresProxy()
+        self._models = []
 
     def start(self):
         """Starts the connection towards Postgres."""
@@ -33,6 +34,7 @@ class PersistentStorage:
         LOGGER.debug("Defining persistent storage")
 
         self._pg_proxy.define_table(model)
+        self._models.append(model)
 
     def save(self, obj):
         """
@@ -65,3 +67,11 @@ class PersistentStorage:
         LOGGER.debug(f"delete object: {obj}")
 
         obj.delete_instance()
+
+    def delete_all(self):
+        """
+        Drop all tables.
+        """
+        LOGGER.debug("deleting all persistent data")
+
+        self._pg_proxy.drop_tables(self._models)

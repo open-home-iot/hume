@@ -19,6 +19,13 @@ def model_init():
     storage.register(DeviceAddress)
 
 
+def model_reset():
+    """
+    Reset models.
+    """
+    storage.delete()
+
+
 def pre_start():
     """
     Pre-start, before starting applications.

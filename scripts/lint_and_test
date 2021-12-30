@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"/.. || exit
+
+echo "Linting hume..."
+# shellcheck disable=SC2046
+flake8 $(find . -name "*.py")

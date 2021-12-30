@@ -65,7 +65,7 @@ def disconnect_all() -> bool:
 
     :return: True if successful
     """
-    LOGGER.info("connection interface calling for a device disconnect")
+    LOGGER.info("disconnecting all devices")
 
     return _gci_implementer.instance.disconnect_all()
 

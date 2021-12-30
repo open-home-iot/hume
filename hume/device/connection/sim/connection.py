@@ -1,9 +1,16 @@
+import json
 import logging
+import copy
+
+import storage
 
 from device.connection.gci import GCI
 from device.connection.sim.specs import BASIC_LED_CAPS
-from device.models import Device
-
+from device.models import Device, DeviceAddress
+from device.connection import messages
+from device.request_handler import capability_response
+from defs import DeviceRequest, CLI_DEVICE_TRANSPORT
+from util import get_arg
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,10 +29,37 @@ class SimConnection(GCI):
         super().__init__()
         # device.uuid -> Device
         self.device_registry = dict()
+        self._capabilities = {
+            BASIC_LED_CAPS["uuid"]: BASIC_LED_CAPS,
+        }
 
     def discover(self, on_devices_discovered):
         LOGGER.info("starting device discovery")
-        on_devices_discovered(self._unattached_devices)
+        unattached_devices = self._unattached_devices
+        for device in unattached_devices:
+
+            # Do not try to create devices that already exist (multiple
+            # discoveries)
+            existing_device = storage.get(DeviceAddress, device.address)
+            if existing_device is not None:
+                continue
+
+            device_address = DeviceAddress(
+                transport=get_arg(CLI_DEVICE_TRANSPORT),
+                address=device.address,
+                uuid=device.uuid
+            )
+            storage.save(device_address)
+            device = Device(
+                uuid=device.uuid,
+                address=device.address,
+                name=device.name
+            )
+            storage.save(device)
+
+        if len(unattached_devices) > 0:
+            LOGGER.info(f"found {len(unattached_devices)} devices")
+            on_devices_discovered(unattached_devices)
 
     @property
     def _unattached_devices(self) -> [Device]:
@@ -33,6 +67,8 @@ class SimConnection(GCI):
         # the sim.
         if len(self.device_registry) == 0:
             return [discovered_device(BASIC_LED_CAPS)]
+
+        return []
 
     def is_connected(self, device: Device) -> bool:
         return self.device_registry.get(device.uuid) is not None
@@ -58,7 +94,10 @@ class SimConnection(GCI):
     def send(self, msg: GCI.Message, device: Device) -> bool:
         LOGGER.debug(f"sending device {device.address} message {msg.content}")
 
+        request_type = messages.get_request_type(msg.content)
 
+        if request_type == DeviceRequest.CAPABILITY:
+            capability_response(device, json.dumps(BASIC_LED_CAPS))
 
         return True
 

@@ -41,9 +41,9 @@ def incoming_command(command):
 
     elif command_type == HINTCommand.ATTACH_DEVICE:
         LOGGER.info(f"received device attach command for "
-                    f"{decoded_command['device_address']}")
+                    f"{decoded_command['identifier']}")
 
-        attach_device(decoded_command["device_address"])
+        attach_device(decoded_command["identifier"])
 
     elif command_type == HINTCommand.DEVICE_ACTION:
         LOGGER.info(f"received a device action command for: "

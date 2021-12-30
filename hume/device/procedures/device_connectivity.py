@@ -32,7 +32,8 @@ def attach_device(identifier):
      3. HUME will start to regularly check the device connectivity through
         heartbeat checks
 
-    :param identifier: address of the device to attach, a connection handle
+    :param identifier: ID for the device to attach, protocol specific
+        depending on the connection type.
     """
     LOGGER.info("attach device procedure started")
 

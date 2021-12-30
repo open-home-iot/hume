@@ -106,3 +106,7 @@ class SimConnection(GCI):
         # No need to implement, send all messages to 'incoming_message' for
         # now.
         ...
+
+    def for_each(self, callback: callable):
+        for _, device in self.device_registry.items():
+            callback(device)

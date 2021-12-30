@@ -301,3 +301,7 @@ class BLEConnection(GCI):
             # handled in the order which it was received, should another device
             # message arrive during parsing.
             self.on_device_msg(device, _sender, data[more:])
+
+    def for_each(self, callback: callable):
+        for device_address in self.clients.keys():
+            callback(Device(address=device_address))

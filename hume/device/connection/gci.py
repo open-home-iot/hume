@@ -80,3 +80,14 @@ class GCI(abc.ABC):
         :param device: Device
         """
         pass
+
+    @abc.abstractmethod
+    def for_each(self, callback: callable):
+        """
+        Calls input callback for each active connection. The Device instance
+        passed to the callback function is bare-bones and only has the
+        necessary fields populated to fulfil a call to one of GCI methods.
+
+        :param callback: callable(Device)
+        """
+        pass

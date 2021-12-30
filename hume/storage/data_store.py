@@ -76,6 +76,10 @@ def delete(obj):
     :param obj:
     :return:
     """
+    if obj is None:
+        LOGGER.warning("tried to delete None")
+        return
+
     LOGGER.info("deleting object")
     _store.delete(obj)
 
@@ -181,7 +185,9 @@ class DataStore:
 
         :param obj:
         """
-        self._persistent_storage.delete(obj)
+        if issubclass(obj.__class__, PersistentModel):
+            self._persistent_storage.delete(obj)
+
         self._local_storage.delete(obj)
 
     def delete_all(self):

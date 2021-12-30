@@ -3,7 +3,7 @@ import logging
 import storage
 
 from device import connection
-from device.models import Device, DeviceAddress
+from device.models import Device, DeviceAddress, DeviceHealth
 from device.procedures.request_library import capability
 from device.request_handler import incoming_message
 
@@ -65,5 +65,7 @@ def detach_device(uuid):
     connection.disconnect(device)
 
     address = storage.get(DeviceAddress, device.address)
+    health = storage.get(DeviceHealth, device.uuid)
     storage.delete(device)
     storage.delete(address)
+    storage.delete(health)

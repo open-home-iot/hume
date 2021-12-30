@@ -8,6 +8,7 @@ from device.connection.gci import GCI
 LOGGER = logging.getLogger(__name__)
 
 _t: threading.Timer
+HEARTBEAT_INTERVAL_SECONDS = 60.0
 
 
 def model_init():
@@ -29,7 +30,8 @@ def start():
     LOGGER.info("start")
 
     global _t
-    _t = threading.Timer(10.0, _heartbeat)
+    # health data is not persisted, get up-to-date information right away.
+    _t = threading.Timer(5.0, _heartbeat)
     _t.start()
 
 
@@ -46,7 +48,7 @@ def _heartbeat():
 
     # Restart timer
     global _t
-    _t = threading.Timer(10.0, _heartbeat)
+    _t = threading.Timer(HEARTBEAT_INTERVAL_SECONDS, _heartbeat)
     _t.start()
 
     connection.for_each(

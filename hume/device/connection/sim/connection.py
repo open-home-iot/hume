@@ -7,7 +7,7 @@ from device.connection.gci import GCI
 from device.connection.sim.specs import BASIC_LED_CAPS
 from device.models import Device, DeviceAddress
 from device.connection import messages
-from device.request_handler import capability_response
+from device.request_handler import capability_response, heartbeat_response
 from defs import DeviceRequest, CLI_DEVICE_TRANSPORT
 from util import get_arg
 
@@ -99,6 +99,9 @@ class SimConnection(GCI):
 
         if request_type == DeviceRequest.CAPABILITY:
             capability_response(device, json.dumps(BASIC_LED_CAPS))
+
+        elif request_type == DeviceRequest.HEARTBEAT:
+            heartbeat_response(device)
 
         return True
 

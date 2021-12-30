@@ -103,6 +103,8 @@ class BLEConnection(GCI):
         self.requests = dict()
         # str(address): callable
         self.listeners = dict()
+        # str(address): Device
+        self.devices = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -177,6 +179,7 @@ class BLEConnection(GCI):
         connected = await_future(future)
         if connected:
             self.clients[device.address] = device_client
+            self.devices[device.address] = device
 
         return connected
 
@@ -187,19 +190,20 @@ class BLEConnection(GCI):
         LOGGER.info(f"disconnecting device {device.address}")
 
         device_client = self.clients.pop(device.address)
+        self.devices.pop(device.address)
+
+        async def disconnect_client(client: BleakClient):
+            """Disconnect the input client"""
+            return await client.disconnect()
+
         disconnected = await_future(
             asyncio.run_coroutine_threadsafe(
-                self.disconnect_client(device_client),
+                disconnect_client(device_client),
                 self.event_loop
             )
         )
 
         return disconnected
-
-    @staticmethod
-    async def disconnect_client(client: BleakClient):
-        """Disconnect the input client"""
-        return await client.disconnect()
 
     def disconnect_all(self) -> bool:
         """
@@ -220,6 +224,7 @@ class BLEConnection(GCI):
             )
 
         self.clients = dict()
+        self.devices = dict()
 
         return False not in disconnections
 
@@ -303,5 +308,5 @@ class BLEConnection(GCI):
             self.on_device_msg(device, _sender, data[more:])
 
     def for_each(self, callback: callable):
-        for device_address in self.clients.keys():
-            callback(Device(address=device_address))
+        for device in self.devices.items():
+            callback(device)

@@ -3,8 +3,10 @@ import logging
 
 import storage
 
+from datetime import datetime
+
 from defs import DeviceRequest
-from device.models import Device, DeviceAddress
+from device.models import Device, DeviceAddress, DeviceHealth
 from hint.models import HintAuthentication
 from hint.procedures.request_library import create_device
 
@@ -29,6 +31,9 @@ def incoming_message(device: Device, request_type: int, data: bytes):
     # Device responded to a capability request
     if request_type == DeviceRequest.CAPABILITY:
         capability_response(device, data)
+
+    elif request_type == DeviceRequest.HEARTBEAT:
+        heartbeat_response(device)
 
 
 def capability_response(device, data):
@@ -63,3 +68,23 @@ def capability_response(device, data):
         device_address = storage.get(DeviceAddress, device.address)
         device_address.uuid = capabilities["uuid"]
         storage.save(device_address)
+
+
+def heartbeat_response(device):
+    """
+    Called when a device responds to a heartbeat request.
+
+    :param device: Device
+    """
+    LOGGER.info("handling heartbeat response")
+
+    # ISO 8601
+    heartbeat_timestamp = datetime.now().isoformat()
+
+    device_health = storage.get(DeviceHealth, device.uuid)
+    if device_health is None:
+        device_health = DeviceHealth(device.uuid, heartbeat_timestamp)
+    else:
+        device_health.heartbeat = heartbeat_timestamp
+
+    storage.save(device_health)

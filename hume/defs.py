@@ -36,3 +36,4 @@ class HINTCommand:
 class DeviceRequest:
     CAPABILITY = 0
     DEVICE_ACTION = 1
+    HEARTBEAT = 2

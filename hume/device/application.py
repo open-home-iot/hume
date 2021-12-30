@@ -4,6 +4,7 @@ import storage as storage
 
 from device.models import Device, DeviceAddress
 from device.connection import application as connection
+from device.heartbeat import application as heartbeat
 
 
 LOGGER = logging.getLogger(__name__)
@@ -19,13 +20,6 @@ def model_init():
     storage.register(DeviceAddress)
 
 
-def model_reset():
-    """
-    Reset models.
-    """
-    storage.delete()
-
-
 def pre_start():
     """
     Pre-start, before starting applications.
@@ -33,6 +27,7 @@ def pre_start():
     LOGGER.info("pre-start")
 
     connection.pre_start()
+    heartbeat.pre_start()
 
 
 def start():
@@ -42,6 +37,7 @@ def start():
     LOGGER.info("device start")
 
     connection.start()
+    heartbeat.start()
 
 
 def stop():
@@ -51,3 +47,4 @@ def stop():
     LOGGER.info("device stop")
 
     connection.stop()
+    heartbeat.stop()

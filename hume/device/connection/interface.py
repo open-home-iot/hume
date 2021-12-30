@@ -94,3 +94,14 @@ def notify(callback: callable, device: Device):
     LOGGER.info("connection interface waiting for a device message")
 
     _gci_implementer.instance.notify(callback, device)
+
+
+def for_each(callback: callable):
+    """
+    Interface function for iterating over active connections.
+
+    :param callback: callable(Device)
+    """
+    LOGGER.info("iterating over connected devices")
+
+    _gci_implementer.instance.for_each(callback)

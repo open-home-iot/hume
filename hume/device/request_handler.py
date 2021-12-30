@@ -8,6 +8,7 @@ from datetime import datetime
 from defs import DeviceRequest
 from device.models import Device, DeviceAddress, DeviceHealth
 from hint.models import HintAuthentication
+from hint.procedures.command_library import attach_failure
 from hint.procedures.request_library import create_device
 
 LOGGER = logging.getLogger(__name__)
@@ -49,6 +50,7 @@ def capability_response(device, data):
     #  know some things for validation, but add what's needed WHEN it's
     #  needed.
     capabilities = json.loads(data)
+    capabilities["identifier"] = device.uuid
 
     hint_auth = storage.get(HintAuthentication, None)
     if create_device(
@@ -68,6 +70,11 @@ def capability_response(device, data):
         device_address = storage.get(DeviceAddress, device.address)
         device_address.uuid = capabilities["uuid"]
         storage.save(device_address)
+
+    else:
+        LOGGER.error("failed to create device")
+
+        attach_failure(device)
 
 
 def heartbeat_response(device):

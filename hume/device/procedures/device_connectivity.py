@@ -6,6 +6,7 @@ from device import connection
 from device.models import Device, DeviceAddress, DeviceHealth
 from device.procedures.request_library import capability
 from device.request_handler import incoming_message
+from hint.procedures.command_library import attach_failure
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +52,10 @@ def attach_device(identifier):
         #  probably be gotten synchronously right here.
         capability(device)
 
+    else:
+        LOGGER.error("failed to connect to device")
+
+        attach_failure(device)
     # incoming_message will receive the device response, at least for BLE
     # devices where requests are not synchronous
 

@@ -50,19 +50,19 @@ def devices_discovered(devices):
     publish(command)
 
 
-def device_attached(success, device):
+def attach_failure(device):
     """
-    Sends a command to HINT indicating the success of attaching a device.
+    Indicates to HINT a failure to attach the input device.
 
-    :type success: bool
-    :type device: Device
-    :return:
+    :param device: Device
     """
-    # command = {
-    #     "type": CommandType.ATTACH_DEVICE,
-    #     "content": {
-    #         "success": success,
-    #         "device_address":
-    #     }
-    # }
-    pass
+    message = {
+        "type": HINTCommand.ATTACH_DEVICE,
+        "content": {
+            "identifier": device.uuid,
+            "success": False,
+        },
+    }
+
+    LOGGER.info("sending attach failure to HINT")
+    publish(message)

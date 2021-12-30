@@ -64,6 +64,13 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def disconnect_all(self):
+        """
+        Disconnects all devices.
+        """
+        pass
+
+    @abc.abstractmethod
     def notify(self, callback, device: Device):
         """
         Subscribes to messages from the given device, each message will be

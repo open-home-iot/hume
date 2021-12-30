@@ -28,7 +28,6 @@ def incoming_message(device: Device, request_type: int, data: bytes):
 
     # Device responded to a capability request
     if request_type == DeviceRequest.CAPABILITY:
-        LOGGER.info("message was a capability response")
         capability_response(device, data)
 
 
@@ -40,13 +39,16 @@ def capability_response(device, data):
     :param data: capability data
     :return:
     """
+    LOGGER.info("handling capability response")
     # TODO: Store the gotten capabilities in HUME as well, HUME needs to
     #  know some things for validation, but add what's needed WHEN it's
     #  needed.
     capabilities = json.loads(data)
 
     hint_auth = storage.get(HintAuthentication, None)
-    if create_device(capabilities, hint_auth.session_id, hint_auth.csrf_token):
+    if create_device(
+            capabilities, hint_auth.session_id, hint_auth.csrf_token
+    ):
         LOGGER.info("device created in HINT successfully")
 
         # Update the device entry, set correct uuid

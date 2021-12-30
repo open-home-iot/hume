@@ -8,7 +8,9 @@ from defs import HINTCommand
 from device import (
     discover_devices,
     attach_device,
+    detach_device,
     device_action,
+    connection
 )
 from hint.procedures.command_library import (
     devices_discovered,
@@ -53,8 +55,13 @@ def incoming_command(command):
         device_action(device_uuid, **decoded_command)
 
     elif command_type == HINTCommand.UNPAIR:
-        LOGGER.info(f"received an unpair command, factory resetting hume")
+        LOGGER.info("received an unpair command, factory resetting hume")
+        connection.disconnect_all()
         storage.delete_all()
+
+    elif command_type == HINTCommand.DETACH:
+        LOGGER.info(f"got detach for device {decoded_command['device_uuid']}")
+        detach_device(decoded_command["device_uuid"])
 
     else:
         LOGGER.info(f"got unknown command: {decoded_command}")

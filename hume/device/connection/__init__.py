@@ -3,6 +3,7 @@ from .interface import (  # noqa
     connect,
     is_connected,
     disconnect,
+    disconnect_all,
     send,
     notify,
 )

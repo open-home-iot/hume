@@ -3,7 +3,7 @@ import logging
 import storage
 
 from device import connection
-from device.models import Device
+from device.models import Device, DeviceAddress
 from device.procedures.request_library import capability
 from device.request_handler import incoming_message
 
@@ -53,3 +53,17 @@ def attach_device(identifier):
 
     # incoming_message will receive the device response, at least for BLE
     # devices where requests are not synchronous
+
+
+def detach_device(uuid):
+    """
+    Detaches a device from the HUME, deleting all data associated with it.
+
+    :param uuid: UUID of the device
+    """
+    device = storage.get(Device, uuid)
+    connection.disconnect(device)
+
+    address = storage.get(DeviceAddress, device.address)
+    storage.delete(device)
+    storage.delete(address)

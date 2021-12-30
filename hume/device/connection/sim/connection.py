@@ -74,25 +74,27 @@ class SimConnection(GCI):
         return self.device_registry.get(device.uuid) is not None
 
     def connect(self, device: Device) -> bool:
-        LOGGER.info(f"connecting to device {device.address}")
+        LOGGER.info(f"connecting to device {device.uuid}")
 
         self.device_registry[device.uuid] = device
 
         return True
 
     def disconnect(self, device: Device) -> bool:
-        LOGGER.info(f"disconnecting device {device.address}")
+        LOGGER.info(f"disconnecting device {device.uuid}")
 
         self.device_registry.pop(device.uuid)
 
         return True
 
     def disconnect_all(self) -> bool:
+        LOGGER.info("disconnecting all devices")
+
         self.device_registry = dict()
         return True
 
     def send(self, msg: GCI.Message, device: Device) -> bool:
-        LOGGER.debug(f"sending device {device.address} message {msg.content}")
+        LOGGER.debug(f"sending device {device.uuid} message {msg.content}")
 
         request_type = messages.get_request_type(msg.content)
 

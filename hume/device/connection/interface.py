@@ -59,6 +59,17 @@ def disconnect(device: Device) -> bool:
     return _gci_implementer.instance.disconnect(device)
 
 
+def disconnect_all() -> bool:
+    """
+    Interface function for the disconnect action of the GCI.
+
+    :return: True if successful
+    """
+    LOGGER.info("connection interface calling for a device disconnect")
+
+    return _gci_implementer.instance.disconnect_all()
+
+
 def send(msg: GCI.Message, device: Device) -> bool:
     """
     Interface function for the send action of the GCI.

@@ -98,6 +98,8 @@ class LocalStorage:
         for obj in data:
             self.save(obj)
 
+        LOGGER.debug(f"resulting local storage state: {self._data_dict}")
+
     def delete(self, obj):
         """
         Removes the object from both local and persistent storage.
@@ -124,3 +126,5 @@ class LocalStorage:
                 self._data_dict[key] = dict()
             else:
                 self._data_dict[key] = None
+
+        LOGGER.debug(f"resulting local storage state: {self._data_dict}")

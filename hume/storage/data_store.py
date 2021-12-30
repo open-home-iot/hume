@@ -158,7 +158,7 @@ class DataStore:
     def get(self, cls, key, **kwargs):
         """
         Get a single object matching the provided key. Will always check local
-        storage only as it should be up to date with persistent storage.
+        storage only as it should be up-to-date with persistent storage.
 
         :param cls: class
         :param key: key

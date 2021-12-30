@@ -41,6 +41,7 @@ def attach_device(identifier):
     # works for BLE devices as well since the identifier in their case will
     # be the same address provided to HINT in the discovery response.
     device = storage.get(Device, identifier)
+
     if connection.is_connected(device):
         connection.disconnect(device)
 
@@ -48,16 +49,14 @@ def attach_device(identifier):
 
     if connected:
         connection.notify(incoming_message, device)
-        # TODO: For other transport types, the capability response will
-        #  probably be gotten synchronously right here.
+        # incoming_message will receive the device response for async
+        # transport types
         capability(device)
 
     else:
         LOGGER.error("failed to connect to device")
 
         attach_failure(device)
-    # incoming_message will receive the device response, at least for BLE
-    # devices where requests are not synchronous
 
 
 def detach_device(uuid):

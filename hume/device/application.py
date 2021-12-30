@@ -2,7 +2,7 @@ import logging
 
 import storage as storage
 
-from device.models import Device, DeviceAddress
+from device.models import Device, DeviceAddress, DeviceHealth
 from device.connection import application as connection
 from device.heartbeat import application as heartbeat
 
@@ -18,6 +18,7 @@ def model_init():
 
     storage.register(Device)
     storage.register(DeviceAddress)
+    storage.register(DeviceHealth)
 
 
 def pre_start():

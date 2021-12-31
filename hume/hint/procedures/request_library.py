@@ -1,7 +1,6 @@
 import logging
 import requests
 
-from device.models import Device
 from util import get_arg
 from defs import CLI_HINT_IP_ADDRESS, CLI_HINT_PORT, CLI_HUME_UUID
 from hint.models import HumeUser

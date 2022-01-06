@@ -27,7 +27,7 @@ CLI_BROKER_PORT = "broker_port"
 class HINTCommand:
     DISCOVER_DEVICES = 0
     ATTACH_DEVICE = 1
-    DEVICE_ACTION = 2
+    ACTION_STATEFUL = 2
     UNPAIR = 3
     DETACH = 4
 
@@ -35,5 +35,5 @@ class HINTCommand:
 # HUME <-> Device
 class DeviceRequest:
     CAPABILITY = 0
-    DEVICE_ACTION = 1
+    ACTION_STATEFUL = 1
     HEARTBEAT = 2

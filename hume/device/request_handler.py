@@ -5,10 +5,10 @@ import storage
 
 from datetime import datetime
 
-from defs import DeviceRequest
+from defs import DeviceRequest, HINTCommand
 from device.models import Device, DeviceAddress, DeviceHealth
 from hint.models import HintAuthentication
-from hint.procedures.command_library import attach_failure
+from hint.procedures.command_library import attach_failure, action_response
 from hint.procedures.request_library import create_device
 
 LOGGER = logging.getLogger(__name__)
@@ -35,6 +35,9 @@ def incoming_message(device: Device, request_type: int, data: bytes):
 
     elif request_type == DeviceRequest.HEARTBEAT:
         heartbeat_response(device)
+
+    elif request_type == DeviceRequest.ACTION_STATEFUL:
+        stateful_action_response(device, data)
 
 
 def capability_response(device, data):
@@ -95,3 +98,19 @@ def heartbeat_response(device):
         device_health.heartbeat = heartbeat_timestamp
 
     storage.save(device_health)
+
+
+def stateful_action_response(device, data):
+    """
+    :param device:
+    :param data:
+    """
+    LOGGER.info("handling stateful action response")
+
+    decoded = data.decode("utf-8")
+
+    action_response(device,
+                    HINTCommand.ACTION_STATEFUL,
+                    {"group_id": decoded[0],
+                     "state_id": decoded[1],
+                     "success": bool(decoded[2])})

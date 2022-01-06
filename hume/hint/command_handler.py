@@ -32,6 +32,7 @@ def incoming_command(command):
     LOGGER.info("got command from HINT")
 
     decoded_command = json.loads(command.decode('utf-8'))
+    print(decoded_command)
     command_type = decoded_command["type"]
 
     """
@@ -47,7 +48,7 @@ def incoming_command(command):
 
         attach_device(decoded_command["identifier"])
 
-    elif command_type == HINTCommand.DEVICE_ACTION:
+    elif command_type == HINTCommand.ACTION_STATEFUL:
         LOGGER.info(f"received a device action command for: "
                     f"{decoded_command['device_uuid']}")
         device_uuid = decoded_command.pop("device_uuid")

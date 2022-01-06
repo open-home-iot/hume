@@ -21,13 +21,13 @@ def init(producer_instance):
     _producer = producer_instance
 
 
-def encode_hint_command(command):
+def encode_hint_command(command: dict):
     """Formats a HINT command."""
     command["uuid"] = get_arg(CLI_HUME_UUID)
     return json.dumps(command)
 
 
-def publish(command):
+def publish(command: dict):
     """Publish to the HINT master queue."""
     _producer.publish(encode_hint_command(command),  # noqa
                       queue_params=_hint_queue_params)
@@ -40,13 +40,14 @@ def devices_discovered(devices):
 
     :type devices: [Device]
     """
+    LOGGER.info("sending discover devices result to HINT")
+
     command = {
         "type": HINTCommand.DISCOVER_DEVICES,
         "content": [{"name": device.name,
                      "identifier": device.uuid} for device in devices]
     }
 
-    LOGGER.info("sending discover devices result to HINT")
     publish(command)
 
 
@@ -56,6 +57,8 @@ def attach_failure(device):
 
     :param device: Device
     """
+    LOGGER.info("sending attach failure to HINT")
+
     message = {
         "type": HINTCommand.ATTACH_DEVICE,
         "content": {
@@ -64,5 +67,23 @@ def attach_failure(device):
         },
     }
 
-    LOGGER.info("sending attach failure to HINT")
+    publish(message)
+
+
+def action_response(device, action_type, info: dict):
+    """
+    Indicates to HINT the response to an action request.
+
+    :param device:
+    :param action_type:
+    :param info: information about the action
+    """
+    LOGGER.info("sending action response to HINT")
+
+    message = {
+        "type": action_type,
+        "device_uuid": device.uuid,
+        "content": info
+    }
+
     publish(message)

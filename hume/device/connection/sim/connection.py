@@ -4,10 +4,14 @@ import logging
 import storage
 
 from device.connection.gci import GCI
-from device.connection.sim.specs import BASIC_LED_CAPS
+from device.connection.sim.specs import BASIC_LED_CAPS, DEVICE_UUID_LED
 from device.models import Device, DeviceAddress
 from device.connection import messages
-from device.request_handler import capability_response, heartbeat_response
+from device.request_handler import (
+    capability_response,
+    heartbeat_response,
+    stateful_action_response
+)
 from defs import DeviceRequest, CLI_DEVICE_TRANSPORT
 from util import get_arg
 
@@ -29,7 +33,7 @@ class SimConnection(GCI):
         # device.uuid -> Device
         self.device_registry = dict()
         self._capabilities = {
-            BASIC_LED_CAPS["uuid"]: BASIC_LED_CAPS,
+            DEVICE_UUID_LED: BASIC_LED_CAPS,
         }
 
     def discover(self, on_devices_discovered):
@@ -103,7 +107,45 @@ class SimConnection(GCI):
         elif request_type == DeviceRequest.HEARTBEAT:
             heartbeat_response(device)
 
+        elif request_type == DeviceRequest.ACTION_STATEFUL:
+            self._handle_stateful_action(msg, device)
+
         return True
+
+    def _handle_stateful_action(self, msg: GCI.Message, device: Device):
+        if device.uuid == DEVICE_UUID_LED:
+            pass
+        else:
+            raise ValueError("what device was that?")
+
+        # Verify msg content actually is an action from the spec
+        decoded_msg = msg.content.decode('utf-8')
+        capabilities = self._capabilities[device.uuid]
+        group_id = int(decoded_msg[2])
+        state_id = int(decoded_msg[3])
+
+        states = []
+        for state_group in capabilities["states"]:
+            if state_group["id"] != group_id:
+                continue
+
+            LOGGER.debug(f"state group ID {state_group['id']} matched "
+                         f"{group_id}, checking states of this group")
+
+            states = [state for state in list(state_group.values())[1]
+                      if list(state.values())[0] == state_id]
+
+        for state in states:
+            LOGGER.debug(f"states list of found states contained state: {state}")
+
+        if len(states) != 1:
+            LOGGER.error("device does not have that group ID and state")
+            return
+
+        success = True
+        stateful_action_response(
+            device, f"{group_id}{state_id}{success}".encode("utf-8")
+        )
 
     def notify(self, callback: callable, device: Device):
         # No need to implement, send all messages to 'incoming_message' for

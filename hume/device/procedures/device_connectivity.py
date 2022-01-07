@@ -68,6 +68,8 @@ def detach_device(uuid):
 
     :param uuid: UUID of the device
     """
+    LOGGER.info(f"detaching device {uuid}, all its data is deleted")
+
     device = storage.get(Device, uuid)
     connection.disconnect(device)
 

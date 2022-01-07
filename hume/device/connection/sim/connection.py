@@ -136,7 +136,8 @@ class SimConnection(GCI):
                       if list(state.values())[0] == state_id]
 
         for state in states:
-            LOGGER.debug(f"states list of found states contained state: {state}")
+            LOGGER.debug(f"states list of found states contained state: "
+                         f"{state}")
 
         if len(states) != 1:
             LOGGER.error("device does not have that group ID and state")

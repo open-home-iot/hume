@@ -1,11 +1,12 @@
 import asyncio
 import functools
 import logging
+import storage
 
 from bleak import BleakScanner, BleakClient
 
-import storage
 from defs import CLI_DEVICE_TRANSPORT
+from device.connection.messages import has_message_start, get_request_type
 from util import get_arg
 from device.connection.gci import GCI
 from device.models import Device, DeviceAddress
@@ -15,7 +16,6 @@ from device.connection.ble.defs import (
     NUS_TX_UUID,
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
-    MSG_START,
     MSG_START_ENC,
     MSG_END_ENC
 )
@@ -45,16 +45,6 @@ def is_home_compatible(device):
                 home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
             return True
     return False
-
-
-def has_message_start(data: bytearray):
-    """Checks if the input data is the start of a device message."""
-    return data[0] == ord(MSG_START)
-
-
-def get_request_type(data: bytearray) -> int:
-    """:returns: the message request type"""
-    return int(chr(data[1]))
 
 
 def scan_data(data: bytearray) -> (bytearray, bool, int):
@@ -113,6 +103,8 @@ class BLEConnection(GCI):
         self.requests = dict()
         # str(address): callable
         self.listeners = dict()
+        # str(address): Device
+        self.devices = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -187,6 +179,7 @@ class BLEConnection(GCI):
         connected = await_future(future)
         if connected:
             self.clients[device.address] = device_client
+            self.devices[device.address] = device
 
         return connected
 
@@ -197,19 +190,20 @@ class BLEConnection(GCI):
         LOGGER.info(f"disconnecting device {device.address}")
 
         device_client = self.clients.pop(device.address)
+        self.devices.pop(device.address)
+
+        async def disconnect_client(client: BleakClient):
+            """Disconnect the input client"""
+            return await client.disconnect()
+
         disconnected = await_future(
             asyncio.run_coroutine_threadsafe(
-                self.disconnect_client(device_client),
+                disconnect_client(device_client),
                 self.event_loop
             )
         )
 
         return disconnected
-
-    @staticmethod
-    async def disconnect_client(client: BleakClient):
-        """Disconnect the input client"""
-        return await client.disconnect()
 
     def disconnect_all(self) -> bool:
         """
@@ -230,6 +224,7 @@ class BLEConnection(GCI):
             )
 
         self.clients = dict()
+        self.devices = dict()
 
         return False not in disconnections
 
@@ -311,3 +306,7 @@ class BLEConnection(GCI):
             # handled in the order which it was received, should another device
             # message arrive during parsing.
             self.on_device_msg(device, _sender, data[more:])
+
+    def for_each(self, callback: callable):
+        for device in self.devices.items():
+            callback(device)

@@ -34,8 +34,6 @@ def pair():
     response = requests.post(_hint_api_url() + "humes",
                              json={"uuid": get_arg(CLI_HUME_UUID)})
 
-    print(response.cookies)
-
     if response.status_code == requests.codes.created:
         response_content = response.json()  # Contains login information.
         LOGGER.debug(f"successful pairing, response: {response_content}")

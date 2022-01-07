@@ -46,3 +46,9 @@ class PostgresProxy:
         LOGGER.debug("PostgresProxy define tables")
 
         self._db.create_tables([model])
+
+    def drop_tables(self, models):
+        """
+        Drops the input model's table.
+        """
+        self._db.drop_tables(models)

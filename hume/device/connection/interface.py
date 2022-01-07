@@ -59,6 +59,17 @@ def disconnect(device: Device) -> bool:
     return _gci_implementer.instance.disconnect(device)
 
 
+def disconnect_all() -> bool:
+    """
+    Interface function for the disconnect action of the GCI.
+
+    :return: True if successful
+    """
+    LOGGER.info("disconnecting all devices")
+
+    return _gci_implementer.instance.disconnect_all()
+
+
 def send(msg: GCI.Message, device: Device) -> bool:
     """
     Interface function for the send action of the GCI.
@@ -83,3 +94,14 @@ def notify(callback: callable, device: Device):
     LOGGER.info("connection interface waiting for a device message")
 
     _gci_implementer.instance.notify(callback, device)
+
+
+def for_each(callback: callable):
+    """
+    Interface function for iterating over active connections.
+
+    :param callback: callable(Device)
+    """
+    LOGGER.info("iterating over connected devices")
+
+    _gci_implementer.instance.for_each(callback)

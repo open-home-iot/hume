@@ -7,7 +7,7 @@ import argparse
 import peewee
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse arguments provided at running the python program.
     """
@@ -15,23 +15,19 @@ def parse_args():
         description="HUME device controller"
     )
 
-    parser.add_argument("-cdb",
-                        "--clean-db",
-                        action="store_true",
-                        help="Clean all tables in local Postgres DB 'hume'")
-
     subparsers = parser.add_subparsers(help="supported commands")
 
     clean_db_parser = subparsers.add_parser("clean-db",
                                             help="Clean the local DB.")
     clean_db_parser.set_defaults(func=clean_db)
 
-    clear_device_data_parser = subparsers.add_parser(
-        "clear-device-data", help="Clear the local DB of all device data."
-    )
-    clear_device_data_parser.set_defaults(func=clear_device_data)
+    ns = parser.parse_args()
 
-    return parser.parse_args()
+    if not hasattr(ns, 'func'):
+        parser.print_help()
+        exit(1)
+
+    return ns
 
 
 """
@@ -68,39 +64,6 @@ def clean_db(_):
     sys.path = sys.path[:-1]
 
 
-def clear_device_data(_):
-    """
-    Clear the local DB of all device data, deleting the tables for
-    re-definition at a later start.
-
-    :param _: CLI args
-    """
-    # Fix path to solve import errors
-    root_path = os.getcwd()
-    project_root = "hume"
-
-    sys.path.append(f"{root_path}/{project_root}")
-
-    from hume.device.models import Device, DeviceAddress
-
-    print("clearing the local Postgres DB 'hume' of all device tables...\n")
-
-    psql_db = peewee.PostgresqlDatabase("hume",
-                                        user="hume",
-                                        password="password")
-    psql_db.connect()
-    psql_db.drop_tables([Device, DeviceAddress])
-
-    # Remove the two added paths
-    sys.path = sys.path[:-1]
-
-
 if __name__ == "__main__":
     cli_args = parse_args()
-    if cli_args.clean_db:
-        clean_db(None)
-
-    try:
-        cli_args.func(cli_args)
-    except AttributeError:
-        print("no command specified...")
+    cli_args.func(cli_args)

@@ -4,6 +4,7 @@ from .data_store import (  # noqa
     get,
     get_all,
     delete,
+    delete_all,
     start,
     stop
 )

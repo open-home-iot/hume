@@ -9,7 +9,7 @@ from defs import CLI_HUME_UUID, HINTCommand
 LOGGER = logging.getLogger(__name__)
 
 HINT_MASTER_COMMAND_QUEUE = "hint_master"
-producer: RMQProducer
+_producer: RMQProducer
 _hint_queue_params = QueueParams(HINT_MASTER_COMMAND_QUEUE, durable=True)
 
 
@@ -17,20 +17,20 @@ def init(producer_instance):
     """
     :type producer_instance: rabbitmq_client.RMQProducer
     """
-    global producer
-    producer = producer_instance
+    global _producer
+    _producer = producer_instance
 
 
-def encode_hint_command(command):
+def encode_hint_command(command: dict):
     """Formats a HINT command."""
     command["uuid"] = get_arg(CLI_HUME_UUID)
     return json.dumps(command)
 
 
-def publish(command):
+def publish(command: dict):
     """Publish to the HINT master queue."""
-    producer.publish(encode_hint_command(command),  # noqa
-                     queue_params=_hint_queue_params)
+    _producer.publish(encode_hint_command(command),  # noqa
+                      queue_params=_hint_queue_params)
 
 
 def devices_discovered(devices):
@@ -40,29 +40,50 @@ def devices_discovered(devices):
 
     :type devices: [Device]
     """
+    LOGGER.info("sending discover devices result to HINT")
+
     command = {
         "type": HINTCommand.DISCOVER_DEVICES,
         "content": [{"name": device.name,
-                     "address": device.address} for device in devices]
+                     "identifier": device.uuid} for device in devices]
     }
 
-    LOGGER.info("sending discover devices result to HINT")
     publish(command)
 
 
-def device_attached(success, device):
+def attach_failure(device):
     """
-    Sends a command to HINT indicating the success of attaching a device.
+    Indicates to HINT a failure to attach the input device.
 
-    :type success: bool
-    :type device: Device
-    :return:
+    :param device: Device
     """
-    # command = {
-    #     "type": CommandType.ATTACH_DEVICE,
-    #     "content": {
-    #         "success": success,
-    #         "device_address":
-    #     }
-    # }
-    pass
+    LOGGER.info("sending attach failure to HINT")
+
+    message = {
+        "type": HINTCommand.ATTACH_DEVICE,
+        "content": {
+            "identifier": device.uuid,
+            "success": False,
+        },
+    }
+
+    publish(message)
+
+
+def action_response(device, action_type, info: dict):
+    """
+    Indicates to HINT the response to an action request.
+
+    :param device:
+    :param action_type:
+    :param info: information about the action
+    """
+    LOGGER.info("sending action response to HINT")
+
+    message = {
+        "type": action_type,
+        "device_uuid": device.uuid,
+        "content": info
+    }
+
+    publish(message)

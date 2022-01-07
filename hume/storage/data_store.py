@@ -76,8 +76,20 @@ def delete(obj):
     :param obj:
     :return:
     """
+    if obj is None:
+        LOGGER.warning("tried to delete None")
+        return
+
     LOGGER.info("deleting object")
     _store.delete(obj)
+
+
+def delete_all():
+    """
+    Delete all data.
+    """
+    LOGGER.info("deleting all data")
+    _store.delete_all()
 
 
 class DataStore:
@@ -150,7 +162,7 @@ class DataStore:
     def get(self, cls, key, **kwargs):
         """
         Get a single object matching the provided key. Will always check local
-        storage only as it should be up to date with persistent storage.
+        storage only as it should be up-to-date with persistent storage.
 
         :param cls: class
         :param key: key
@@ -173,8 +185,17 @@ class DataStore:
 
         :param obj:
         """
-        self._persistent_storage.delete(obj)
+        if issubclass(obj.__class__, PersistentModel):
+            self._persistent_storage.delete(obj)
+
         self._local_storage.delete(obj)
+
+    def delete_all(self):
+        """
+        Clears data from all registered tables.
+        """
+        self._local_storage.delete_all()
+        self._persistent_storage.delete_all()
 
 
 _store = DataStore()

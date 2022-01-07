@@ -27,3 +27,18 @@ class DeviceAddress(PersistentModel):
     @staticmethod
     def local_key_field():
         return "address"
+
+
+class DeviceHealth:
+
+    def __init__(self, uuid, heartbeat):
+        """
+        :param uuid: device UUID
+        :param heartbeat: datetime
+        """
+        self.uuid = uuid
+        self.heartbeat = heartbeat
+
+    @staticmethod
+    def local_key_field():
+        return "uuid"

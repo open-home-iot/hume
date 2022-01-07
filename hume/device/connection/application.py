@@ -5,11 +5,16 @@ import storage
 
 from threading import Thread
 
-from defs import CLI_DEVICE_TRANSPORT, CLI_DEVICE_TRANSPORT_BLE
+from defs import (
+    CLI_DEVICE_TRANSPORT,
+    CLI_DEVICE_TRANSPORT_BLE,
+    CLI_DEVICE_TRANSPORT_SIMULATED
+)
 from util.args import get_arg
 from device.models import Device
 from device.connection.gci import GCIImplementer
 from device.connection.ble.connection import BLEConnection
+from device.connection.sim.connection import SimConnection
 
 
 LOGGER = logging.getLogger(__name__)
@@ -26,8 +31,10 @@ def pre_start():
     """
     LOGGER.info("pre-start")
 
+    transport = get_arg(CLI_DEVICE_TRANSPORT)
+
     # Select connection type
-    if get_arg(CLI_DEVICE_TRANSPORT) == CLI_DEVICE_TRANSPORT_BLE:
+    if transport == CLI_DEVICE_TRANSPORT_BLE:
 
         def run_event_loop(loop: asyncio.AbstractEventLoop):
             loop.run_forever()
@@ -37,6 +44,10 @@ def pre_start():
         event_loop_thread.start()
 
         _gci_implementer.instance = BLEConnection(event_loop)
+
+    elif transport == CLI_DEVICE_TRANSPORT_SIMULATED:
+
+        _gci_implementer.instance = SimConnection()
 
 
 def start():
@@ -67,8 +78,9 @@ def stop():
     if not disconnected:
         LOGGER.error("failed to disconnect at least one device")
 
-    event_loop.call_soon_threadsafe(event_loop.stop)
+    if get_arg(CLI_DEVICE_TRANSPORT) == CLI_DEVICE_TRANSPORT_BLE:
+        event_loop.call_soon_threadsafe(event_loop.stop)
 
-    global event_loop_thread
-    event_loop_thread.join()
-    LOGGER.debug("thread joined, device connection app stopped completely")
+        global event_loop_thread
+        event_loop_thread.join()
+        LOGGER.debug("thread joined, device connection app stopped completely")

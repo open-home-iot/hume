@@ -25,8 +25,8 @@ class GCIImplementer:
 class GCI(abc.ABC):
 
     class Message:
-        def __init__(self, content: bytes):
-            self.content = content
+        def __init__(self, content: str):
+            self.content = f"^{content}$".encode("utf-8")
 
     @abc.abstractmethod
     def discover(self, on_devices_discovered) -> None:
@@ -64,6 +64,13 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def disconnect_all(self):
+        """
+        Disconnects all devices.
+        """
+        pass
+
+    @abc.abstractmethod
     def notify(self, callback, device: Device):
         """
         Subscribes to messages from the given device, each message will be
@@ -71,5 +78,16 @@ class GCI(abc.ABC):
 
         :param callback: callable(Device, int, data)
         :param device: Device
+        """
+        pass
+
+    @abc.abstractmethod
+    def for_each(self, callback: callable):
+        """
+        Calls input callback for each active connection. The Device instance
+        passed to the callback function is bare-bones and only has the
+        necessary fields populated to fulfil a call to one of GCI methods.
+
+        :param callback: callable(Device)
         """
         pass

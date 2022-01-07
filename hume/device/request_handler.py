@@ -76,7 +76,6 @@ def capability_response(device, data):
 
     else:
         LOGGER.error("failed to create device")
-
         attach_failure(device)
 
 

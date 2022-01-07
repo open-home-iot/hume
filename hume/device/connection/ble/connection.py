@@ -192,6 +192,12 @@ class BLEConnection(GCI):
         device_client = self.clients.pop(device.address)
         self.devices.pop(device.address)
 
+        # pop optionals
+        if self.requests.get(device.address) is not None:
+            self.requests.pop(device.address)
+        if self.listeners.get(device.address) is not None:
+            self.listeners.pop(device.address)
+
         async def disconnect_client(client: BleakClient):
             """Disconnect the input client"""
             return await client.disconnect()
@@ -213,18 +219,8 @@ class BLEConnection(GCI):
         LOGGER.info("disconnecting all connected devices")
 
         disconnections = []
-
-        for client in self.clients.values():
-            disconnections.append(
-                await_future(
-                    asyncio.run_coroutine_threadsafe(
-                        self.disconnect_client(client), self.event_loop
-                    )
-                )
-            )
-
-        self.clients = dict()
-        self.devices = dict()
+        for device in self.devices.values():
+            disconnections.append(self.disconnect(device))
 
         return False not in disconnections
 
@@ -296,7 +292,7 @@ class BLEConnection(GCI):
         self.listeners[device.address](
             device, request_type, existing_body + body
         )
-        self.requests[device.address] = None  # Cleared when done
+        self.requests.pop(device.address)  # Cleared when done
 
         # more is the index at which the additional message data starts, if 0,
         # there is no more data to parse.

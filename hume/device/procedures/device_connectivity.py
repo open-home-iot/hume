@@ -38,10 +38,14 @@ def attach_device(identifier):
     """
     LOGGER.info("attach device procedure started")
 
-    # works for BLE devices as well since the identifier in their case will
-    # be the same address provided to HINT in the discovery response.
+    # Get device, verify exists
     device = storage.get(Device, identifier)
+    if device is None:
+        LOGGER.error(f"device {identifier} not found")
+        attach_failure(Device(uuid=identifier))
+        return
 
+    # Could already be connected on multiple attach requests at the same time.
     if connection.is_connected(device):
         connection.disconnect(device)
 
@@ -55,7 +59,6 @@ def attach_device(identifier):
 
     else:
         LOGGER.error("failed to connect to device")
-
         attach_failure(device)
 
 

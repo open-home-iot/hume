@@ -4,7 +4,13 @@ import logging
 import storage
 
 from device.connection.gci import GCI
-from device.connection.sim.specs import BASIC_LED_CAPS, DEVICE_UUID_LED
+from device.connection.sim.specs import (
+    BASIC_LED_CAPS,
+    DEVICE_UUID_LED,
+    DEVICE_UUID_AQUARIUM,
+    DEVICE_UUIDS,
+    AQUARIUM_CAPS
+)
 from device.models import Device, DeviceAddress
 from device.connection import messages
 from device.request_handler import (
@@ -34,12 +40,13 @@ class SimConnection(GCI):
         self.device_registry = dict()
         self._capabilities = {
             DEVICE_UUID_LED: BASIC_LED_CAPS,
+            DEVICE_UUID_AQUARIUM: AQUARIUM_CAPS,
         }
 
     def discover(self, on_devices_discovered):
         LOGGER.info("starting device discovery")
-        unattached_devices = self._unattached_devices
-        for device in unattached_devices:
+
+        for device in self._unattached_devices:
 
             # Do not try to create devices that already exist (multiple
             # discoveries)
@@ -60,18 +67,15 @@ class SimConnection(GCI):
             )
             storage.save(device)
 
-        if len(unattached_devices) > 0:
-            LOGGER.info(f"found {len(unattached_devices)} devices")
-            on_devices_discovered(unattached_devices)
+        if len(self._unattached_devices) > 0:
+            LOGGER.info(f"found {len(self._unattached_devices)} devices")
+            on_devices_discovered(self._unattached_devices)
 
     @property
     def _unattached_devices(self) -> [Device]:
-        # Ok for now, needs to be changed when new device types are added to
-        # the sim.
-        if len(self.device_registry) == 0:
-            return [discovered_device(BASIC_LED_CAPS)]
-
-        return []
+        return [discovered_device(self._capabilities[uuid])
+                for uuid in DEVICE_UUIDS
+                if uuid not in self.device_registry.keys()]
 
     def is_connected(self, device: Device) -> bool:
         return self.device_registry.get(device.uuid) is not None
@@ -99,10 +103,14 @@ class SimConnection(GCI):
     def send(self, msg: GCI.Message, device: Device) -> bool:
         LOGGER.debug(f"sending device {device.uuid} message {msg.content}")
 
+        if self.device_registry.get(device.uuid) is None:
+            raise ValueError(f"device {device.uuid} is not connected")
+
         request_type = messages.get_request_type(msg.content)
 
         if request_type == DeviceRequest.CAPABILITY:
-            capability_response(device, json.dumps(BASIC_LED_CAPS))
+            capability_response(device,
+                                json.dumps(self._capabilities[device.uuid]))
 
         elif request_type == DeviceRequest.HEARTBEAT:
             heartbeat_response(device)
@@ -113,13 +121,15 @@ class SimConnection(GCI):
         return True
 
     def _handle_stateful_action(self, msg: GCI.Message, device: Device):
-        if device.uuid == DEVICE_UUID_LED:
+        if (device.uuid == DEVICE_UUID_LED or
+                device.uuid == DEVICE_UUID_AQUARIUM):
             pass
         else:
-            raise ValueError("what device was that?")
+            raise ValueError("that device does not support any stateful "
+                             "actions...")
 
         # Verify msg content actually is an action from the spec
-        decoded_msg = msg.content.decode('utf-8')
+        decoded_msg = msg.content.decode("utf-8")
         capabilities = self._capabilities[device.uuid]
         group_id = int(decoded_msg[2])
         state_id = int(decoded_msg[3])

@@ -110,6 +110,6 @@ def stateful_action_response(device, data):
 
     action_response(device,
                     HINTCommand.ACTION_STATEFUL,
-                    {"group_id": decoded[0],
-                     "state_id": decoded[1],
+                    {"group_id": int(decoded[0]),
+                     "state_id": int(decoded[1]),
                      "success": bool(decoded[2])})

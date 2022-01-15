@@ -180,6 +180,7 @@ def stop():
 
 if __name__ == "__main__":
     cli_args = parse_args()
+    print(cli_args)
     set_args(**vars(cli_args))
 
     set_up_logging()

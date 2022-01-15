@@ -39,6 +39,7 @@ def stop():
     """Stop the application."""
     LOGGER.info("stop")
 
+    global _t
     _t.cancel()
 
 

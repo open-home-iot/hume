@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 # RabbitMQ
-res=`docker run -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management 2>&1`
+res=$(docker run -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management 2>&1)
+# shellcheck disable=SC2181
 if [ $? -eq 0 ]; then
     echo "successfully started RabbitMQ, now running with above container hash"
 else
@@ -20,5 +21,9 @@ fi
 echo "starting HUME with UUID $HUME_UUID"
 
 scriptpath=${0:a:h}
-cd $scriptpath
-osascript run_hume_in_separate_tab.scpt $scriptpath
+if ! cd "$scriptpath";
+then
+  echo "failed to cd to $scriptpath"
+  exit 1
+fi
+osascript run_hume_in_separate_tab.scpt "$scriptpath"

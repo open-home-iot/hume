@@ -113,10 +113,8 @@ class BLEConnection(GCI):
         """
         LOGGER.info("BLEConnection starting device discovery")
 
-        cb = None
-        if on_devices_discovered is not None:
-            cb = functools.partial(BLEConnection.on_device_found,
-                                   on_devices_discovered)
+        cb = functools.partial(BLEConnection.on_device_found,
+                               on_devices_discovered)
 
         asyncio.run_coroutine_threadsafe(
             BleakScanner.discover(detection_callback=cb), self.event_loop

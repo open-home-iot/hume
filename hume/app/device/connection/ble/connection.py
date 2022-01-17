@@ -228,6 +228,11 @@ class BLEConnection(GCI):
         return True
 
     def notify(self, callback: callable, device: Device):
+        if self.devices.get(device.address) is None:
+            LOGGER.error(f"can't notify device {device.uuid[:4]}, it's not "
+                         f"connected")
+            return
+
         self.listeners[device.address] = callback
 
         device_client = self.clients[device.address]

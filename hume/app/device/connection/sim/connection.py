@@ -132,8 +132,7 @@ class SimConnection(GCI):
         )
 
     def notify(self, callback: callable, device: Device):
-        # No need to implement, send all messages to 'incoming_message' for
-        # now.
+        # TODO: implement before finishing refactoring
         ...
 
     def for_each(self, callback: callable):

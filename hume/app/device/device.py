@@ -3,7 +3,8 @@ import logging
 from app.abc import App
 from app.device.connection.connection import DeviceConnection
 from app.device.models import Device, DeviceHealth
-from app.device.defs import TRANSPORT_BLE
+from app.device.defs import TRANSPORT_BLE, TRANSPORT_SIM
+from defs import CLI_SIMULATION
 from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
@@ -42,6 +43,12 @@ class DeviceApp(App):
     def post_stop(self):
         LOGGER.info("Device post_start")
 
+    def on_device_message(self, device, message_type, body):
+        """
+        Called when a connected device
+        """
+        LOGGER.debug("received device message")
+
     def connect_attached_devices(self):
         """
         Establishes a connection with all attached devices.
@@ -50,5 +57,17 @@ class DeviceApp(App):
 
         devices = self.storage.get_all(Device)
         for device in devices:
-            if device.transport == TRANSPORT_BLE:
-                self.connection.ble.connect(device)
+            if self.cli_args.get(CLI_SIMULATION):
+                if device.attached and device.transport == TRANSPORT_SIM:
+                    _connected = self.connection.sim.connect(device)
+                    # TODO: implement sim notify!
+                    self.connection.sim.notify(self.on_device_message, device)
+            else:
+                if device.attached and device.transport == TRANSPORT_BLE:
+                    connected = self.connection.ble.connect(device)
+
+                    if not connected:
+                        LOGGER.error(f"failed to connect device {device}")
+                        continue
+
+                    self.connection.ble.notify(self.on_device_message, device)

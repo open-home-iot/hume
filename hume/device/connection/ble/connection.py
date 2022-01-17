@@ -4,11 +4,9 @@ import logging
 
 from bleak import BleakScanner, BleakClient
 
-from defs import CLI_DEVICE_TRANSPORT
 from device.connection.messages import has_message_start, get_request_type
-from util import get_arg, storage
 from device.connection.gci import GCI
-from device.models import Device, DeviceAddress
+from app.device.models import Device
 from device.connection.ble.defs import (
     NUS_SVC_UUID,
     NUS_RX_UUID,

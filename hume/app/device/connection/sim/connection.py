@@ -1,33 +1,29 @@
 import json
 import logging
 
-from device.connection.gci import GCI
-from device.connection.sim.specs import (
+from defs import DeviceRequest
+from ..gci import GCI
+from .specs import (
     BASIC_LED_CAPS,
     DEVICE_UUID_LED,
     DEVICE_UUID_AQUARIUM,
     DEVICE_UUIDS,
     AQUARIUM_CAPS
 )
-from device.models import Device, DeviceAddress
-from device.connection import messages
-from device.request_handler import (
-    capability_response,
-    heartbeat_response,
-    stateful_action_response
-)
-from defs import DeviceRequest, CLI_DEVICE_TRANSPORT
-from util import get_arg, storage
+from app.device.models import Device
+from app.device.connection import messages
+from app.device.defs import TRANSPORT_SIM
 
 LOGGER = logging.getLogger(__name__)
 
 
 def discovered_device(device_dict):
-    return Device(name=device_dict["name"],
+    return Device(uuid=device_dict["uuid"],
                   # simulated devices have no address, change format to differ
                   # between UUID and address.
+                  transport=TRANSPORT_SIM,
                   address=device_dict["uuid"].replace('-', ':'),
-                  uuid=device_dict["uuid"])
+                  name=device_dict["name"])
 
 
 class SimConnection(GCI):
@@ -43,27 +39,6 @@ class SimConnection(GCI):
 
     def discover(self, on_devices_discovered):
         LOGGER.info("starting device discovery")
-
-        for device in self._unattached_devices:
-
-            # Do not try to create devices that already exist (multiple
-            # discoveries)
-            existing_device = storage.get(DeviceAddress, device.address)
-            if existing_device is not None:
-                continue
-
-            device_address = DeviceAddress(
-                transport=get_arg(CLI_DEVICE_TRANSPORT),
-                address=device.address,
-                uuid=device.uuid
-            )
-            storage.save(device_address)
-            device = Device(
-                uuid=device.uuid,
-                address=device.address,
-                name=device.name
-            )
-            storage.save(device)
 
         if len(self._unattached_devices) > 0:
             LOGGER.info(f"found {len(self._unattached_devices)} devices")

@@ -15,10 +15,6 @@ class DataStore:
     """
 
     def __init__(self):
-        """
-        """
-        LOGGER.debug("DataStore __init__")
-
         self._persistent_storage: PersistentStorage = PersistentStorage()
         self._local_storage: LocalStorage = LocalStorage()
 
@@ -37,7 +33,7 @@ class DataStore:
         # Registration process:
         # 1. Define storage space in _store, named same as model class
         # 2. Get data from storage if persistent
-        LOGGER.debug("Registering model")
+        LOGGER.info(f"registering model: {model.__name__}")
 
         self.define_storage(model)
 
@@ -53,21 +49,17 @@ class DataStore:
 
         :param model: model to define storage for
         """
-
         if issubclass(model, PersistentModel):
-            LOGGER.debug("Defining persistent storage")
             self._persistent_storage.define_storage(model)
 
-        LOGGER.debug("Defining local storage")
         self._local_storage.define_storage(model)
 
-    def save(self, obj):
+    def set(self, obj):
         """
-        Save an object.
+        Set an object.
 
         :param obj: object to save
         """
-
         if issubclass(obj.__class__, PersistentModel):
             LOGGER.debug("saving persistently")
             self._persistent_storage.save(obj)
@@ -112,6 +104,3 @@ class DataStore:
         """
         self._local_storage.delete_all()
         self._persistent_storage.delete_all()
-
-
-_store = DataStore()

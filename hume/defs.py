@@ -8,9 +8,7 @@ Definitions for the Device Controller.
 #
 CLI_HUME_UUID = "hume_uuid"
 
-CLI_DEVICE_TRANSPORT = "device_transport"
-CLI_DEVICE_TRANSPORT_BLE = "ble"  # Bluetooth LE (BLE)
-CLI_DEVICE_TRANSPORT_SIMULATED = "sim"  # Fake to allow for easier testing
+CLI_SIMULATION = "sim"
 
 CLI_HINT_IP_ADDRESS = "hint_ip_address"
 CLI_HINT_PORT = "hint_port"

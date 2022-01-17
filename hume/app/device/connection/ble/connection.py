@@ -8,12 +8,12 @@ from app.device.models import Device
 from ..messages import has_message_start, get_request_type
 from ..gci import GCI
 from ..defs import (
-    HOME_SVC_DATA_UUID,
-    HOME_SVC_DATA_VAL_HEX,
     MSG_START_ENC,
     MSG_END_ENC
 )
 from .defs import (
+    HOME_SVC_DATA_UUID,
+    HOME_SVC_DATA_VAL_HEX,
     NUS_SVC_UUID,
     NUS_RX_UUID,
     NUS_TX_UUID
@@ -235,7 +235,8 @@ class BLEConnection(GCI):
         cb = functools.partial(self.on_device_msg, device)
 
         future = asyncio.run_coroutine_threadsafe(
-            device_client.start_notify(NUS_TX_UUID, cb), self.event_loop)
+            device_client.start_notify(NUS_TX_UUID, cb), self.event_loop
+        )
         await_future(future)
 
     def on_device_msg(self, device: Device, _sender: int, data: bytearray):

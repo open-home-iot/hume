@@ -13,9 +13,6 @@ class PersistentStorage:
     """
 
     def __init__(self):
-        """"""
-        LOGGER.debug("PersistentStorage __init__")
-
         self._pg_proxy = PostgresProxy()
         self._models = []
 
@@ -31,7 +28,7 @@ class PersistentStorage:
 
         :param model: .
         """
-        LOGGER.debug("Defining persistent storage")
+        LOGGER.debug("defining persistent storage")
 
         self._pg_proxy.define_table(model)
         self._models.append(model)

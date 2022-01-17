@@ -1,0 +1,2 @@
+TRANSPORT_BLE = "ble"
+TRANSPORT_SIM = "sim"

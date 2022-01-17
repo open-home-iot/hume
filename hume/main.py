@@ -9,9 +9,6 @@ from hume.hume import Hume
 from util.log import set_up_logger_for, HANDLER_STREAM
 from defs import (
     CLI_HUME_UUID,
-    CLI_DEVICE_TRANSPORT,
-    CLI_DEVICE_TRANSPORT_BLE,
-    CLI_DEVICE_TRANSPORT_SIMULATED,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -33,13 +30,10 @@ def parse_args():
     parser.add_argument(CLI_HUME_UUID,
                         metavar="HUME_UUID",
                         help="HUME UUID")
-    parser.add_argument(CLI_DEVICE_TRANSPORT,
-                        metavar="DEVICE_TRANSPORT",
-                        choices=(CLI_DEVICE_TRANSPORT_BLE,
-                                 CLI_DEVICE_TRANSPORT_SIMULATED),
-                        help="Transport medium to use towards devices",
-                        nargs="?",
-                        default=CLI_DEVICE_TRANSPORT_BLE)
+    parser.add_argument("--sim",
+                        help="Set to simulate devices, deactivates all real "
+                             "interfaces",
+                        action='store_true')
 
     #
     # Optional arguments

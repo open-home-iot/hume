@@ -13,9 +13,6 @@ class LocalStorage:
     """
 
     def __init__(self):
-        """"""
-        LOGGER.debug("LocalStorage __init__")
-
         self._data_dict = dict()
 
     def define_storage(self, model):
@@ -24,7 +21,7 @@ class LocalStorage:
 
         :param model:
         """
-        LOGGER.debug("Defining local storage")
+        LOGGER.debug("defining local storage")
 
         if model.local_key_field() == SINGLETON:
             # No need for initialization, just need the table key.
@@ -32,7 +29,7 @@ class LocalStorage:
         else:
             self._data_dict[model.__name__] = dict()
 
-        LOGGER.debug(f"Current local storage state: {self._data_dict}")
+        LOGGER.debug(f"current local storage state: {self._data_dict}")
 
     def save(self, obj):
         """
@@ -55,7 +52,7 @@ class LocalStorage:
     def get(self, cls, key, **kwargs):
         """
         Get a single object matching the provided key. Will always check local
-        storage only as it should be up to date with persistent storage.
+        storage only as it should be up-to-date with persistent storage.
 
         :param cls: class
         :param key: key

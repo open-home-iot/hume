@@ -1,1 +1,1 @@
-from .device import Device  # noqa
+from .device import DeviceApp  # noqa

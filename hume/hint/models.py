@@ -1,7 +1,7 @@
 import peewee
 
-from storage import PersistentModel
-from storage.definitions import SINGLETON
+from util.storage import PersistentModel
+from util.storage import SINGLETON
 
 
 class HumeUser(PersistentModel):

@@ -5,7 +5,7 @@ from util.storage import PersistentModel
 from defs import CLI_DEVICE_TRANSPORT_BLE
 
 
-class DeviceInstance(PersistentModel):
+class Device(PersistentModel):
     uuid = peewee.CharField(unique=True, max_length=36, null=True)
     address = peewee.CharField(unique=True)
     name = peewee.CharField(max_length=255)

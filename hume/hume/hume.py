@@ -1,21 +1,25 @@
 import logging
 
-from app.device import Device
-from app.hint import Hint
-
+from app.device import DeviceApp
+from app.hint import HintApp
+from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Hume:
 
-    def __init__(self):
-        self.device = Device()
-        self.hint = Hint()
+    def __init__(self, cli_args):
+        self.cli_args = cli_args
+        self.storage = DataStore()
+        self.device = DeviceApp(cli_args, self.storage)
+        self.hint = HintApp(cli_args, self.storage)
 
     def start(self):
         """Starts the HUME."""
         LOGGER.info("Hume start")
+
+        self.storage.start()
 
         self.device.pre_start()
         self.hint.pre_start()

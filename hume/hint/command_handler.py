@@ -1,6 +1,6 @@
 import logging
 import json
-import storage
+from util import storage
 
 from rabbitmq_client import ConsumeOK
 

@@ -1,14 +1,12 @@
 import functools
 import signal
-import sys
 import threading
 import argparse
 import logging
 
-import storage
 from hume.hume import Hume
 
-from util import set_args, set_up_logger_for, HANDLER_STREAM
+from util.log import set_up_logger_for, HANDLER_STREAM
 from defs import (
     CLI_HUME_UUID,
     CLI_DEVICE_TRANSPORT,
@@ -111,13 +109,11 @@ def stop(h: Hume):
 
 
 if __name__ == "__main__":
-    cli_args = parse_args()
-    print(cli_args)
-
-    set_args(**vars(cli_args))
     set_up_logging()
 
-    hume = Hume()
+    cli_args = parse_args()
+    print(cli_args)
+    hume = Hume(vars(cli_args))
 
     cb = functools.partial(stop, hume)
     signal.signal(signal.SIGINT, cb)

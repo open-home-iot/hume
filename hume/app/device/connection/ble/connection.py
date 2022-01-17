@@ -4,19 +4,19 @@ import logging
 
 from bleak import BleakScanner, BleakClient
 
-from defs import CLI_DEVICE_TRANSPORT
-from device.connection.messages import has_message_start, get_request_type
-from util import get_arg, storage
-from device.connection.gci import GCI
-from device.models import Device, DeviceAddress
-from device.connection.ble.defs import (
-    NUS_SVC_UUID,
-    NUS_RX_UUID,
-    NUS_TX_UUID,
+from app.device.models import Device
+from ..messages import has_message_start, get_request_type
+from ..gci import GCI
+from ..defs import (
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
     MSG_START_ENC,
     MSG_END_ENC
+)
+from .defs import (
+    NUS_SVC_UUID,
+    NUS_RX_UUID,
+    NUS_TX_UUID
 )
 
 
@@ -138,21 +138,9 @@ class BLEConnection(GCI):
         if is_home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
-            # Store discovered device if not exists
-            device_address = DeviceAddress(
-                transport=get_arg(CLI_DEVICE_TRANSPORT),
-                address=device.address,
-                uuid=device.address
-            )
             discovered_device = Device(uuid=device.address,
                                        address=device.address,
                                        name=device.name)
-
-            existing_address_entry = storage.get(DeviceAddress, device.address)
-            if existing_address_entry is None:
-                LOGGER.info("no existing address entry, storing")
-                storage.save(device_address)
-                storage.save(discovered_device)
 
             # Push device discovered to callback
             on_devices_discovered([discovered_device])

@@ -2,8 +2,6 @@ import logging
 import pika
 import sys
 
-import storage as storage
-
 from rabbitmq_client import (
     RMQConsumer,
     RMQProducer,
@@ -21,7 +19,7 @@ from hint import (
 )
 from hint.procedures import command_library
 from hint.procedures.hint_connectivity import login_to_hint, pair
-from util import get_arg
+from util import get_arg, storage as storage
 from defs import (
     CLI_HUME_UUID,
     CLI_BROKER_IP_ADDRESS,

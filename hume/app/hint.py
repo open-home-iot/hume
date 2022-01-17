@@ -1,12 +1,17 @@
 import logging
 
 from app.abc import App
-
+from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
 
 
-class Hint(App):
+class HintApp(App):
+
+    def __init__(self, cli_args, storage: DataStore):
+        self.cli_args = cli_args
+        self.storage = storage
+
     def pre_start(self):
         LOGGER.info("Device pre_start")
 

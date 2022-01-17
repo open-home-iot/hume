@@ -1,7 +1,7 @@
 import json
 import logging
 
-import storage
+from util import storage
 
 from datetime import datetime
 

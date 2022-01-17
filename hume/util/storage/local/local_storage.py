@@ -1,7 +1,7 @@
 import logging
 import copy
 
-from storage.definitions import SINGLETON
+from util.storage.defs import SINGLETON
 
 
 LOGGER = logging.getLogger(__name__)

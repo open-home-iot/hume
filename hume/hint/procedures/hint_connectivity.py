@@ -1,7 +1,7 @@
 import logging
 import sys
 
-import storage as storage
+from util import storage as storage
 
 from hint.procedures import request_library
 from hint.models import HumeUser, BrokerCredentials, HintAuthentication

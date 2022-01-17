@@ -1,14 +1,24 @@
 import logging
 
 from app.abc import App
-
+from app.device.models import Device, DeviceAddress, DeviceHealth
+from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
 
 
-class Device(App):
+class DeviceApp(App):
+
+    def __init__(self, cli_args, storage: DataStore):
+        self.cli_args = cli_args
+        self.storage = storage
+
     def pre_start(self):
         LOGGER.info("Device pre_start")
+
+        self.storage.register(Device)
+        self.storage.register(DeviceAddress)
+        self.storage.register(DeviceHealth)
 
     def start(self):
         LOGGER.info("Device start")

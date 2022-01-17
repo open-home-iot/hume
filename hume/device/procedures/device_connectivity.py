@@ -1,6 +1,6 @@
 import logging
 
-import storage
+from util import storage
 
 from device import connection
 from device.models import Device, DeviceAddress, DeviceHealth

@@ -1,3 +1,4 @@
+import functools
 import signal
 import sys
 import threading
@@ -5,6 +6,7 @@ import argparse
 import logging
 
 import storage
+from hume.hume import Hume
 
 from util import set_args, set_up_logger_for, HANDLER_STREAM
 from defs import (
@@ -13,19 +15,8 @@ from defs import (
     CLI_DEVICE_TRANSPORT_BLE,
     CLI_DEVICE_TRANSPORT_SIMULATED,
 )
-from device import application as device
-from hint import application as hint
-
 
 LOGGER = logging.getLogger(__name__)
-
-UTIL = [
-    storage
-]
-
-APPLICATIONS = [
-    device, hint
-]
 
 
 def parse_args():
@@ -82,32 +73,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def set_up_interrupt():
-    """
-    Ensures that the program can exist gracefully.
-    :return:
-    """
-
-    def interrupt(_signum, _frame):
-        """
-        :param _signum:
-        :param _frame:
-        """
-        stop()
-        sys.exit(0)
-
-    def terminate(_signum, _frame):
-        """
-        :param _signum:
-        :param _frame:
-        """
-        stop()
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, interrupt)
-    signal.signal(signal.SIGTERM, terminate)
-
-
 def set_up_logging():
     """Sets up DC logging."""
     set_up_logger_for("HUME",
@@ -124,32 +89,8 @@ def set_up_logging():
     pika_logger.propagate = False
 
 
-def start():
-    """
-    Starts the RootApp and all its sub-applications.
-    """
-    LOGGER.info("root start")
-
-    # storage start
-    storage.start()
-
-    # model init
-    for app in APPLICATIONS:
-        app.model_init()
-
-    # pre start
-    for app in APPLICATIONS:
-        app.pre_start()
-
-    # app start
-    for app in APPLICATIONS:
-        app.start()
-
-
-def stop():
-    """
-    Stops all RootApp sub-applications in order to clean up used resources.
-    """
+def stop(h: Hume):
+    """Stop everything!"""
 
     def print_exit_status():
         """
@@ -165,32 +106,21 @@ def stop():
         for thread in threading.enumerate():
             print(f"# {thread}")
 
-    LOGGER.info("root stop")
-
-    # application stop
-    for app in APPLICATIONS:
-        app.stop()
-
-    # core stop
-    for app in UTIL:
-        app.stop()
-
+    h.stop()
     print_exit_status()
 
 
 if __name__ == "__main__":
     cli_args = parse_args()
     print(cli_args)
-    set_args(**vars(cli_args))
 
+    set_args(**vars(cli_args))
     set_up_logging()
 
-    # Only set up logging if DC is run standalone and not from HTT. Rely on HTT
-    # to set up logging otherwise.
+    hume = Hume()
 
-    # print(f"DC sys.path: {sys.path}")
+    cb = functools.partial(stop, hume)
+    signal.signal(signal.SIGINT, cb)
+    signal.signal(signal.SIGTERM, cb)
 
-    set_up_interrupt()
-    start()
-
-    threading.Event().wait()
+    hume.start()

@@ -1,5 +1,10 @@
+import logging
+
 from app.device import Device
 from app.hint import Hint
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Hume:
@@ -10,6 +15,8 @@ class Hume:
 
     def start(self):
         """Starts the HUME."""
+        LOGGER.info("Hume start")
+
         self.device.pre_start()
         self.hint.pre_start()
 
@@ -21,6 +28,8 @@ class Hume:
 
     def stop(self):
         """Stops the HUME."""
+        LOGGER.info("Hume stop")
+
         self.device.pre_stop()
         self.hint.pre_stop()
 

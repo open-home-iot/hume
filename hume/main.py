@@ -1,10 +1,11 @@
 import functools
 import signal
+import sys
 import threading
 import argparse
 import logging
 
-from hume.hume import Hume
+from hume.app import Hume
 
 from util.log import set_up_logger_for, HANDLER_STREAM
 from defs import (
@@ -81,7 +82,7 @@ def set_up_logging():
     pika_logger.propagate = False
 
 
-def stop(h: Hume):
+def stop(h: Hume, _a, _b):
     """Stop everything!"""
 
     def print_exit_status():
@@ -100,6 +101,7 @@ def stop(h: Hume):
 
     h.stop()
     print_exit_status()
+    sys.exit(0)
 
 
 if __name__ == "__main__":
@@ -114,3 +116,4 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, cb)
 
     hume.start()
+    threading.Event().wait()

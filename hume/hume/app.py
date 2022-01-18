@@ -1,4 +1,6 @@
 import logging
+import threading
+import time
 
 from app.device import DeviceApp
 from app.hint import HintApp
@@ -29,6 +31,13 @@ class Hume:
 
         self.device.post_start()
         self.hint.post_start()
+
+        time.sleep(1)
+        print("# THREADING")
+        print(f"# Active threads: {threading.active_count()}")
+        print("# List of threads:")
+        for thread in threading.enumerate():
+            print(f"# {thread}")
 
     def stop(self):
         """Stops the HUME."""

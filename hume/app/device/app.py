@@ -7,6 +7,7 @@ from app.device.defs import TRANSPORT_BLE, TRANSPORT_SIM
 from defs import CLI_SIMULATION
 from util.storage import DataStore
 
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -27,7 +28,6 @@ class DeviceApp(App):
     def start(self):
         LOGGER.info("Device start")
         self.connection.start()
-
         self.connect_attached_devices()
 
     def post_start(self):
@@ -67,7 +67,8 @@ class DeviceApp(App):
                     connected = self.connection.ble.connect(device)
 
                     if not connected:
-                        LOGGER.error(f"failed to connect device {device}")
+                        LOGGER.error(f"failed to connect device "
+                                     f"{device.uuid[:4]}")
                         continue
 
                     self.connection.ble.notify(self.on_device_message, device)

@@ -4,8 +4,8 @@ import logging
 from threading import Thread
 
 from defs import CLI_SIMULATION
-from app.device.connection.ble.connection import BLEConnection
-from app.device.connection.sim.connection import SimConnection
+from .ble.connection import BLEConnection
+from .sim.connection import SimConnection
 
 
 LOGGER = logging.getLogger(__name__)
@@ -14,8 +14,10 @@ LOGGER = logging.getLogger(__name__)
 class DeviceConnection:
 
     def __init__(self, cli_args):
-        if cli_args.get(CLI_SIMULATION):
-            self.simulation = True
+        self.simulation = (
+            True if cli_args.get(CLI_SIMULATION) is not None else False
+        )
+        if self.simulation:
             self.sim = SimConnection()
         else:
             self._event_loop = asyncio.new_event_loop()

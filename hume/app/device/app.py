@@ -35,6 +35,7 @@ class DeviceApp(App):
 
     def pre_stop(self):
         LOGGER.info("Device pre_stop")
+        self.connection.ble.disconnect_all()
 
     def stop(self):
         LOGGER.info("Device stop")

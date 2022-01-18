@@ -15,7 +15,7 @@ class DeviceConnection:
 
     def __init__(self, cli_args):
         self.simulation = (
-            True if cli_args.get(CLI_SIMULATION) is not None else False
+            True if cli_args.get(CLI_SIMULATION) else False
         )
         if self.simulation:
             self.sim = SimConnection()
@@ -37,10 +37,7 @@ class DeviceConnection:
         LOGGER.info("DeviceConnection stop")
 
         if not self.simulation:
-            disconnected = self.ble.disconnect_all()
-            if not disconnected:
-                LOGGER.error("failed to disconnect some BLE device")
-
+            LOGGER.info("stopping event loop")
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
             self._event_loop_thread.join()
 
@@ -52,3 +49,4 @@ class DeviceConnection:
         """Runs the event loop."""
         LOGGER.info("DeviceConnection run event loop")
         event_loop.run_forever()
+        LOGGER.info("event loop stopped")

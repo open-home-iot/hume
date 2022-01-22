@@ -28,14 +28,15 @@ class DeviceApp(App):
     def start(self):
         LOGGER.info("Device start")
         self.connection.start()
-        self.connect_attached_devices()
+        self._connect_attached_devices()
 
     def post_start(self):
         LOGGER.info("Device post_start")
 
     def pre_stop(self):
         LOGGER.info("Device pre_stop")
-        self.connection.ble.disconnect_all()
+        if not self.connection.simulation:
+            self.connection.ble.disconnect_all()
 
     def stop(self):
         LOGGER.info("Device stop")
@@ -44,13 +45,13 @@ class DeviceApp(App):
     def post_stop(self):
         LOGGER.info("Device post_start")
 
-    def on_device_message(self, device, message_type, body):
+    def _on_device_message(self, device, message_type, body):
         """
         Called when a connected device
         """
         LOGGER.debug("received device message")
 
-    def connect_attached_devices(self):
+    def _connect_attached_devices(self):
         """
         Establishes a connection with all attached devices.
         """
@@ -62,14 +63,16 @@ class DeviceApp(App):
                 if device.attached and device.transport == TRANSPORT_SIM:
                     _connected = self.connection.sim.connect(device)
                     # TODO: implement sim notify!
-                    self.connection.sim.notify(self.on_device_message, device)
+                    self.connection.sim.notify(self._on_device_message, device)
             else:
                 if device.attached and device.transport == TRANSPORT_BLE:
                     connected = self.connection.ble.connect(device)
 
+                    # TODO: reconnect at an interval? At least notify HINT so
+                    #  that the user can take action.
                     if not connected:
                         LOGGER.error(f"failed to connect device "
                                      f"{device.uuid[:4]}")
                         continue
 
-                    self.connection.ble.notify(self.on_device_message, device)
+                    self.connection.ble.notify(self._on_device_message, device)

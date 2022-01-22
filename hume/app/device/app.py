@@ -61,7 +61,7 @@ class DeviceApp(App):
         for device in devices:
             if self.cli_args.get(CLI_SIMULATION):
                 if device.attached and device.transport == TRANSPORT_SIM:
-                    _connected = self.connection.sim.connect(device)
+                    _ = self.connection.sim.connect(device)
                     # TODO: implement sim notify!
                     self.connection.sim.notify(self._on_device_message, device)
             else:

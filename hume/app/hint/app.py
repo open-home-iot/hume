@@ -78,7 +78,7 @@ class HintApp(App):
 
         # Consumer from the HUME's input command queue.
         self._consumer.consume(ConsumeParams(command_handler.incoming_command),
-                          queue_params=self._hume_queue_params)
+                               queue_params=self._hume_queue_params)
 
     def post_start(self):
         LOGGER.info("Hint post_start")

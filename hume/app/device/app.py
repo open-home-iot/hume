@@ -19,6 +19,13 @@ class DeviceApp(App):
         self.storage = storage
         self.connection = DeviceConnection(cli_args)
 
+        self._registered_callback = lambda device, msg_type, msg: \
+            LOGGER.warning("no registered callback to propagate device msg to")
+
+    """
+    App LCM
+    """
+
     def pre_start(self):
         LOGGER.info("Device pre_start")
 
@@ -45,11 +52,31 @@ class DeviceApp(App):
     def post_stop(self):
         LOGGER.info("Device post_start")
 
+    """
+    Public
+    """
+
+    def register_callback(self, callback):
+        """
+        Registers a callback with the device app to be called when a device has
+        sent the HUME a message.
+
+        :param callback: callable(Device, int, bytearray)
+        :return:
+        """
+        LOGGER.info("registering callback")
+        self._registered_callback = callback
+
+    """
+    Private
+    """
+
     def _on_device_message(self, device, message_type, body):
         """
-        Called when a connected device
+        Called when a connected device sends HUME a message.
         """
-        LOGGER.debug("received device message")
+        LOGGER.debug(f"received device message from {device.uuid[:4]}")
+        self._registered_callback(device, message_type, body)
 
     def _connect_attached_devices(self):
         """

@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 
@@ -35,6 +36,14 @@ class HintApp(App):
         )
         self._consumer = RMQConsumer()
         self._producer = RMQProducer()
+
+        self._registered_callback = lambda msg_type, msg: LOGGER.warning(
+            "no registered callback to propagate HINT message to"
+        )
+
+    """
+    App LCM
+    """
 
     def pre_start(self):
         LOGGER.info("Hint pre_start")
@@ -77,7 +86,7 @@ class HintApp(App):
         command_library.init(self._producer)
 
         # Consumer from the HUME's input command queue.
-        self._consumer.consume(ConsumeParams(command_handler.incoming_command),
+        self._consumer.consume(ConsumeParams(self._on_hint_message),
                                queue_params=self._hume_queue_params)
 
     def post_start(self):
@@ -93,3 +102,31 @@ class HintApp(App):
 
     def post_stop(self):
         LOGGER.info("Hint post_stop")
+
+    """
+    Public
+    """
+
+    def register_callback(self, callback):
+        """
+        Registers a callback with the device app to be called when a device has
+        sent the HUME a message.
+
+        :param callback: callable(int, dict)
+        :return:
+        """
+        LOGGER.info("registering callback")
+        self._registered_callback = callback
+
+    """
+    Private
+    """
+
+    def _on_hint_message(self, message: bytes):
+        """
+        Called when the consumer which monitors the HUME's message queue
+        received a message.
+        """
+        LOGGER.debug("received HINT message")
+        decoded_message = json.loads(message.decode('utf-8'))
+        self._registered_callback(decoded_message["type"], decoded_message)

@@ -27,6 +27,9 @@ class Hume:
         self.device.start()
         self.hint.start()
 
+        self.device.register_callback(self._on_device_message)
+        self.hint.register_callback(self._on_hint_message)
+
         self.device.post_start()
         self.hint.post_start()
 
@@ -42,3 +45,21 @@ class Hume:
 
         self.device.post_stop()
         self.hint.post_stop()
+
+    """
+    Private
+    """
+
+    def _on_device_message(self, device, msg_type, msg):
+        """
+        Registered to be called by the Device app when a new message is
+        received from a connected device.
+        """
+        LOGGER.debug("HUME handling device message")
+
+    def _on_hint_message(self, msg_type, msg):
+        """
+        Registered to be called by the Hint app when a new message is received
+        from HINT.
+        """
+        LOGGER.debug("HUME handling HINT message")

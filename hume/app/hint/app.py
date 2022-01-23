@@ -151,8 +151,26 @@ class HintApp(App):
 
         self._publish(message)
 
-    def create_device(self, device_spec):
-        pass
+    def create_device(self, device_spec: dict) -> bool:
+        """
+        Requests and HINT creates a device according to the input spec.
+        """
+        LOGGER.info("sending create device request")
+
+        hint_auth = self.storage.get(HintAuthentication, None)
+        response = requests.post(
+            f"{self._hint_url}humes/"
+            f"{self.cli_args.get(CLI_HUME_UUID)}/devices",
+            json=device_spec,
+            cookies={"sessionid": hint_auth.session_id,
+                     "csrftoken": hint_auth.csrf_token},
+            headers={"X-CSRFToken": hint_auth.csrf_token})
+
+        if response.status_code == requests.codes.created:
+            return True
+
+        LOGGER.error("failed to create device")
+        return False
 
     def attach_failure(self, device):
         pass

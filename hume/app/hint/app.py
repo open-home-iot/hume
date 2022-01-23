@@ -172,11 +172,31 @@ class HintApp(App):
         LOGGER.error("failed to create device")
         return False
 
-    def attach_failure(self, device):
-        pass
+    def attach_failure(self, device: Device):
+        """Sends an attach failure notification to HINT."""
+        LOGGER.info("sending attach failure to HINT")
 
-    def action_response(self):
-        pass
+        message = {
+            "type": HintMessage.ATTACH_DEVICE,
+            "content": {
+                "identifier": device.uuid,
+                "success": False,
+            },
+        }
+
+        self._publish(message)
+
+    def action_response(self, device, action_type, info: dict):
+        """Sends an action response to HINT"""
+        LOGGER.info("sending action response to HINT")
+
+        message = {
+            "type": action_type,
+            "device_uuid": device.uuid,
+            "content": info
+        }
+
+        self._publish(message)
 
     """
     Private

@@ -2,6 +2,7 @@ import logging
 
 from app.abc import StartError
 from app.device import DeviceApp, DeviceMessage
+from app.device.models import Device
 from app.hint import HintApp, HintMessage
 from util.storage import DataStore
 
@@ -84,7 +85,8 @@ class Hume:
         LOGGER.debug("HUME handling HINT message")
 
         if msg_type == HintMessage.DISCOVER_DEVICES:
-            pass
+            LOGGER.info("received device discovery command")
+            self.device.discover_devices(self.hint.discovered_devices)
 
         elif msg_type == HintMessage.ATTACH_DEVICE:
             pass

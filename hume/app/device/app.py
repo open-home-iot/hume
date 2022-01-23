@@ -73,6 +73,30 @@ class DeviceApp(App):
         LOGGER.info("registering callback")
         self._registered_callback = callback
 
+    def discover(self, callback):
+        """
+        Discovers devices in the HUME's local area.
+        """
+        if self.connection.simulation:
+            self.connection.sim.discover(callback)
+        else:
+            self.connection.ble.discover(callback)
+
+    def attach(self, device):
+        pass
+
+    def detach(self, device):
+        pass
+
+    def stateful_action(self, device, **kwargs):
+        pass
+
+    def for_each(self, callback):
+        pass
+
+    def reset(self):
+        pass
+
     """
     Private
     """

@@ -36,8 +36,7 @@ class Hume:
             self.device.start()
             self.hint.start()
         except StartError:
-            self.device.stop()
-            self.hint.stop()
+            self.stop()
             raise RuntimeError("failed to start an app")
 
         self.device.post_start()
@@ -86,7 +85,7 @@ class Hume:
 
         if msg_type == HintMessage.DISCOVER_DEVICES:
             LOGGER.info("HINT requested device discovery")
-            self.device.discover_devices(self.hint.discovered_devices)
+            self.device.discover(self.hint.discovered_devices)
 
         elif msg_type == HintMessage.ATTACH:
             identifier = msg["identifier"]

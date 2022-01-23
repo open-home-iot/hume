@@ -32,3 +32,7 @@ class App(abc.ABC):
     def post_stop(self):
         """Called after stop"""
         ...
+
+
+class StartError(Exception):
+    pass

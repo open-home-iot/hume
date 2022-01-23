@@ -3,6 +3,7 @@ import logging
 import sys
 
 import pika
+import requests
 
 from rabbitmq_client import (
     RMQConsumer,
@@ -12,9 +13,16 @@ from rabbitmq_client import (
 )
 
 from app.device.models import Device
-from defs import CLI_BROKER_IP_ADDRESS, CLI_BROKER_PORT, CLI_HUME_UUID
+from app.hint.requests import pairing_request
+from defs import (
+    CLI_BROKER_IP_ADDRESS,
+    CLI_BROKER_PORT,
+    CLI_HUME_UUID,
+    CLI_HINT_PORT,
+    CLI_HINT_IP_ADDRESS
+)
 from util.storage import DataStore
-from app.abc import App
+from app.abc import App, StartError
 from app.hint.models import HumeUser, BrokerCredentials, HintAuthentication
 
 LOGGER = logging.getLogger(__name__)
@@ -50,6 +58,12 @@ class HintApp(App):
         self._consumer = RMQConsumer()
         self._producer = RMQProducer()
 
+        # TODO: TLS
+        self._hint_url = (
+            f"http://{self.cli_args.get(CLI_HINT_IP_ADDRESS)}:"
+            f"{self.cli_args.get(CLI_HINT_PORT)}/hume-api/"
+        )
+
         self._registered_callback = lambda msg_type, msg: LOGGER.warning(
             "no registered callback to propagate HINT message to"
         )
@@ -64,29 +78,20 @@ class HintApp(App):
         self.storage.register(BrokerCredentials)
         self.storage.register(HintAuthentication)
 
-        hume_user = self.storage.get(HumeUser, None)
-        if hume_user is None:
-            pair()  # first time startup, call pairing procedure
-            LOGGER.info("first time startup succeeded")
-        else:
-            if not login_to_hint(hume_user):
-                sys.exit(1)  # not recoverable right now
-
-            LOGGER.info("startup succeeded")
-            # Skip checking broker credentials
-
     def start(self):
         LOGGER.info("Hint start")
 
+        # runs pairing, authentication, and getting updated broker credentials.
+        # may raise StartErrors
+        self._connect_and_sync_with_hint()
+
         # Fetch broker credentials
         broker_credentials = self.storage.get(BrokerCredentials, None)
-
         if broker_credentials is not None:
             credentials = pika.PlainCredentials(broker_credentials.username,
                                                 broker_credentials.password)
         else:
-            # Default fallback to avoid exceptions at this stage
-            credentials = pika.PlainCredentials('guest', 'guest')
+            raise StartError("no broker credentials available")
 
         self._conn_params.credentials = credentials
         self._consumer.connection_parameters = self._conn_params
@@ -128,6 +133,10 @@ class HintApp(App):
         LOGGER.info("registering callback")
         self._registered_callback = callback
 
+    def unpair(self):
+        """Unpairs the HUME with HINT, clearing HINT information."""
+        LOGGER.info("unpairing the HUME, it will be factory reset")
+
     def discovered_devices(self, devices: [Device]):
         """
         Forwards the input devices to HINT.
@@ -149,9 +158,6 @@ class HintApp(App):
         pass
 
     def action_response(self):
-        pass
-
-    def unpair(self):
         pass
 
     """
@@ -176,3 +182,109 @@ class HintApp(App):
         """Formats a HINT message."""
         message["uuid"] = self.cli_args.get(CLI_HUME_UUID)
         return json.dumps(message)
+
+    def _connect_and_sync_with_hint(self):
+        """
+        Connects to HINT and syncs its current status. If the HUME is new a
+        HUME user instance is gotten and stored. If HUME exists then the
+        existing HUME user instance is used to authenticate with HINT. If
+        authentication is successful, then broker credentials are fetched. If
+        that fetch fails we still attempt to start since old credentials may
+        be stored. If we have no stored credentials then the start LCM method
+        will raise a StartError.
+        """
+        LOGGER.info("connecting to HINT")
+
+        hume_user = self._pair()
+        # Should hopefully have a HUME user instance after pairing.
+        if hume_user is None:
+            raise StartError("no HumeUser instance available")
+        self._authenticate(hume_user)
+        # If authentication fails, we will never reach here since an exception
+        # is raised.
+        self._get_broker_credentials()
+
+    def _pair(self) -> HumeUser:
+        """
+        Attempts to pair the HUME with HINT. In case the HUME UUID is not
+        recognized by HINT, this method will raise a StartError.
+        """
+        # Start with an attempted pairing to see if the HUME is paired or
+        # not.
+        LOGGER.info("sending pairing request")
+        response = requests.post(
+            self._hint_url + "humes",
+            json={"uuid": self.cli_args.get(CLI_HUME_UUID)}
+        )
+
+        if response.status_code == requests.codes.created:
+            response_content = response.json()  # Contains login information.
+            LOGGER.info(f"got hume user: {response_content}")
+            user_info = response_content['hume_user']
+            hume_user = HumeUser(username=user_info["username"],
+                                 password=user_info["password"])
+            self.storage.set(hume_user)
+
+        elif response.status_code == requests.codes.conflict:
+            # HUME already exists, so re-use current hume user.
+            LOGGER.info("HUME already paired")
+
+        elif response.status_code == requests.codes.forbidden:
+            # Invalid HUME UUID
+            raise StartError("HUME UUID is invalid")
+
+        else:
+            # Something else went wrong, perhaps HINT is unavailable, try
+            # to continue startup anyway.
+            LOGGER.warning("HINT could not interpret pairing")
+
+        return self.storage.get(HumeUser, None)
+
+    def _authenticate(self, hume_user: HumeUser):
+        """
+        Authenticates with HINT to be able to access privileged routes.
+        """
+        LOGGER.info("authenticating with HINT")
+
+        response = requests.post(self._hint_url + "users/login",
+                                 json={"username": hume_user.username,
+                                       "password": hume_user.password})
+
+        if response.status_code == requests.codes.ok:
+            LOGGER.debug(f"got cookies {response.cookies}")
+            session_id = response.cookies.get("sessionid")
+            csrf_token = response.cookies.get("csrftoken")
+            self.storage.set(HintAuthentication(
+                session_id=session_id,
+                csrf_token=csrf_token,
+            ))
+        else:
+            # We could re-try but that mostly imposes complex handling of
+            # something that happens very rarely. On start we can be a little
+            # stricter and enforce that most operations go well, else restart.
+            StartError("could not authenticate with HINT")
+
+    def _get_broker_credentials(self):
+        """
+        Tries to fetch broker credentials from HINT. This happens on each
+        start as a way of allowing the credentials to be changed at any point.
+        HUME will then use updated credentials when restarted.
+        """
+        LOGGER.info("getting broker credentials")
+
+        hint_auth = self.storage.get(HintAuthentication, None)
+        response = requests.get(self._hint_url + "broker-credentials",
+                                cookies={"sessionid": hint_auth.session_id})
+
+        if response.status_code == requests.codes.ok:
+            broker_credentials = response.json()
+            LOGGER.debug(f"got broker credentials: {broker_credentials}")
+            username = broker_credentials['username']
+            password = broker_credentials['password']
+            new_broker_credentials = BrokerCredentials(
+                username=username,
+                password=password,
+            )
+            self.storage.set(new_broker_credentials)
+        else:
+            LOGGER.warning("failed to fetch broker credentials")

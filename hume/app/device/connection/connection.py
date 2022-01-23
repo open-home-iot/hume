@@ -39,7 +39,7 @@ class DeviceConnection:
         if not self.simulation:
             LOGGER.info("stopping event loop")
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
-            self._event_loop_thread.join()
+            self._event_loop_thread.join(timeout=2.0)
 
             if self._event_loop_thread.is_alive():
                 LOGGER.error("failed to join event loop thread")

@@ -1,5 +1,6 @@
 import logging
 
+from app.abc import StartError
 from app.device import DeviceApp, DeviceMessage
 from app.hint import HintApp, HintMessage
 from util.storage import DataStore
@@ -30,8 +31,13 @@ class Hume:
         self.device.register_callback(self._on_device_message)
         self.hint.register_callback(self._on_hint_message)
 
-        self.device.start()
-        self.hint.start()
+        try:
+            self.device.start()
+            self.hint.start()
+        except StartError:
+            self.device.stop()
+            self.hint.stop()
+            raise RuntimeError("failed to start an app")
 
         self.device.post_start()
         self.hint.post_start()

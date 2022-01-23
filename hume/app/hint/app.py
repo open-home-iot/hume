@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 import pika
 import requests
@@ -13,7 +12,6 @@ from rabbitmq_client import (
 )
 
 from app.device.models import Device
-from app.hint.requests import pairing_request
 from defs import (
     CLI_BROKER_IP_ADDRESS,
     CLI_BROKER_PORT,
@@ -133,10 +131,6 @@ class HintApp(App):
         LOGGER.info("registering callback")
         self._registered_callback = callback
 
-    def unpair(self):
-        """Unpairs the HUME with HINT, clearing HINT information."""
-        LOGGER.info("unpairing the HUME, it will be factory reset")
-
     def discovered_devices(self, devices: [Device]):
         """
         Forwards the input devices to HINT.
@@ -148,7 +142,6 @@ class HintApp(App):
             "content": [{"name": device.name,
                          "identifier": device.uuid} for device in devices]
         }
-
         self._publish(message)
 
     def create_device(self, device_spec: dict) -> bool:
@@ -183,7 +176,6 @@ class HintApp(App):
                 "success": False,
             },
         }
-
         self._publish(message)
 
     def action_response(self, device, action_type, info: dict):
@@ -195,7 +187,6 @@ class HintApp(App):
             "device_uuid": device.uuid,
             "content": info
         }
-
         self._publish(message)
 
     """
@@ -292,10 +283,9 @@ class HintApp(App):
             LOGGER.debug(f"got cookies {response.cookies}")
             session_id = response.cookies.get("sessionid")
             csrf_token = response.cookies.get("csrftoken")
-            self.storage.set(HintAuthentication(
-                session_id=session_id,
-                csrf_token=csrf_token,
-            ))
+            self.storage.set(HintAuthentication(session_id=session_id,
+                                                csrf_token=csrf_token)
+                             )
         else:
             # We could re-try but that mostly imposes complex handling of
             # something that happens very rarely. On start we can be a little

@@ -1,1 +1,1 @@
-from .app import HintApp  # noqa
+from .app import HintApp, HintMessage  # noqa

@@ -5,7 +5,7 @@ from util import storage
 from device import connection
 from device.connection.gci import GCI
 from device.models import Device
-from defs import DeviceRequest
+from defs import DeviceMessage
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def device_action(device_uuid,
 
     # Check if STATEFUL action
     if group_id is not None:
-        content = f"{DeviceRequest.ACTION_STATEFUL}" \
+        content = f"{DeviceMessage.ACTION_STATEFUL}" \
                   f"{group_id}" \
                   f"{state_id}"
         connection.send(GCI.Message(content), device)

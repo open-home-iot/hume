@@ -4,7 +4,7 @@ import logging
 from rabbitmq_client import RMQProducer, QueueParams
 
 from util import get_arg
-from defs import CLI_HUME_UUID, HINTCommand
+from defs import CLI_HUME_UUID, HintMessage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def devices_discovered(devices):
     LOGGER.info("sending discover devices result to HINT")
 
     command = {
-        "type": HINTCommand.DISCOVER_DEVICES,
+        "type": HintMessage.DISCOVER_DEVICES,
         "content": [{"name": device.name,
                      "identifier": device.uuid} for device in devices]
     }
@@ -60,7 +60,7 @@ def attach_failure(device):
     LOGGER.info("sending attach failure to HINT")
 
     message = {
-        "type": HINTCommand.ATTACH_DEVICE,
+        "type": HintMessage.ATTACH_DEVICE,
         "content": {
             "identifier": device.uuid,
             "success": False,

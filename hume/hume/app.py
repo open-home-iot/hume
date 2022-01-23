@@ -1,7 +1,7 @@
 import logging
 
-from app.device import DeviceApp
-from app.hint import HintApp
+from app.device import DeviceApp, DeviceMessage
+from app.hint import HintApp, HintMessage
 from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
@@ -24,11 +24,14 @@ class Hume:
         self.device.pre_start()
         self.hint.pre_start()
 
-        self.device.start()
-        self.hint.start()
-
+        # Register callbacks prior to starting Apps in case of any
+        # confirmation-type messages happen on connection establishment, or in
+        # case of queued up messages from HINT.
         self.device.register_callback(self._on_device_message)
         self.hint.register_callback(self._on_hint_message)
+
+        self.device.start()
+        self.hint.start()
 
         self.device.post_start()
         self.hint.post_start()
@@ -57,9 +60,38 @@ class Hume:
         """
         LOGGER.debug("HUME handling device message")
 
+        if msg_type == DeviceMessage.ACTION_STATEFUL:
+            pass
+
+        elif msg_type == DeviceMessage.CAPABILITY:
+            pass
+
+        else:
+            LOGGER.warning(f"got message from device {device.uuid[:4]} of an "
+                           f"unknown type: {msg_type}, msg: {msg}")
+
     def _on_hint_message(self, msg_type, msg):
         """
         Registered to be called by the Hint app when a new message is received
         from HINT.
         """
         LOGGER.debug("HUME handling HINT message")
+
+        if msg_type == HintMessage.DISCOVER_DEVICES:
+            pass
+
+        elif msg_type == HintMessage.ATTACH_DEVICE:
+            pass
+
+        elif msg_type == HintMessage.DETACH:
+            pass
+
+        elif msg_type == HintMessage.UNPAIR:
+            pass
+
+        elif msg_type == HintMessage.ACTION_STATEFUL:
+            pass
+
+        else:
+            LOGGER.warning(f"got message from hint of an unknown type: "
+                           f"{msg_type}, msg: {msg}")

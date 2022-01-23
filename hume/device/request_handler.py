@@ -5,7 +5,7 @@ from util import storage
 
 from datetime import datetime
 
-from defs import DeviceRequest, HINTCommand
+from defs import DeviceMessage, HintMessage
 from device.models import Device, DeviceAddress, DeviceHealth
 from hint.models import HintAuthentication
 from hint.procedures.command_library import attach_failure, action_response
@@ -30,13 +30,13 @@ def incoming_message(device: Device, request_type: int, data: bytes):
     LOGGER.info(f"got new message from device {device.uuid}")
 
     # Device responded to a capability request
-    if request_type == DeviceRequest.CAPABILITY:
+    if request_type == DeviceMessage.CAPABILITY:
         capability_response(device, data)
 
-    elif request_type == DeviceRequest.HEARTBEAT:
+    elif request_type == DeviceMessage.HEARTBEAT:
         heartbeat_response(device)
 
-    elif request_type == DeviceRequest.ACTION_STATEFUL:
+    elif request_type == DeviceMessage.ACTION_STATEFUL:
         stateful_action_response(device, data)
 
 
@@ -109,7 +109,7 @@ def stateful_action_response(device, data):
     decoded = data.decode("utf-8")
 
     action_response(device,
-                    HINTCommand.ACTION_STATEFUL,
+                    HintMessage.ACTION_STATEFUL,
                     {"group_id": int(decoded[0]),
                      "state_id": int(decoded[1]),
                      "success": bool(decoded[2])})

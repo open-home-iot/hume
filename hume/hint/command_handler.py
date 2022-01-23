@@ -4,7 +4,7 @@ from util import storage
 
 from rabbitmq_client import ConsumeOK
 
-from defs import HINTCommand
+from defs import HintMessage
 from device import (
     discover_devices,
     attach_device,
@@ -38,29 +38,29 @@ def incoming_command(command):
     """
     Call appropriate procedure from here, or forward to DC for further handling
     """
-    if command_type == HINTCommand.DISCOVER_DEVICES:
+    if command_type == HintMessage.DISCOVER_DEVICES:
         LOGGER.info("received device discovery command")
         discover_devices(devices_discovered)
 
-    elif command_type == HINTCommand.ATTACH_DEVICE:
+    elif command_type == HintMessage.ATTACH_DEVICE:
         LOGGER.info(f"received device attach command for "
                     f"{decoded_command['identifier']}")
 
         attach_device(decoded_command["identifier"])
 
-    elif command_type == HINTCommand.ACTION_STATEFUL:
+    elif command_type == HintMessage.ACTION_STATEFUL:
         LOGGER.info(f"received a device action command for: "
                     f"{decoded_command['device_uuid']}")
         device_uuid = decoded_command.pop("device_uuid")
         decoded_command.pop("type")
         device_action(device_uuid, **decoded_command)
 
-    elif command_type == HINTCommand.UNPAIR:
+    elif command_type == HintMessage.UNPAIR:
         LOGGER.info("received an unpair command, factory resetting hume")
         connection.disconnect_all()
         storage.delete_all()
 
-    elif command_type == HINTCommand.DETACH:
+    elif command_type == HintMessage.DETACH:
         LOGGER.info(f"got detach for device {decoded_command['device_uuid']}")
         detach_device(decoded_command["device_uuid"])
 

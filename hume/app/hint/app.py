@@ -19,6 +19,14 @@ from app.hint.models import HumeUser, BrokerCredentials, HintAuthentication
 LOGGER = logging.getLogger(__name__)
 
 
+class HintMessage:
+    DISCOVER_DEVICES = 0
+    ATTACH_DEVICE = 1
+    ACTION_STATEFUL = 2
+    UNPAIR = 3
+    DETACH = 4
+
+
 class HintApp(App):
 
     def __init__(self, cli_args, storage: DataStore):

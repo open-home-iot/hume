@@ -1,7 +1,7 @@
 import json
 import logging
 
-from defs import DeviceRequest
+from defs import DeviceMessage
 from ..gci import GCI
 from .specs import (
     BASIC_LED_CAPS,
@@ -81,14 +81,14 @@ class SimConnection(GCI):
 
         request_type = messages.get_request_type(msg.content)
 
-        if request_type == DeviceRequest.CAPABILITY:
+        if request_type == DeviceMessage.CAPABILITY:
             capability_response(device,
                                 json.dumps(self._capabilities[device.uuid]))
 
-        elif request_type == DeviceRequest.HEARTBEAT:
+        elif request_type == DeviceMessage.HEARTBEAT:
             heartbeat_response(device)
 
-        elif request_type == DeviceRequest.ACTION_STATEFUL:
+        elif request_type == DeviceMessage.ACTION_STATEFUL:
             self._handle_stateful_action(msg, device)
 
         return True

@@ -11,6 +11,12 @@ from util.storage import DataStore
 LOGGER = logging.getLogger(__name__)
 
 
+class DeviceMessage:
+    CAPABILITY = 0
+    ACTION_STATEFUL = 1
+    HEARTBEAT = 2
+
+
 class DeviceApp(App):
 
     def __init__(self, cli_args, storage: DataStore):

@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 
 class HintMessage:
     DISCOVER_DEVICES = 0
-    ATTACH_DEVICE = 1
+    ATTACH = 1
     ACTION_STATEFUL = 2
     UNPAIR = 3
     DETACH = 4
@@ -170,7 +170,7 @@ class HintApp(App):
         LOGGER.info("sending attach failure to HINT")
 
         message = {
-            "type": HintMessage.ATTACH_DEVICE,
+            "type": HintMessage.ATTACH,
             "content": {
                 "identifier": device.uuid,
                 "success": False,

@@ -88,18 +88,20 @@ class Hume:
             LOGGER.info("HINT requested device discovery")
             self.device.discover_devices(self.hint.discovered_devices)
 
-        elif msg_type == HintMessage.ATTACH_DEVICE:
+        elif msg_type == HintMessage.ATTACH:
             identifier = msg["identifier"]
             LOGGER.info(f"HINT requested device {identifier[:4]} to "
                         f"be attached")
 
+            error = True
             device = self.storage.get(Device, identifier)
             if device is not None:
                 if self.device.attach(device):
-                    return
+                    error = False
 
-            LOGGER.error(f"failed to attach device {identifier[:4]}")
-            self.hint.attach_failure(Device(uuid=identifier))
+            if error:
+                LOGGER.error(f"failed to attach device {identifier[:4]}")
+                self.hint.attach_failure(Device(uuid=identifier))
 
         elif msg_type == HintMessage.DETACH:
             device_uuid = msg["device_uuid"]
@@ -112,16 +114,21 @@ class Hume:
                              f"does not exist")
 
         elif msg_type == HintMessage.UNPAIR:
-            LOGGER.info("received an unpair command, factory resetting hume")
+            LOGGER.info("HINT requested unpairing, factory resetting HUME")
             self.device.reset()
             self.storage.delete_all()
 
         elif msg_type == HintMessage.ACTION_STATEFUL:
-            LOGGER.info(f"received a device action command for: "
-                        f"{decoded_command['device_uuid']}")
-            device_uuid = decoded_command.pop("device_uuid")
-            decoded_command.pop("type")
-            device_action(device_uuid, **decoded_command)
+            device_uuid = msg.pop("device_uuid")
+            LOGGER.info(f"HINT requested stateful action for device "
+                        f"{device_uuid[:4]}")
+            msg.pop("type")
+            device = self.storage.get(Device, device_uuid)
+            if device is not None:
+                self.device.stateful_action(device, **msg)
+            else:
+                LOGGER.error("could not execute stateful action since device "
+                             "does not exist")
 
         else:
             LOGGER.warning(f"got message from hint of an unknown type: "

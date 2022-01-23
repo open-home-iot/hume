@@ -95,22 +95,33 @@ class Hume:
 
             device = self.storage.get(Device, identifier)
             if device is not None:
-                if self.device.connect(device):
-                    self.device.request_capabilities(device)
+                if self.device.attach(device):
                     return
 
-            LOGGER.error(f"failed to connect to device "
-                         f"{identifier[:4]}")
+            LOGGER.error(f"failed to attach device {identifier[:4]}")
             self.hint.attach_failure(Device(uuid=identifier))
 
         elif msg_type == HintMessage.DETACH:
-            pass
+            device_uuid = msg["device_uuid"]
+            LOGGER.info(f"HINT requested detaching device {device_uuid[:4]}")
+            device = self.storage.get(Device, device_uuid)
+            if device is not None:
+                self.device.detach(device)
+            else:
+                LOGGER.error(f"can't detach device {device_uuid[:4]}, "
+                             f"does not exist")
 
         elif msg_type == HintMessage.UNPAIR:
-            pass
+            LOGGER.info("received an unpair command, factory resetting hume")
+            connection.disconnect_all()
+            storage.delete_all()
 
         elif msg_type == HintMessage.ACTION_STATEFUL:
-            pass
+            LOGGER.info(f"received a device action command for: "
+                        f"{decoded_command['device_uuid']}")
+            device_uuid = decoded_command.pop("device_uuid")
+            decoded_command.pop("type")
+            device_action(device_uuid, **decoded_command)
 
         else:
             LOGGER.warning(f"got message from hint of an unknown type: "

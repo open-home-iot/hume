@@ -73,23 +73,23 @@ class SimConnection(GCI):
         self.device_registry = dict()
         return True
 
-    def send(self, msg: GCI.Message, device: Device) -> bool:
-        LOGGER.debug(f"sending device {device.uuid} message {msg.content}")
+    def send(self, msg: GCI.Message, to: Device) -> bool:
+        LOGGER.debug(f"sending device {to.uuid[:4]} message {msg.content}")
 
-        if self.device_registry.get(device.uuid) is None:
-            raise ValueError(f"device {device.uuid} is not connected")
+        if self.device_registry.get(to.uuid) is None:
+            raise ValueError(f"device {to.uuid[:4]} is not connected")
 
         request_type = messages.get_request_type(msg.content)
 
         if request_type == DeviceMessage.CAPABILITY:
-            capability_response(device,
-                                json.dumps(self._capabilities[device.uuid]))
+            capability_response(to,
+                                json.dumps(self._capabilities[to.uuid]))
 
         elif request_type == DeviceMessage.HEARTBEAT:
-            heartbeat_response(device)
+            heartbeat_response(to)
 
         elif request_type == DeviceMessage.ACTION_STATEFUL:
-            self._handle_stateful_action(msg, device)
+            self._handle_stateful_action(msg, to)
 
         return True
 

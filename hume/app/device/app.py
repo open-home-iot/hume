@@ -2,6 +2,7 @@ import logging
 
 from app.abc import App
 from app.device.connection.connection import DeviceConnection
+from app.device.connection.gci import GCI
 from app.device.models import Device, DeviceHealth
 from app.device.defs import TRANSPORT_BLE, TRANSPORT_SIM
 from defs import CLI_SIMULATION
@@ -82,16 +83,21 @@ class DeviceApp(App):
         else:
             self.connection.ble.discover(callback)
 
-    def attach(self, device):
-        pass
+    def request_capabilities(self, device) -> bool:
+        """
+        Requests capabilities of the input device, usually the start of an
+        attach procedure. Returns true if the request could be sent.
+        """
+        if self._connect_to(device):
+            self._request_capabilities(device)
+            return True
+        else:
+            return False
 
     def detach(self, device):
         pass
 
     def stateful_action(self, device, **kwargs):
-        pass
-
-    def for_each(self, callback):
         pass
 
     def reset(self):
@@ -101,7 +107,10 @@ class DeviceApp(App):
     Private
     """
 
-    def _on_device_message(self, device, message_type, body):
+    def _on_device_message(self,
+                           device: Device,
+                           message_type: int,
+                           body: bytearray):
         """
         Called when a connected device sends HUME a message.
         """
@@ -116,20 +125,36 @@ class DeviceApp(App):
 
         devices = self.storage.get_all(Device)
         for device in devices:
-            if self.cli_args.get(CLI_SIMULATION):
-                if device.attached and device.transport == TRANSPORT_SIM:
-                    _ = self.connection.sim.connect(device)
-                    # TODO: implement sim notify!
-                    self.connection.sim.notify(self._on_device_message, device)
-            else:
-                if device.attached and device.transport == TRANSPORT_BLE:
-                    connected = self.connection.ble.connect(device)
+            if device.attached:
+                self._connect_to(device)
 
-                    # TODO: reconnect at an interval? At least notify HINT so
-                    #  that the user can take action.
-                    if not connected:
-                        LOGGER.error(f"failed to connect device "
-                                     f"{device.uuid[:4]}")
-                        continue
+    def _connect_to(self, device: Device) -> bool:
+        """
+        Checks if the input device is already connected. If not, the device
+        is connected to.
+        """
+        LOGGER.debug(f"connecting to device {device.uuid[:4]}")
 
-                    self.connection.ble.notify(self._on_device_message, device)
+        if self.connection.simulation and device.transport == TRANSPORT_SIM:
+            self.connection.sim.connect(device)
+            self.connection.sim.notify(self._on_device_message, device)
+        elif (not self.connection.ble.is_connected(device) and
+              device.transport == TRANSPORT_BLE):
+            if not self.connection.ble.connect(device):
+                LOGGER.error(f"failed to connect to device "
+                             f"{device.uuid[:4]}")
+                return False
+
+            self.connection.ble.notify(self._on_device_message, device)
+
+        return True
+
+    def _request_capabilities(self, device: Device):
+        """
+        Requests the capabilities of the input device.
+        """
+        message = GCI.Message(f"{DeviceMessage.CAPABILITY}")
+        if self.connection.simulation:
+            self.connection.sim.send(message, device)
+        else:
+            self.connection.ble.send(message, device)

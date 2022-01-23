@@ -1,9 +1,11 @@
+import json
 import logging
 
 from app.abc import StartError
 from app.device import DeviceApp, DeviceMessage
 from app.device.models import Device
 from app.hint import HintApp, HintMessage
+from app.hint.models import HintAuthentication
 from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
@@ -66,10 +68,30 @@ class Hume:
         """
         LOGGER.debug("HUME handling device message")
 
-        if msg_type == DeviceMessage.ACTION_STATEFUL:
-            pass
+        if msg_type == DeviceMessage.CAPABILITY:
+            LOGGER.info(f"device {device.uuid[:4]} sent capability response")
+            capabilities = json.loads(msg)
+            capabilities["identifier"] = device.uuid
 
-        elif msg_type == DeviceMessage.CAPABILITY:
+            if self.hint.create_device(capabilities):
+                LOGGER.info("device created in HINT successfully")
+
+                # Update the device entry, set correct uuid. UUID is gotten
+                # from capabilities, non-attached devices may have their
+                # address set to the UUID field.
+                self.storage.delete(device)
+                new_device = Device(uuid=capabilities["uuid"],
+                                    address=device.address,
+                                    name=device.name,
+                                    attached=True)
+                self.storage.set(new_device)
+            else:
+                LOGGER.error("failed to create device in HINT")
+                # Detach device to clean up after unsuccessful attach.
+                self.device.detach(device)
+                self.hint.attach_failure(device)
+
+        elif msg_type == DeviceMessage.ACTION_STATEFUL:
             pass
 
         else:
@@ -95,7 +117,7 @@ class Hume:
             error = True
             device = self.storage.get(Device, identifier)
             if device is not None:
-                if self.device.attach(device):
+                if self.device.request_capabilities(device):
                     error = False
 
             if error:

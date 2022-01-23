@@ -113,8 +113,8 @@ class Hume:
 
         elif msg_type == HintMessage.UNPAIR:
             LOGGER.info("received an unpair command, factory resetting hume")
-            connection.disconnect_all()
-            storage.delete_all()
+            self.device.reset()
+            self.storage.delete_all()
 
         elif msg_type == HintMessage.ACTION_STATEFUL:
             LOGGER.info(f"received a device action command for: "

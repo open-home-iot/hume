@@ -85,11 +85,23 @@ class Hume:
         LOGGER.debug("HUME handling HINT message")
 
         if msg_type == HintMessage.DISCOVER_DEVICES:
-            LOGGER.info("received device discovery command")
+            LOGGER.info("HINT requested device discovery")
             self.device.discover_devices(self.hint.discovered_devices)
 
         elif msg_type == HintMessage.ATTACH_DEVICE:
-            pass
+            identifier = msg["identifier"]
+            LOGGER.info(f"HINT requested device {identifier[:4]} to "
+                        f"be attached")
+
+            device = self.storage.get(Device, identifier)
+            if device is not None:
+                if self.device.connect(device):
+                    self.device.request_capabilities(device)
+                    return
+
+            LOGGER.error(f"failed to connect to device "
+                         f"{identifier[:4]}")
+            self.hint.attach_failure(Device(uuid=identifier))
 
         elif msg_type == HintMessage.DETACH:
             pass

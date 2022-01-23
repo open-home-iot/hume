@@ -38,15 +38,6 @@ def incoming_command(command):
     """
     Call appropriate procedure from here, or forward to DC for further handling
     """
-    if command_type == HintMessage.DISCOVER_DEVICES:
-        LOGGER.info("received device discovery command")
-        discover_devices(devices_discovered)
-
-    elif command_type == HintMessage.ATTACH_DEVICE:
-        LOGGER.info(f"received device attach command for "
-                    f"{decoded_command['identifier']}")
-
-        attach_device(decoded_command["identifier"])
 
     elif command_type == HintMessage.ACTION_STATEFUL:
         LOGGER.info(f"received a device action command for: "

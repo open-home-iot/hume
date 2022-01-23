@@ -23,45 +23,6 @@ def discover_devices(on_devices_discovered):
     connection.discover(on_devices_discovered)
 
 
-def attach_device(identifier):
-    """
-    Attaches a device to the HUME, meaning it can be communicated with from now
-    on. Attaching a device will mean that:
-
-     1. The device can send HUME events
-     2. HUME can issue the device commands (such as actions)
-     3. HUME will start to regularly check the device connectivity through
-        heartbeat checks
-
-    :param identifier: ID for the device to attach, protocol specific
-        depending on the connection type.
-    """
-    LOGGER.info("attach device procedure started")
-
-    # Get device, verify exists
-    device = storage.get(Device, identifier)
-    if device is None:
-        LOGGER.error(f"device {identifier} not found")
-        attach_failure(Device(uuid=identifier))
-        return
-
-    # Could already be connected on multiple attach requests at the same time.
-    if connection.is_connected(device):
-        connection.disconnect(device)
-
-    connected = connection.connect(device)
-
-    if connected:
-        connection.notify(incoming_message, device)
-        # incoming_message will receive the device response for async
-        # transport types
-        capability(device)
-
-    else:
-        LOGGER.error("failed to connect to device")
-        attach_failure(device)
-
-
 def detach_device(uuid):
     """
     Detaches a device from the HUME, deleting all data associated with it.

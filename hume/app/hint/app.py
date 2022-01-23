@@ -11,6 +11,7 @@ from rabbitmq_client import (
     ConsumeParams
 )
 
+from app.device.models import Device
 from defs import CLI_BROKER_IP_ADDRESS, CLI_BROKER_PORT, CLI_HUME_UUID
 from util.storage import DataStore
 from app.abc import App
@@ -28,6 +29,7 @@ class HintMessage:
 
 
 class HintApp(App):
+    HINT_MASTER_COMMAND_QUEUE = "hint_master"
 
     def __init__(self, cli_args, storage: DataStore):
         super().__init__()
@@ -40,7 +42,10 @@ class HintApp(App):
             virtual_host='/'
         )
         self._hume_queue_params = QueueParams(
-            f"{self.cli_args.get(CLI_HUME_UUID)}", durable=True
+            self.cli_args.get(CLI_HUME_UUID), durable=True
+        )
+        self._hint_queue_params = QueueParams(
+            HintApp.HINT_MASTER_COMMAND_QUEUE, durable=True
         )
         self._consumer = RMQConsumer()
         self._producer = RMQProducer()
@@ -90,9 +95,6 @@ class HintApp(App):
         self._consumer.start()
         self._producer.start()
 
-        # Initialize command lib with producer instance
-        command_library.init(self._producer)
-
         # Consumer from the HUME's input command queue.
         self._consumer.consume(ConsumeParams(self._on_hint_message),
                                queue_params=self._hume_queue_params)
@@ -126,6 +128,32 @@ class HintApp(App):
         LOGGER.info("registering callback")
         self._registered_callback = callback
 
+    def discovered_devices(self, devices: [Device]):
+        """
+        Forwards the input devices to HINT.
+        """
+        LOGGER.info("sending discover devices result to HINT")
+
+        message = {
+            "type": HintMessage.DISCOVER_DEVICES,
+            "content": [{"name": device.name,
+                         "identifier": device.uuid} for device in devices]
+        }
+
+        self._publish(message)
+
+    def create_device(self, device_spec):
+        pass
+
+    def attach_failure(self, device):
+        pass
+
+    def action_response(self):
+        pass
+
+    def unpair(self):
+        pass
+
     """
     Private
     """
@@ -138,3 +166,13 @@ class HintApp(App):
         LOGGER.debug("received HINT message")
         decoded_message = json.loads(message.decode('utf-8'))
         self._registered_callback(decoded_message["type"], decoded_message)
+
+    def _publish(self, message: dict):
+        """Publish to the HINT message queue."""
+        self._producer.publish(self._encode_hint_command(message),
+                               queue_params=self._hint_queue_params)
+
+    def _encode_hint_command(self, message: dict):
+        """Formats a HINT message."""
+        message["uuid"] = self.cli_args.get(CLI_HUME_UUID)
+        return json.dumps(message)

@@ -4,9 +4,9 @@ import logging
 from threading import Thread
 
 from defs import CLI_SIMULATION
-from app.device.connection.ble.connection import BLEConnection
+from app.device.connection.ble.ble import BLEConnection
 from app.device.connection.gdci import GDCI
-from app.device.connection.sim.connection import SimConnection
+from app.device.connection.sim.sim import SimConnection
 from app.device.models import Device
 
 LOGGER = logging.getLogger(__name__)

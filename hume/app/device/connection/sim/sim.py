@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 
 from app.device.connection.gdci import GDCI
 from app.device.connection.sim.specs import (
@@ -26,6 +27,14 @@ def discovered_device(device_dict):
 
 
 class SimConnection(GDCI):
+
+    class DeviceEntry:
+
+        def __init__(self, device):
+            self.device = device
+            self.callback = lambda _device, msg_type, msg: \
+                LOGGER.warning(f"no notify callback for device "
+                               f"{_device.uuid[:4]}")
 
     def __init__(self):
         super().__init__()
@@ -55,7 +64,7 @@ class SimConnection(GDCI):
     def connect(self, device: Device) -> bool:
         LOGGER.info(f"connecting to device {device.uuid}")
 
-        self.device_registry[device.uuid] = device
+        self.device_registry[device.uuid] = SimConnection.DeviceEntry(device)
 
         return True
 
@@ -80,14 +89,17 @@ class SimConnection(GDCI):
 
         request_type = messages.get_request_type(msg.content)
 
-        if request_type == DeviceMessage.CAPABILITY:
-            capability_response(to,
-                                json.dumps(self._capabilities[to.uuid]))
+        if request_type == DeviceMessage.CAPABILITY.value:
+            daemon = threading.Thread(
+                target=self.device_registry[to.uuid].callback,
+                args=(to,
+                      request_type,
+                      json.dumps(self._capabilities[to.uuid])),
+                daemon=True
+            )
+            daemon.start()
 
-        elif request_type == DeviceMessage.HEARTBEAT:
-            heartbeat_response(to)
-
-        elif request_type == DeviceMessage.ACTION_STATEFUL:
+        elif request_type == DeviceMessage.ACTION_STATEFUL.value:
             self._handle_stateful_action(msg, to)
 
         return True
@@ -122,17 +134,21 @@ class SimConnection(GDCI):
                          f"{state}")
 
         if len(states) != 1:
-            LOGGER.error("device does not have that group ID and state")
-            return
+            raise ValueError("device does not have that group ID and state")
 
-        success = True
-        stateful_action_response(
-            device, f"{group_id}{state_id}{success}".encode("utf-8")
+        # cast handling to avoid performing the response handling before
+        # indicating that the message has been sent.
+        daemon = threading.Thread(
+            target=self.device_registry[device.uuid].callback,
+            args=(device,
+                  DeviceMessage.ACTION_STATEFUL.value,
+                  f"{group_id}{state_id}".encode("utf-8")),
+            daemon=True
         )
+        daemon.start()
 
     def notify(self, callback: callable, device: Device):
-        # TODO: implement before finishing refactoring
-        ...
+        self.device_registry[device.uuid].callback = callback
 
     def for_each(self, callback: callable):
         for _, device in self.device_registry.items():

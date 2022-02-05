@@ -6,5 +6,5 @@ echo "Linting hume..."
 # shellcheck disable=SC2046
 flake8 $(find . -name "*.py")
 
-coverage run --source hume -m unittest tests.test_connection -f
+coverage run --source hume -m unittest tests.test_data_store -f
 coverage report -m --fail-under 96

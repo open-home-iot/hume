@@ -63,7 +63,10 @@ class Hume:
     Private
     """
 
-    def _on_device_message(self, device: Device, msg_type: int, msg: bytearray):
+    def _on_device_message(self,
+                           device: Device,
+                           msg_type: int,
+                           msg: bytearray):
         """
         Registered to be called by the Device app when a new message is
         received from a connected device.

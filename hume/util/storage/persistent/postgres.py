@@ -6,11 +6,6 @@ LOGGER = logging.getLogger(__name__)
 
 PSQL_DB_NAME = "hume"
 
-# TODO parameterize
-PSQL_DB = peewee.PostgresqlDatabase(PSQL_DB_NAME,
-                                    user="hume",
-                                    password="password")
-
 
 class PersistentModel(peewee.Model):
     """
@@ -18,7 +13,7 @@ class PersistentModel(peewee.Model):
     """
 
     class Meta:
-        database = PSQL_DB
+        database = peewee.PostgresqlDatabase(PSQL_DB_NAME)
 
 
 class PostgresProxy:
@@ -26,11 +21,13 @@ class PostgresProxy:
     Handles the connection to the storage service for persistent storage.
     """
 
-    def __init__(self):
+    def __init__(self, user, password):
         """"""
         LOGGER.debug("PostgresProxy __init__")
 
-        self._db = PSQL_DB
+        self._db = peewee.PostgresqlDatabase(PSQL_DB_NAME,
+                                             user=user,
+                                             password=password)
 
     def start(self):
         """"""

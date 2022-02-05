@@ -15,7 +15,6 @@ class DeviceApp(App):
 
     def __init__(self, cli_args: dict, storage: DataStore):
         super().__init__()
-        self.cli_args = cli_args
         self.storage = storage
         self.device_connector = DeviceConnector(cli_args)
 

@@ -12,8 +12,8 @@ class PersistentStorage:
     through the peewee ORM.
     """
 
-    def __init__(self):
-        self._pg_proxy = PostgresProxy()
+    def __init__(self, user, password):
+        self._pg_proxy = PostgresProxy(user, password)
         self._models = []
 
     def start(self):

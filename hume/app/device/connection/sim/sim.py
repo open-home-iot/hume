@@ -12,16 +12,14 @@ from app.device.connection.sim.specs import (
 )
 from app.device.models import Device
 from app.device.connection import messages
-from app.device.defs import TRANSPORT_SIM, DeviceMessage
+from app.device.defs import DeviceTransport, DeviceMessage
 
 LOGGER = logging.getLogger(__name__)
 
 
 def discovered_device(device_dict):
     return Device(uuid=device_dict["uuid"],
-                  # simulated devices have no address, change format to differ
-                  # between UUID and address.
-                  transport=TRANSPORT_SIM,
+                  transport=DeviceTransport.SIM.value,
                   address=device_dict["uuid"].replace('-', ':'),
                   name=device_dict["name"])
 

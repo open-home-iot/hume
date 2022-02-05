@@ -1,8 +1,9 @@
 import logging
 
-from .local import LocalStorage
-from .persistent import PersistentStorage
-from .persistent.postgres import PersistentModel
+from defs import CLI_PSQL_USER, CLI_PSQL_PASSWORD
+from util.storage.local import LocalStorage
+from util.storage.persistent import PersistentStorage
+from util.storage.persistent.postgres import PersistentModel
 
 
 LOGGER = logging.getLogger(__name__)
@@ -14,8 +15,10 @@ class DataStore:
     persistent storage.
     """
 
-    def __init__(self):
-        self._persistent_storage: PersistentStorage = PersistentStorage()
+    def __init__(self, cli_args: dict):
+        self._persistent_storage: PersistentStorage = PersistentStorage(
+            cli_args[CLI_PSQL_USER], cli_args[CLI_PSQL_PASSWORD]
+        )
         self._local_storage: LocalStorage = LocalStorage()
 
     def start(self):

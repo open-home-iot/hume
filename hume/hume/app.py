@@ -88,12 +88,10 @@ class Hume:
                 # UUID before capability response is gotten and are thus saved
                 # with their address as their primary key prior to attach
                 # success.
-                self.storage.delete(device)
-                new_device = Device(uuid=capabilities["uuid"],
-                                    address=device.address,
-                                    name=device.name,
-                                    attached=True)
-                self.storage.set(new_device)
+                device = self.storage.get(Device, device.uuid)
+                device.uuid = capabilities["uuid"]
+                device.attached = True
+                self.storage.set(device)
             else:
                 LOGGER.error("failed to create device in HINT")
                 # Detach device to clean up after unsuccessful attach.
@@ -121,7 +119,7 @@ class Hume:
 
         if msg_type == HintMessage.DISCOVER_DEVICES.value:
             LOGGER.info("HINT requested device discovery")
-            self.device_app.discover(self.hint_app.discovered_devices)
+            self.device_app.discover(self._discovered_devices)
 
         elif msg_type == HintMessage.ATTACH.value:
             identifier = msg["identifier"]
@@ -168,3 +166,14 @@ class Hume:
         else:
             LOGGER.warning(f"got message from hint of an unknown type: "
                            f"{msg_type}, msg: {msg}")
+
+    def _discovered_devices(self, devices: [Device]):
+        """
+        Callback provided to the device app when discovering devices.
+        """
+        for device in devices:
+            # Store discovered devices to remember the transport type reported
+            # by the individual connection types.
+            self.storage.set(device)
+
+        self.hint_app.discovered_devices(devices)

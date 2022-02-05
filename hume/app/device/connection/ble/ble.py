@@ -4,6 +4,7 @@ import logging
 
 from bleak import BleakScanner, BleakClient
 
+from app.device.defs import DeviceTransport
 from app.device.models import Device
 from app.device.connection.messages import has_message_start, get_request_type
 from app.device.connection.gdci import GDCI
@@ -136,6 +137,7 @@ class BLEConnection(GDCI):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
             discovered_device = Device(uuid=device.address,
+                                       transport=DeviceTransport.BLE.value,
                                        address=device.address,
                                        name=device.name)
 

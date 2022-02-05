@@ -2,13 +2,14 @@ import peewee
 
 from util.storage import PersistentModel
 
-from app.device.defs import TRANSPORT_BLE
+from app.device.defs import DeviceTransport
 
 
 class Device(PersistentModel):
     uuid = peewee.CharField(unique=True, max_length=36, null=True)
 
-    transport = peewee.CharField(choices=(TRANSPORT_BLE,))
+    transport = peewee.CharField(choices=(DeviceTransport.BLE.value,
+                                          DeviceTransport.SIM.value))
     address = peewee.CharField(unique=True)
 
     name = peewee.CharField(max_length=255)

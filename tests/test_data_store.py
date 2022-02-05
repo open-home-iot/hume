@@ -1,6 +1,10 @@
 import unittest
+import sys
+import os
 
-from util.storage import DataStore
+sys.path.append(os.path.join(os.path.dirname(__file__), "../hume"))
+
+from util.storage import DataStore  # noqa
 
 
 class TestDataStore(unittest.TestCase):

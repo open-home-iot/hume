@@ -41,25 +41,35 @@ def parse_args():
     #
 
     # Connection args
-    parser.add_argument('-hip',
-                        '--hint-ip-address',
-                        default='127.0.0.1',
+    parser.add_argument("-hip",
+                        "--hint-ip-address",
+                        default="127.0.0.1",
                         help="HINT IP address")
-    parser.add_argument('-hp',
-                        '--hint-port',
+    parser.add_argument("-hp",
+                        "--hint-port",
                         type=int,
                         default=8000,
                         help="HINT port")
 
-    parser.add_argument('-bip',
-                        '--broker-ip-address',
-                        default='127.0.0.1',
+    parser.add_argument("-bip",
+                        "--broker-ip-address",
+                        default="127.0.0.1",
                         help="Central HINT broker IP address")
-    parser.add_argument('-bp',
-                        '--broker-port',
+    parser.add_argument("-bp",
+                        "--broker-port",
                         type=int,
                         default=5672,
                         help="Central HINT broker port")
+
+    # PSQL args
+    parser.add_argument("-pu",
+                        "--psql-user",
+                        default="hume",
+                        help="PSQL username")
+    parser.add_argument("-pu",
+                        "--psql-user",
+                        default="password",
+                        help="PSQL password")
 
     # Testing arguments are prepended with "--test", or "-t" for short.
 

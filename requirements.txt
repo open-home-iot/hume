@@ -1,13 +1,15 @@
-bleak==0.14.1
+bleak==0.14.2
 certifi==2021.10.8
-charset-normalizer==2.0.10
+charset-normalizer==2.0.11
+coverage==6.3.1
 idna==3.3
 peewee==3.14.8
 pika==1.2.0
+psycopg2-binary==2.9.3
+pyobjc-core==8.2;sys_platform == 'darwin'
+pyobjc-framework-Cocoa==8.2;sys_platform == 'darwin'
+pyobjc-framework-CoreBluetooth==8.2;sys_platform == 'darwin'
+pyobjc-framework-libdispatch==8.2;sys_platform == 'darwin'
 rabbitmq-client==2.0.3
 requests==2.27.1
 urllib3==1.26.8
-dbus-next>=0.2.2;sys_platform == "linux"
-pyobjc-core>=7.0.1;sys_platform == 'darwin'
-pyobjc-framework-CoreBluetooth>=7.0.1;sys_platform == 'darwin'
-pyobjc-framework-libdispatch>=7.0.1;sys_platform == 'darwin'

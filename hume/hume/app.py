@@ -38,7 +38,8 @@ class Hume:
             self.device_app.start()
             self.hint_app.start()
         except StartError:
-            self.stop()
+            self.stop()  # may or may not raise another exception
+            # raise runtime error to ensure stop
             raise RuntimeError("failed to start an app")
 
         self.device_app.post_start()
@@ -48,6 +49,7 @@ class Hume:
         """Stops the HUME."""
         LOGGER.info("hume stop")
 
+        # Important to maintain same stop order as the start order!
         self.device_app.pre_stop()
         self.hint_app.pre_stop()
 

@@ -33,7 +33,8 @@ class PersistentStorage:
         self._pg_proxy.define_table(model)
         self._models.append(model)
 
-    def save(self, obj):
+    @staticmethod
+    def save(obj):
         """
         Save an object persistently.
 
@@ -43,7 +44,8 @@ class PersistentStorage:
 
         obj.save()
 
-    def get_all(self, cls):
+    @staticmethod
+    def get_all(cls):
         """
         Get all data associated with the model class cls.
 
@@ -54,7 +56,8 @@ class PersistentStorage:
 
         return cls.select()
 
-    def delete(self, obj):
+    @staticmethod
+    def delete(obj):
         """
         Removes the object from persistent storage.
 

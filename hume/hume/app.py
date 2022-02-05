@@ -14,8 +14,7 @@ LOGGER = logging.getLogger(__name__)
 class Hume:
 
     def __init__(self, cli_args):
-        self.cli_args = cli_args
-        self.storage = DataStore()
+        self.storage = DataStore(cli_args)
         self.device_app = DeviceApp(cli_args, self.storage)
         self.hint_app = HintApp(cli_args, self.storage)
 

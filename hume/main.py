@@ -66,8 +66,8 @@ def parse_args():
                         "--psql-user",
                         default="hume",
                         help="PSQL username")
-    parser.add_argument("-pu",
-                        "--psql-user",
+    parser.add_argument("-pp",
+                        "--psql-password",
                         default="password",
                         help="PSQL password")
 

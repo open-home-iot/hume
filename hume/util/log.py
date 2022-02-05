@@ -13,8 +13,8 @@ def set_up_logger_for(name, log_level, handler_type):
     :type log_level: logging.DEBUG for example
     :param handler_type: string for which handler type should be created
     """
-    formatter = logging.Formatter(fmt="{{asctime}} {{levelname:^8}} "
-                                      "{{filename}}:{{lineno}} - {{message}}",
+    formatter = logging.Formatter(fmt="{asctime} {levelname:^8} "
+                                      "{filename}:{lineno} - {message}",
                                   style="{",
                                   datefmt="%d/%m/%Y %H:%M:%S")
 

@@ -1,8 +1,9 @@
 from enum import Enum
 
 
-TRANSPORT_BLE = "ble"
-TRANSPORT_SIM = "sim"
+class DeviceTransport(Enum):
+    BLE = "ble"
+    SIM = "sim"
 
 
 class DeviceMessage(Enum):

@@ -59,8 +59,7 @@ class DeviceApp(App):
         Registers a callback with the device app to be called when a device has
         sent the HUME a message.
 
-        :param callback: callable(Device, int, bytearray)
-        :return:
+        callback: callable(Device, int, bytearray)
         """
         LOGGER.info("registering callback")
         self._registered_callback = callback
@@ -95,12 +94,16 @@ class DeviceApp(App):
 
         self.storage.delete(device)
 
-    def stateful_action(self, device: Device, **kwargs):
+    def stateful_action(self, device: Device, group: int, state: int):
         """
         Sends a stateful action request to the device.
         """
         LOGGER.debug(f"sending device {device.uuid[:4]} a stateful action "
                      f"request")
+        message = GDCI.Message(
+            f"{DeviceMessage.ACTION_STATEFUL}{group}{state}"
+        )
+        self.device_connector.send(message, device)
 
     def reset(self):
         """

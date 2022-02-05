@@ -32,14 +32,14 @@ class DeviceConnector(GDCI):
 
     def start(self):
         """Starts up the device connection."""
-        LOGGER.info("DeviceConnection start")
+        LOGGER.info("device connector start")
 
         if not self.simulation:
             self._event_loop_thread.start()
 
     def stop(self):
         """Stops the device connection."""
-        LOGGER.info("DeviceConnection stop")
+        LOGGER.info("device connector stop")
         if self.disconnect_all():
             LOGGER.info("successfully disconnected all devices")
         else:
@@ -62,6 +62,7 @@ class DeviceConnector(GDCI):
         Discovers devices in the local HOME network and returns them by
         calling the provided callback.
         """
+        LOGGER.info("checking available transports for discovery")
         if self.simulation:
             self.sim.discover(callback)
         else:
@@ -71,6 +72,7 @@ class DeviceConnector(GDCI):
         """
         Returns True if the device was successfully connected to.
         """
+        LOGGER.info(f"connecting to device {device.uuid[:4]}")
         return (self.sim.connect(device) if self.simulation
                 else self.ble.connect(device))
 
@@ -78,6 +80,7 @@ class DeviceConnector(GDCI):
         """
         Returns True if the device is already connected.
         """
+        LOGGER.info(f"checking if device {device.uuid[:4]} is connected")
         return (self.sim.is_connected(device) if self.simulation
                 else self.ble.is_connected(device))
 
@@ -85,6 +88,7 @@ class DeviceConnector(GDCI):
         """
         Disconnect the input device, return True if successful.
         """
+        LOGGER.info(f"disconnecting device {device.uuid[:4]}")
         return (self.sim.disconnect(device) if self.simulation
                 else self.ble.disconnect(device))
 
@@ -93,6 +97,7 @@ class DeviceConnector(GDCI):
         Disconnects all devices, returns True if all devices were disconnected
         successfully.
         """
+        LOGGER.info("disconnecting all devices")
         return (self.sim.disconnect_all() if self.simulation
                 else self.ble.disconnect_all())
 
@@ -100,6 +105,7 @@ class DeviceConnector(GDCI):
         """
         Send a message to a device.
         """
+        LOGGER.debug(f"sending message to device {device.uuid[:4]}")
         return (self.sim.send(msg, device) if self.simulation
                 else self.ble.send(msg, device))
 
@@ -107,6 +113,7 @@ class DeviceConnector(GDCI):
         """
         Returns True if the device was successfully connected to.
         """
+        LOGGER.info(f"enabling notify for device {device.uuid[:4]}")
         if self.simulation:
             self.sim.notify(callback, device)
         else:
@@ -116,6 +123,7 @@ class DeviceConnector(GDCI):
         """
         Calls the callback for each connected device.
         """
+        LOGGER.info("for each device do...")
         if self.simulation:
             self.sim.for_each(callback)
         else:

@@ -22,6 +22,7 @@ from defs import (
 from util.storage import DataStore
 from app.abc import App, StartError
 from app.hint.models import HumeUser, BrokerCredentials, HintAuthentication
+from app.hint.defs import HintMessage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -116,13 +117,12 @@ class HintApp(App):
     Public
     """
 
-    def register_callback(self, callback):
+    def register_callback(self, callback: callable):
         """
         Registers a callback with the device app to be called when a device has
         sent the HUME a message.
 
-        :param callback: callable(int, dict)
-        :return:
+        callback: callable(int, dict)
         """
         LOGGER.info("registering callback")
         self._registered_callback = callback
@@ -134,7 +134,7 @@ class HintApp(App):
         LOGGER.info("sending discover devices result to HINT")
 
         message = {
-            "type": HintMessage.DISCOVER_DEVICES,
+            "type": HintMessage.DISCOVER_DEVICES.value,
             "content": [{"name": device.name,
                          "identifier": device.uuid} for device in devices]
         }
@@ -166,7 +166,7 @@ class HintApp(App):
         LOGGER.info("sending attach failure to HINT")
 
         message = {
-            "type": HintMessage.ATTACH,
+            "type": HintMessage.ATTACH.value,
             "content": {
                 "identifier": device.uuid,
                 "success": False,
@@ -174,12 +174,15 @@ class HintApp(App):
         }
         self._publish(message)
 
-    def action_response(self, device, action_type, info: dict):
+    def action_response(self,
+                        device: Device,
+                        action_type: HintMessage,
+                        info: dict):
         """Sends an action response to HINT"""
         LOGGER.info("sending action response to HINT")
 
         message = {
-            "type": action_type,
+            "type": action_type.value,
             "device_uuid": device.uuid,
             "content": info
         }

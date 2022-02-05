@@ -101,7 +101,7 @@ class DeviceApp(App):
         LOGGER.debug(f"sending device {device.uuid[:4]} a stateful action "
                      f"request")
         message = GDCI.Message(
-            f"{DeviceMessage.ACTION_STATEFUL}{group}{state}"
+            f"{DeviceMessage.ACTION_STATEFUL.value}{group}{state}"
         )
         self.device_connector.send(message, device)
 
@@ -158,5 +158,5 @@ class DeviceApp(App):
         """
         Requests the capabilities of the input device.
         """
-        message = GDCI.Message(f"{DeviceMessage.CAPABILITY}")
+        message = GDCI.Message(f"{DeviceMessage.CAPABILITY.value}")
         return self.device_connector.send(message, device)

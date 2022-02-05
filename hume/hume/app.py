@@ -61,16 +61,18 @@ class Hume:
     Private
     """
 
-    def _on_device_message(self, device, msg_type, msg):
+    def _on_device_message(self, device: Device, msg_type: int, msg: bytearray):
         """
         Registered to be called by the Device app when a new message is
         received from a connected device.
         """
         LOGGER.debug("HUME handling device message")
 
-        if msg_type == DeviceMessage.CAPABILITY:
+        decoded_msg = json.loads(msg)
+
+        if msg_type == DeviceMessage.CAPABILITY.value:
             LOGGER.info(f"device {device.uuid[:4]} sent capability response")
-            capabilities = json.loads(msg)
+            capabilities = decoded_msg
             capabilities["identifier"] = device.uuid
 
             if self.hint_app.create_device(capabilities):
@@ -91,8 +93,13 @@ class Hume:
                 self.device_app.detach(device)
                 self.hint_app.attach_failure(device)
 
-        elif msg_type == DeviceMessage.ACTION_STATEFUL:
-            pass
+        elif msg_type == DeviceMessage.ACTION_STATEFUL.value:
+            self.hint_app.action_response(device,
+                                          HintMessage.ACTION_STATEFUL,
+                                          {
+                                              "group_id": int(decoded_msg[0]),
+                                              "state_id": int(decoded_msg[1])
+                                          })
 
         else:
             LOGGER.warning(f"got message from device {device.uuid[:4]} of an "
@@ -105,11 +112,11 @@ class Hume:
         """
         LOGGER.debug("HUME handling HINT message")
 
-        if msg_type == HintMessage.DISCOVER_DEVICES:
+        if msg_type == HintMessage.DISCOVER_DEVICES.value:
             LOGGER.info("HINT requested device discovery")
             self.device_app.discover(self.hint_app.discovered_devices)
 
-        elif msg_type == HintMessage.ATTACH:
+        elif msg_type == HintMessage.ATTACH.value:
             identifier = msg["identifier"]
             LOGGER.info(f"HINT requested device {identifier[:4]} to "
                         f"be attached")
@@ -124,7 +131,7 @@ class Hume:
                 LOGGER.error(f"failed to attach device {identifier[:4]}")
                 self.hint_app.attach_failure(Device(uuid=identifier))
 
-        elif msg_type == HintMessage.DETACH:
+        elif msg_type == HintMessage.DETACH.value:
             device_uuid = msg["device_uuid"]
             LOGGER.info(f"HINT requested detaching device {device_uuid[:4]}")
             device = self.storage.get(Device, device_uuid)
@@ -134,12 +141,12 @@ class Hume:
                 LOGGER.error(f"can't detach device {device_uuid[:4]}, "
                              f"does not exist")
 
-        elif msg_type == HintMessage.UNPAIR:
+        elif msg_type == HintMessage.UNPAIR.value:
             LOGGER.info("HINT requested unpairing, factory resetting HUME")
             self.device_app.reset()
             self.storage.delete_all()
 
-        elif msg_type == HintMessage.ACTION_STATEFUL:
+        elif msg_type == HintMessage.ACTION_STATEFUL.value:
             device_uuid = msg.pop("device_uuid")
             LOGGER.info(f"HINT requested stateful action for device "
                         f"{device_uuid[:4]}")

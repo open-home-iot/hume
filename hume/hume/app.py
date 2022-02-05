@@ -5,7 +5,6 @@ from app.abc import StartError
 from app.device import DeviceApp, DeviceMessage
 from app.device.models import Device
 from app.hint import HintApp, HintMessage
-from app.hint.models import HintAuthentication
 from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)
@@ -16,8 +15,8 @@ class Hume:
     def __init__(self, cli_args):
         self.cli_args = cli_args
         self.storage = DataStore()
-        self.device = DeviceApp(cli_args, self.storage)
-        self.hint = HintApp(cli_args, self.storage)
+        self.device_app = DeviceApp(cli_args, self.storage)
+        self.hint_app = HintApp(cli_args, self.storage)
 
     def start(self):
         """Starts the HUME."""
@@ -25,37 +24,37 @@ class Hume:
 
         self.storage.start()
 
-        self.device.pre_start()
-        self.hint.pre_start()
+        self.device_app.pre_start()
+        self.hint_app.pre_start()
 
         # Register callbacks prior to starting Apps in case of any
         # confirmation-type messages happen on connection establishment, or in
         # case of queued up messages from HINT.
-        self.device.register_callback(self._on_device_message)
-        self.hint.register_callback(self._on_hint_message)
+        self.device_app.register_callback(self._on_device_message)
+        self.hint_app.register_callback(self._on_hint_message)
 
         try:
-            self.device.start()
-            self.hint.start()
+            self.device_app.start()
+            self.hint_app.start()
         except StartError:
             self.stop()
             raise RuntimeError("failed to start an app")
 
-        self.device.post_start()
-        self.hint.post_start()
+        self.device_app.post_start()
+        self.hint_app.post_start()
 
     def stop(self):
         """Stops the HUME."""
         LOGGER.info("Hume stop")
 
-        self.device.pre_stop()
-        self.hint.pre_stop()
+        self.device_app.pre_stop()
+        self.hint_app.pre_stop()
 
-        self.device.stop()
-        self.hint.stop()
+        self.device_app.stop()
+        self.hint_app.stop()
 
-        self.device.post_stop()
-        self.hint.post_stop()
+        self.device_app.post_stop()
+        self.hint_app.post_stop()
 
     """
     Private
@@ -73,7 +72,7 @@ class Hume:
             capabilities = json.loads(msg)
             capabilities["identifier"] = device.uuid
 
-            if self.hint.create_device(capabilities):
+            if self.hint_app.create_device(capabilities):
                 LOGGER.info("device created in HINT successfully")
 
                 # Update the device entry, set correct uuid. UUID is gotten
@@ -88,8 +87,8 @@ class Hume:
             else:
                 LOGGER.error("failed to create device in HINT")
                 # Detach device to clean up after unsuccessful attach.
-                self.device.detach(device)
-                self.hint.attach_failure(device)
+                self.device_app.detach(device)
+                self.hint_app.attach_failure(device)
 
         elif msg_type == DeviceMessage.ACTION_STATEFUL:
             pass
@@ -107,7 +106,7 @@ class Hume:
 
         if msg_type == HintMessage.DISCOVER_DEVICES:
             LOGGER.info("HINT requested device discovery")
-            self.device.discover(self.hint.discovered_devices)
+            self.device_app.discover(self.hint_app.discovered_devices)
 
         elif msg_type == HintMessage.ATTACH:
             identifier = msg["identifier"]
@@ -117,26 +116,26 @@ class Hume:
             error = True
             device = self.storage.get(Device, identifier)
             if device is not None:
-                if self.device.request_capabilities(device):
+                if self.device_app.request_capabilities(device):
                     error = False
 
             if error:
                 LOGGER.error(f"failed to attach device {identifier[:4]}")
-                self.hint.attach_failure(Device(uuid=identifier))
+                self.hint_app.attach_failure(Device(uuid=identifier))
 
         elif msg_type == HintMessage.DETACH:
             device_uuid = msg["device_uuid"]
             LOGGER.info(f"HINT requested detaching device {device_uuid[:4]}")
             device = self.storage.get(Device, device_uuid)
             if device is not None:
-                self.device.detach(device)
+                self.device_app.detach(device)
             else:
                 LOGGER.error(f"can't detach device {device_uuid[:4]}, "
                              f"does not exist")
 
         elif msg_type == HintMessage.UNPAIR:
             LOGGER.info("HINT requested unpairing, factory resetting HUME")
-            self.device.reset()
+            self.device_app.reset()
             self.storage.delete_all()
 
         elif msg_type == HintMessage.ACTION_STATEFUL:
@@ -146,7 +145,7 @@ class Hume:
             msg.pop("type")
             device = self.storage.get(Device, device_uuid)
             if device is not None:
-                self.device.stateful_action(device, **msg)
+                self.device_app.stateful_action(device, **msg)
             else:
                 LOGGER.error("could not execute stateful action since device "
                              "does not exist")

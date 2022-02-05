@@ -6,12 +6,18 @@ from threading import Thread
 from defs import CLI_SIMULATION
 from .ble.connection import BLEConnection
 from .sim.connection import SimConnection
-
+from ..models import Device
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DeviceConnection:
+class DeviceConnector:
+    """
+    Layer of abstraction for the Device application to connect to devices. As
+    more transport types are added, the DeviceConnector class keeps the GCI
+    simple for the DeviceApp and takes care of the complexity in calling
+    different interfaces depending on the transport of a device.
+    """
 
     def __init__(self, cli_args):
         self.simulation = (
@@ -43,6 +49,47 @@ class DeviceConnection:
 
             if self._event_loop_thread.is_alive():
                 LOGGER.error("failed to join event loop thread")
+
+    """
+    Public (GCI proxy)
+    """
+
+    def discover(self, callback: callable):
+        """
+        Discovers devices in the local HOME network and returns them by
+        calling the provided callback.
+        """
+        if self.simulation:
+            self.sim.discover(callback)
+        else:
+            self.ble.discover(callback)
+
+    def is_connected(self, device: Device) -> bool:
+        """
+        Returns True if the device is already connected.
+        """
+        return (self.sim.is_connected(device) if self.simulation
+                else self.ble.is_connected(device))
+
+    def connect(self, device: Device) -> bool:
+        """
+        Returns True if the device was successfully connected to.
+        """
+        return (self.sim.connect(device) if self.simulation
+                else self.ble.connect(device))
+
+    def notify(self, callback: callable, device: Device):
+        """
+        Returns True if the device was successfully connected to.
+        """
+        if self.simulation:
+            self.sim.notify(callback, device)
+        else:
+            self.ble.notify(callback, device)
+
+    """
+    Private
+    """
 
     @staticmethod
     def _run_event_loop(event_loop):

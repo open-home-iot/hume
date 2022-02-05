@@ -1,11 +1,10 @@
 import logging
 
 from app.abc import App
-from app.device.connection.connection import DeviceConnection
+from app.device.connection.connector import DeviceConnector
 from app.device.connection.gci import GCI
 from app.device.models import Device, DeviceHealth
 from app.device.defs import TRANSPORT_BLE, TRANSPORT_SIM
-from defs import CLI_SIMULATION
 from util.storage import DataStore
 
 
@@ -24,7 +23,7 @@ class DeviceApp(App):
         super().__init__()
         self.cli_args = cli_args
         self.storage = storage
-        self.connection = DeviceConnection(cli_args)
+        self.device_connector = DeviceConnector(cli_args)
 
         self._registered_callback = lambda device, msg_type, msg: \
             LOGGER.warning("no registered callback to propagate device msg to")
@@ -41,7 +40,7 @@ class DeviceApp(App):
 
     def start(self):
         LOGGER.info("Device start")
-        self.connection.start()
+        self.device_connector.start()
         self._connect_attached_devices()
 
     def post_start(self):
@@ -49,12 +48,11 @@ class DeviceApp(App):
 
     def pre_stop(self):
         LOGGER.info("Device pre_stop")
-        if not self.connection.simulation:
-            self.connection.ble.disconnect_all()
+        self.device_connector.disconnect_all()
 
     def stop(self):
         LOGGER.info("Device stop")
-        self.connection.stop()
+        self.device_connector.stop()
 
     def post_stop(self):
         LOGGER.info("Device post_start")
@@ -78,10 +76,7 @@ class DeviceApp(App):
         """
         Discovers devices in the HUME's local area.
         """
-        if self.connection.simulation:
-            self.connection.sim.discover(callback)
-        else:
-            self.connection.ble.discover(callback)
+        self.device_connector.discover(callback)
 
     def request_capabilities(self, device) -> bool:
         """
@@ -135,17 +130,13 @@ class DeviceApp(App):
         """
         LOGGER.debug(f"connecting to device {device.uuid[:4]}")
 
-        if self.connection.simulation and device.transport == TRANSPORT_SIM:
-            self.connection.sim.connect(device)
-            self.connection.sim.notify(self._on_device_message, device)
-        elif (not self.connection.ble.is_connected(device) and
-              device.transport == TRANSPORT_BLE):
-            if not self.connection.ble.connect(device):
+        if not self.device_connector.is_connected(device):
+            if not self.device_connector.connect(device):
                 LOGGER.error(f"failed to connect to device "
                              f"{device.uuid[:4]}")
                 return False
 
-            self.connection.ble.notify(self._on_device_message, device)
+            self.device_connector.notify(self._on_device_message, device)
 
         return True
 
@@ -154,7 +145,7 @@ class DeviceApp(App):
         Requests the capabilities of the input device.
         """
         message = GCI.Message(f"{DeviceMessage.CAPABILITY}")
-        if self.connection.simulation:
-            self.connection.sim.send(message, device)
+        if self.device_connector.simulation:
+            self.device_connector.sim.send(message, device)
         else:
-            self.connection.ble.send(message, device)
+            self.device_connector.ble.send(message, device)

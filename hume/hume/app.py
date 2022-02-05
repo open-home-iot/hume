@@ -78,9 +78,11 @@ class Hume:
             if self.hint_app.create_device(capabilities):
                 LOGGER.info("device created in HINT successfully")
 
-                # Update the device entry, set correct uuid. UUID is gotten
-                # from capabilities, non-attached devices may have their
-                # address set to the UUID field.
+                # delete the old device entry and re-set with capability-
+                # provided UUID. This is done since BLE devices cannot provide
+                # UUID before capability response is gotten and are thus saved
+                # with their address as their primary key prior to attach
+                # success.
                 self.storage.delete(device)
                 new_device = Device(uuid=capabilities["uuid"],
                                     address=device.address,

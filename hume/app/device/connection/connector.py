@@ -4,25 +4,24 @@ import logging
 from threading import Thread
 
 from defs import CLI_SIMULATION
-from .ble.connection import BLEConnection
-from .sim.connection import SimConnection
-from ..models import Device
+from app.device.connection.ble.connection import BLEConnection
+from app.device.connection.gdci import GDCI
+from app.device.connection.sim.connection import SimConnection
+from app.device.models import Device
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DeviceConnector:
+class DeviceConnector(GDCI):
     """
-    Layer of abstraction for the Device application to connect to devices. As
+    Layer of abstraction and aggregator for different device transports. As
     more transport types are added, the DeviceConnector class keeps the GCI
     simple for the DeviceApp and takes care of the complexity in calling
     different interfaces depending on the transport of a device.
     """
 
     def __init__(self, cli_args):
-        self.simulation = (
-            True if cli_args.get(CLI_SIMULATION) else False
-        )
+        self.simulation = cli_args.get(CLI_SIMULATION)
         if self.simulation:
             self.sim = SimConnection()
         else:
@@ -41,9 +40,13 @@ class DeviceConnector:
     def stop(self):
         """Stops the device connection."""
         LOGGER.info("DeviceConnection stop")
+        if self.disconnect_all():
+            LOGGER.info("successfully disconnected all devices")
+        else:
+            LOGGER.warning("failed to disconnect one or more devices")
 
         if not self.simulation:
-            LOGGER.info("stopping event loop")
+            LOGGER.info("stopping BLE event loop")
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
             self._event_loop_thread.join(timeout=2.0)
 
@@ -51,7 +54,7 @@ class DeviceConnector:
                 LOGGER.error("failed to join event loop thread")
 
     """
-    Public (GCI proxy)
+    Public (GDCI proxy)
     """
 
     def discover(self, callback: callable):
@@ -64,6 +67,13 @@ class DeviceConnector:
         else:
             self.ble.discover(callback)
 
+    def connect(self, device: Device) -> bool:
+        """
+        Returns True if the device was successfully connected to.
+        """
+        return (self.sim.connect(device) if self.simulation
+                else self.ble.connect(device))
+
     def is_connected(self, device: Device) -> bool:
         """
         Returns True if the device is already connected.
@@ -71,12 +81,27 @@ class DeviceConnector:
         return (self.sim.is_connected(device) if self.simulation
                 else self.ble.is_connected(device))
 
-    def connect(self, device: Device) -> bool:
+    def disconnect(self, device: Device) -> bool:
         """
-        Returns True if the device was successfully connected to.
+        Disconnect the input device, return True if successful.
         """
-        return (self.sim.connect(device) if self.simulation
-                else self.ble.connect(device))
+        return (self.sim.disconnect(device) if self.simulation
+                else self.ble.disconnect(device))
+
+    def disconnect_all(self) -> bool:
+        """
+        Disconnects all devices, returns True if all devices were disconnected
+        successfully.
+        """
+        return (self.sim.disconnect_all() if self.simulation
+                else self.ble.disconnect_all())
+
+    def send(self, msg: GDCI.Message, device: Device) -> bool:
+        """
+        Send a message to a device.
+        """
+        return (self.sim.send(msg, device) if self.simulation
+                else self.ble.send(msg, device))
 
     def notify(self, callback: callable, device: Device):
         """
@@ -86,6 +111,15 @@ class DeviceConnector:
             self.sim.notify(callback, device)
         else:
             self.ble.notify(callback, device)
+
+    def for_each(self, callback: callable):
+        """
+        Calls the callback for each connected device.
+        """
+        if self.simulation:
+            self.sim.for_each(callback)
+        else:
+            self.ble.for_each(callback)
 
     """
     Private

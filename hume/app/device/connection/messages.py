@@ -1,4 +1,4 @@
-from .defs import MSG_START
+from app.device.connection.defs import MSG_START
 
 
 def has_message_start(data: bytearray):

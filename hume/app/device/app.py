@@ -2,19 +2,13 @@ import logging
 
 from app.abc import App
 from app.device.connection.connector import DeviceConnector
-from app.device.connection.gci import GCI
+from app.device.connection.gdci import GDCI
 from app.device.models import Device, DeviceHealth
-from app.device.defs import TRANSPORT_BLE, TRANSPORT_SIM
+from app.device.defs import DeviceMessage
 from util.storage import DataStore
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-class DeviceMessage:
-    CAPABILITY = 0
-    ACTION_STATEFUL = 1
-    HEARTBEAT = 2
 
 
 class DeviceApp(App):
@@ -48,7 +42,6 @@ class DeviceApp(App):
 
     def pre_stop(self):
         LOGGER.info("Device pre_stop")
-        self.device_connector.disconnect_all()
 
     def stop(self):
         LOGGER.info("Device stop")
@@ -144,8 +137,5 @@ class DeviceApp(App):
         """
         Requests the capabilities of the input device.
         """
-        message = GCI.Message(f"{DeviceMessage.CAPABILITY}")
-        if self.device_connector.simulation:
-            self.device_connector.sim.send(message, device)
-        else:
-            self.device_connector.ble.send(message, device)
+        message = GDCI.Message(f"{DeviceMessage.CAPABILITY}")
+        self.device_connector.send(message, device)

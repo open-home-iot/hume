@@ -5,13 +5,10 @@ import logging
 from bleak import BleakScanner, BleakClient
 
 from app.device.models import Device
-from ..messages import has_message_start, get_request_type
-from ..gci import GCI
-from ..defs import (
-    MSG_START_ENC,
-    MSG_END_ENC
-)
-from .defs import (
+from app.device.connection.messages import has_message_start, get_request_type
+from app.device.connection.gdci import GDCI
+from app.device.connection.defs import MSG_START_ENC, MSG_END_ENC
+from app.device.connection.ble.defs import (
     HOME_SVC_DATA_UUID,
     HOME_SVC_DATA_VAL_HEX,
     NUS_SVC_UUID,
@@ -91,7 +88,7 @@ def await_future(f, timeout=FUTURE_TIMEOUT):
     return result
 
 
-class BLEConnection(GCI):
+class BLEConnection(GDCI):
 
     def __init__(self, event_loop: asyncio.AbstractEventLoop):
         super().__init__()
@@ -177,7 +174,7 @@ class BLEConnection(GCI):
         return self.clients.get(device.address) is not None
 
     def disconnect(self, device: Device) -> bool:
-        LOGGER.info(f"disconnecting device {device.address}")
+        LOGGER.info(f"disconnecting device {device.address[:4]}")
 
         device_client = self.clients.pop(device.address)
         self.devices.pop(device.address)
@@ -199,6 +196,9 @@ class BLEConnection(GCI):
             )
         )
 
+        if not disconnected:
+            LOGGER.warning("failed to disconnect device")
+
         return disconnected
 
     def disconnect_all(self) -> bool:
@@ -214,8 +214,9 @@ class BLEConnection(GCI):
 
         return False not in disconnections
 
-    def send(self, msg: GCI.Message, device: Device) -> bool:
-        LOGGER.debug(f"sending device {device.address} message {msg.content}")
+    def send(self, msg: GDCI.Message, device: Device) -> bool:
+        LOGGER.debug(f"sending device {device.address[:4]} "
+                     f"message {msg.content}")
 
         async def write(client: BleakClient):
             await client.write_gatt_char(NUS_RX_UUID, msg.content)

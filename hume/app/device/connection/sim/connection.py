@@ -1,9 +1,8 @@
 import json
 import logging
 
-from defs import DeviceMessage
-from ..gci import GCI
-from .specs import (
+from app.device.connection.gdci import GDCI
+from app.device.connection.sim.specs import (
     BASIC_LED_CAPS,
     DEVICE_UUID_LED,
     DEVICE_UUID_AQUARIUM,
@@ -12,7 +11,7 @@ from .specs import (
 )
 from app.device.models import Device
 from app.device.connection import messages
-from app.device.defs import TRANSPORT_SIM
+from app.device.defs import TRANSPORT_SIM, DeviceMessage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ def discovered_device(device_dict):
                   name=device_dict["name"])
 
 
-class SimConnection(GCI):
+class SimConnection(GDCI):
 
     def __init__(self):
         super().__init__()
@@ -73,7 +72,7 @@ class SimConnection(GCI):
         self.device_registry = dict()
         return True
 
-    def send(self, msg: GCI.Message, to: Device) -> bool:
+    def send(self, msg: GDCI.Message, to: Device) -> bool:
         LOGGER.debug(f"sending device {to.uuid[:4]} message {msg.content}")
 
         if self.device_registry.get(to.uuid) is None:
@@ -93,7 +92,7 @@ class SimConnection(GCI):
 
         return True
 
-    def _handle_stateful_action(self, msg: GCI.Message, device: Device):
+    def _handle_stateful_action(self, msg: GDCI.Message, device: Device):
         if (device.uuid == DEVICE_UUID_LED or
                 device.uuid == DEVICE_UUID_AQUARIUM):
             pass

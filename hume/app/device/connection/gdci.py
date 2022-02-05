@@ -1,5 +1,5 @@
 """
-This module specifies the Generic Connection Interface superclass.
+This module specifies the Generic Device Connection Interface superclass.
 """
 
 
@@ -8,7 +8,7 @@ import abc
 from app.device.models import Device
 
 
-class GCI(abc.ABC):
+class GDCI(abc.ABC):
 
     class Message:
         def __init__(self, content: str):
@@ -34,6 +34,33 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def is_connected(self, device: Device) -> bool:
+        """
+        Check if a device is connected.
+
+        :returns: True if the device is connected
+        """
+        pass
+
+    @abc.abstractmethod
+    def disconnect(self, device: Device) -> bool:
+        """
+        Disconnects the given device.
+
+        :returns: True if successful, else False
+        """
+        pass
+
+    @abc.abstractmethod
+    def disconnect_all(self) -> bool:
+        """
+        Disconnects all devices.
+
+        :returns: True if all devices were successfully disconnected
+        """
+        pass
+
+    @abc.abstractmethod
     def send(self, msg: Message, device: Device) -> bool:
         """
         Sends the parameter message to the given device.
@@ -43,27 +70,12 @@ class GCI(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def disconnect(self, device: Device):
-        """
-        Disconnects the given device.
-        """
-        pass
-
-    @abc.abstractmethod
-    def disconnect_all(self):
-        """
-        Disconnects all devices.
-        """
-        pass
-
-    @abc.abstractmethod
-    def notify(self, callback, device: Device):
+    def notify(self, callback: callable, device: Device):
         """
         Subscribes to messages from the given device, each message will be
         relayed to the parameter callback.
 
-        :param callback: callable(Device, int, data)
-        :param device: Device
+        callback: callable(Device, int, bytearray)
         """
         pass
 
@@ -72,8 +84,8 @@ class GCI(abc.ABC):
         """
         Calls input callback for each active connection. The Device instance
         passed to the callback function is bare-bones and only has the
-        necessary fields populated to fulfil a call to one of GCI methods.
+        necessary fields populated to fulfill a call to one of GCI methods.
 
-        :param callback: callable(Device)
+        callback: callable(Device)
         """
         pass

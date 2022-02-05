@@ -68,12 +68,10 @@ def parse_args():
 
 def set_up_logging():
     """Sets up DC logging."""
-    set_up_logger_for("HUME",
-                      None,  # root logger
+    set_up_logger_for(None,  # root logger
                       logging.DEBUG,
                       HANDLER_STREAM)
-    set_up_logger_for("HUME",
-                      "rabbitmq_client",
+    set_up_logger_for("rabbitmq_client",
                       logging.INFO,
                       HANDLER_STREAM)
 

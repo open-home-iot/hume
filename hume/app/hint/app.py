@@ -81,7 +81,11 @@ class HintApp(App):
 
         # runs pairing, authentication, and getting updated broker credentials.
         # may raise StartErrors
-        self._connect_and_sync_with_hint()
+        try:
+            self._connect_and_sync_with_hint()
+        except requests.exceptions.ConnectionError:
+            LOGGER.critical("failed to sync with HINT")
+            raise StartError("failed to sync with HINT")
 
         # Fetch broker credentials
         broker_credentials = self.storage.get(BrokerCredentials, None)

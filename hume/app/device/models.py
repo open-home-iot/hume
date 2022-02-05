@@ -2,7 +2,7 @@ import peewee
 
 from util.storage import PersistentModel
 
-from .defs import TRANSPORT_BLE
+from app.device.defs import TRANSPORT_BLE
 
 
 class Device(PersistentModel):

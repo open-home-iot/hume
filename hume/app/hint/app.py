@@ -63,13 +63,13 @@ class HintApp(App):
     """
 
     def pre_start(self):
-        LOGGER.info("Hint pre_start")
+        LOGGER.info("hint app pre_start")
         self.storage.register(HumeUser)
         self.storage.register(BrokerCredentials)
         self.storage.register(HintAuthentication)
 
     def start(self):
-        LOGGER.info("Hint start")
+        LOGGER.info("hint app start")
 
         # runs pairing, authentication, and getting updated broker credentials.
         # may raise StartErrors
@@ -99,18 +99,18 @@ class HintApp(App):
                                queue_params=self._hume_queue_params)
 
     def post_start(self):
-        LOGGER.info("Hint post_start")
+        LOGGER.info("hint app post_start")
 
     def pre_stop(self):
-        LOGGER.info("Hint pre_stop")
+        LOGGER.info("hint app pre_stop")
 
     def stop(self):
-        LOGGER.info("Hint stop")
+        LOGGER.info("hint app stop")
         self._consumer.stop()
         self._producer.stop()
 
     def post_stop(self):
-        LOGGER.info("Hint post_stop")
+        LOGGER.info("hint app post_stop")
 
     """
     Public

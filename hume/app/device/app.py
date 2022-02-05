@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 class DeviceApp(App):
 
-    def __init__(self, cli_args, storage: DataStore):
+    def __init__(self, cli_args: dict, storage: DataStore):
         super().__init__()
         self.cli_args = cli_args
         self.storage = storage
@@ -27,34 +27,34 @@ class DeviceApp(App):
     """
 
     def pre_start(self):
-        LOGGER.info("Device pre_start")
+        LOGGER.info("device app pre_start")
 
         self.storage.register(Device)
         self.storage.register(DeviceHealth)
 
     def start(self):
-        LOGGER.info("Device start")
+        LOGGER.info("device app start")
         self.device_connector.start()
         self._connect_attached_devices()
 
     def post_start(self):
-        LOGGER.info("Device post_start")
+        LOGGER.info("device app post_start")
 
     def pre_stop(self):
-        LOGGER.info("Device pre_stop")
+        LOGGER.info("device app pre_stop")
 
     def stop(self):
-        LOGGER.info("Device stop")
+        LOGGER.info("device app stop")
         self.device_connector.stop()
 
     def post_stop(self):
-        LOGGER.info("Device post_start")
+        LOGGER.info("device app post_start")
 
     """
     Public
     """
 
-    def register_callback(self, callback):
+    def register_callback(self, callback: callable):
         """
         Registers a callback with the device app to be called when a device has
         sent the HUME a message.
@@ -65,31 +65,49 @@ class DeviceApp(App):
         LOGGER.info("registering callback")
         self._registered_callback = callback
 
-    def discover(self, callback):
+    def discover(self, callback: callable):
         """
         Discovers devices in the HUME's local area.
         """
+        LOGGER.info("discovering devices")
         self.device_connector.discover(callback)
 
-    def request_capabilities(self, device) -> bool:
+    def request_capabilities(self, device: Device) -> bool:
         """
         Requests capabilities of the input device, usually the start of an
-        attach procedure. Returns true if the request could be sent.
+        attach procedure. Returns True if the request could be sent.
         """
+        LOGGER.info(f"requesting device {device.uuid[:4]} capabilities")
         if self._connect_to(device):
-            self._request_capabilities(device)
-            return True
-        else:
-            return False
+            return self._request_capabilities(device)
 
-    def detach(self, device):
-        pass
+        return False
 
-    def stateful_action(self, device, **kwargs):
-        pass
+    def detach(self, device: Device):
+        """
+        Detach the input device, disconnect and forget it.
+        """
+        LOGGER.info(f"detaching device {device.uuid[:4]}")
+        if self.device_connector.is_connected(device):
+            self.device_connector.disconnect(device)
+            # not much to do if this fails, at least the device won't be
+            # connected to again on start.
+
+        self.storage.delete(device)
+
+    def stateful_action(self, device: Device, **kwargs):
+        """
+        Sends a stateful action request to the device.
+        """
+        LOGGER.debug(f"sending device {device.uuid[:4]} a stateful action "
+                     f"request")
 
     def reset(self):
-        pass
+        """
+        Resets the device application.
+        """
+        LOGGER.info("resetting the device application...")
+        self.device_connector.disconnect_all()
 
     """
     Private
@@ -133,9 +151,9 @@ class DeviceApp(App):
 
         return True
 
-    def _request_capabilities(self, device: Device):
+    def _request_capabilities(self, device: Device) -> bool:
         """
         Requests the capabilities of the input device.
         """
         message = GDCI.Message(f"{DeviceMessage.CAPABILITY}")
-        self.device_connector.send(message, device)
+        return self.device_connector.send(message, device)

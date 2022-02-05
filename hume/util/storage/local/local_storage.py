@@ -99,7 +99,7 @@ class LocalStorage:
 
     def delete(self, obj):
         """
-        Removes the object from both local and persistent storage.
+        Removes the object from both local storage.
 
         :param obj:
         """

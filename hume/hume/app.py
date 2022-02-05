@@ -21,7 +21,7 @@ class Hume:
 
     def start(self):
         """Starts the HUME."""
-        LOGGER.info("Hume start")
+        LOGGER.info("hume start")
 
         self.storage.start()
 
@@ -46,7 +46,7 @@ class Hume:
 
     def stop(self):
         """Stops the HUME."""
-        LOGGER.info("Hume stop")
+        LOGGER.info("hume stop")
 
         self.device_app.pre_stop()
         self.hint_app.pre_stop()

@@ -26,14 +26,6 @@ from app.hint.models import HumeUser, BrokerCredentials, HintAuthentication
 LOGGER = logging.getLogger(__name__)
 
 
-class HintMessage:
-    DISCOVER_DEVICES = 0
-    ATTACH = 1
-    ACTION_STATEFUL = 2
-    UNPAIR = 3
-    DETACH = 4
-
-
 class HintApp(App):
     HINT_MASTER_COMMAND_QUEUE = "hint_master"
 
@@ -200,7 +192,7 @@ class HintApp(App):
     def _on_hint_message(self, message: bytes):
         """
         Called when the consumer which monitors the HUME's message queue
-        received a message.
+        receives a message.
         """
         LOGGER.debug("received HINT message")
         decoded_message = json.loads(message.decode('utf-8'))

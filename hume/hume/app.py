@@ -4,7 +4,8 @@ import logging
 from app.abc import StartError
 from app.device import DeviceApp, DeviceMessage
 from app.device.models import Device
-from app.hint import HintApp, HintMessage
+from app.hint import HintApp
+from app.hint.defs import HintMessage
 from util.storage import DataStore
 
 LOGGER = logging.getLogger(__name__)

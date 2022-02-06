@@ -14,7 +14,7 @@ def set_up_logger_for(name, log_level, handler_type):
     :param handler_type: string for which handler type should be created
     """
     formatter = logging.Formatter(fmt="{asctime} {levelname:^8} "
-                                      "{filename}:{lineno} - {message}",
+                                      "{filename}:{lineno} {message}",
                                   style="{",
                                   datefmt="%d/%m/%Y %H:%M:%S")
 

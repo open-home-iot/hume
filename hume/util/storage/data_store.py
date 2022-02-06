@@ -1,9 +1,8 @@
 import logging
 
 from defs import CLI_PSQL_USER, CLI_PSQL_PASSWORD
-from util.storage.local import LocalStorage
-from util.storage.persistent import PersistentStorage
-from util.storage.persistent.postgres import PersistentModel
+from util.storage.local_storage import LocalStorage
+from util.storage.persistent_storage import PersistentModel, PersistentStorage
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,8 +23,15 @@ class DataStore:
     def start(self):
         """Start up the datastore, will lead to connect to Postgres."""
         LOGGER.info("starting DataStore")
-
         self._persistent_storage.start()
+
+    def stop(self):
+        """
+        Gracefully shut down the data store, terminating the PSQL
+        connection.
+        """
+        LOGGER.info("stopping DataStore")
+        self._persistent_storage.stop()
 
     def register(self, model):
         """

@@ -3,7 +3,7 @@
 on run scriptpath
     tell application "Terminal"
         my makeTab()
-        do script "workon hume && python " & scriptpath & "/../hume/main.py $HUME_UUID sim" in front window
+        do script "workon hume && python " & scriptpath & "/../hume/main.py $HUME_UUID --sim" in front window
     end tell
 end run
 

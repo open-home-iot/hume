@@ -1,9 +1,19 @@
 import logging
 
-from .postgres import PostgresProxy
+import peewee
 
 
 LOGGER = logging.getLogger(__name__)
+PSQL_DB_NAME = "hume"
+
+
+class PersistentModel(peewee.Model):
+    """
+    Base class for all persistent models.
+    """
+
+    class Meta:
+        database = peewee.PostgresqlDatabase(PSQL_DB_NAME)
 
 
 class PersistentStorage:
@@ -13,39 +23,39 @@ class PersistentStorage:
     """
 
     def __init__(self, user, password):
-        self._pg_proxy = PostgresProxy(user, password)
+        self._db = peewee.PostgresqlDatabase(PSQL_DB_NAME,
+                                             user=user,
+                                             password=password)
         self._models = []
 
     def start(self):
         """Starts the connection towards Postgres."""
-        LOGGER.info("starting PersistentStorage")
+        LOGGER.info("starting persistent storage")
 
-        self._pg_proxy.start()
+    def stop(self):
+        """Stops the connection towards Postgres."""
+        LOGGER.info("stopping persistent storage")
 
     def define_storage(self, model):
         """
         Defines cache space and tables in postgres.
-
-        :param model: .
         """
         LOGGER.debug("defining persistent storage")
+        with self._db as d:
+            print(d)
+            self._db.create_tables([model])
 
-        self._pg_proxy.define_table(model)
         self._models.append(model)
 
-    @staticmethod
-    def save(obj):
+    def save(self, obj):
         """
         Save an object persistently.
-
-        :param obj: object to save
         """
         LOGGER.debug("saving to database")
+        with self._db:
+            obj.save()
 
-        obj.save()
-
-    @staticmethod
-    def get_all(cls):
+    def get_all(self, cls):
         """
         Get all data associated with the model class cls.
 
@@ -53,11 +63,10 @@ class PersistentStorage:
         :return: all data for model class
         """
         LOGGER.debug(f"getting all records for class: {cls}")
+        with self._db:
+            return cls.select()
 
-        return cls.select()
-
-    @staticmethod
-    def delete(obj):
+    def delete(self, obj):
         """
         Removes the object from persistent storage.
 
@@ -65,13 +74,15 @@ class PersistentStorage:
         :return:
         """
         LOGGER.debug(f"delete object: {obj}")
-
-        obj.delete_instance()
+        with self._db:
+            obj.delete_instance()
 
     def delete_all(self):
         """
         Drop all tables.
         """
         LOGGER.debug("deleting all persistent data")
-
-        self._pg_proxy.drop_tables(self._models)
+        print(self._db.transaction_depth())
+        with self._db:
+            print(self._db.transaction_depth())
+            self._db.drop_tables(self._models)

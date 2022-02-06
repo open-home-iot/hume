@@ -13,3 +13,5 @@ CLI_BROKER_PORT = "broker_port"
 
 CLI_PSQL_USER = "psql_user"
 CLI_PSQL_PASSWORD = "psql_password"
+
+CLI_DEBUG = "debug"

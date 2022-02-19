@@ -1,4 +1,11 @@
-MSG_START = "^"
-MSG_START_ENC = b"^"
-MSG_END = "$"
-MSG_END_ENC = b"$"
+from enum import Enum
+
+
+class DeviceTransport(Enum):
+    BLE = "ble"
+    SIM = "sim"
+
+
+class DeviceMessage(Enum):
+    CAPABILITY = 0
+    ACTION_STATEFUL = 1

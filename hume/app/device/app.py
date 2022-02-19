@@ -1,10 +1,15 @@
+from __future__ import annotations
+
+import functools
 import logging
 
+from typing import Union
+
 from app.abc import App
-from app.device.connection.connector import DeviceConnector
+from app.device.connection.aggregator import ConnectionAggregator
 from app.device.connection.gdci import GDCI
-from app.device.models import Device, DeviceHealth
-from app.device.defs import DeviceMessage
+from app.device.models import Device
+from app.device.connection.defs import DeviceMessage
 from util.storage import DataStore
 
 
@@ -16,7 +21,7 @@ class DeviceApp(App):
     def __init__(self, cli_args: dict, storage: DataStore):
         super().__init__()
         self.storage = storage
-        self.device_connector = DeviceConnector(cli_args)
+        self.aggregator = ConnectionAggregator(cli_args)
 
         self._registered_callback = lambda device, msg_type, msg: \
             LOGGER.warning("no registered callback to propagate device msg to")
@@ -29,11 +34,10 @@ class DeviceApp(App):
         LOGGER.info("device app pre_start")
 
         self.storage.register(Device)
-        self.storage.register(DeviceHealth)
 
     def start(self):
         LOGGER.info("device app start")
-        self.device_connector.start()
+        self.aggregator.start()
         self._connect_attached_devices()
 
     def post_start(self):
@@ -44,7 +48,7 @@ class DeviceApp(App):
 
     def stop(self):
         LOGGER.info("device app stop")
-        self.device_connector.stop()
+        self.aggregator.stop()
 
     def post_stop(self):
         LOGGER.info("device app post_start")
@@ -68,7 +72,8 @@ class DeviceApp(App):
         Discovers devices in the HUME's local area.
         """
         LOGGER.info("discovering devices")
-        self.device_connector.discover(callback)
+        cb = functools.partial(self._devices_discovered, callback=callback)
+        self.aggregator.discover(cb)
 
     def request_capabilities(self, device: Device) -> bool:
         """
@@ -77,6 +82,7 @@ class DeviceApp(App):
         """
         LOGGER.info(f"requesting device {device.uuid[:4]} capabilities")
         if self._connect_to(device):
+            LOGGER.info("connected, requesting capabilities")
             return self._request_capabilities(device)
 
         return False
@@ -86,38 +92,53 @@ class DeviceApp(App):
         Detach the input device, disconnect and forget it.
         """
         LOGGER.info(f"detaching device {device.uuid[:4]}")
-        if self.device_connector.is_connected(device):
-            self.device_connector.disconnect(device)
+        if self.aggregator.is_connected(device):
+            self.aggregator.disconnect(device)
             # not much to do if this fails, at least the device won't be
             # connected to again on start.
 
         self.storage.delete(device)
 
-    def stateful_action(self, device: Device, group: int, state: int):
+    def stateful_action(self, device: Device, group_id: int, state_id: int):
         """
         Sends a stateful action request to the device.
         """
         LOGGER.debug(f"sending device {device.uuid[:4]} a stateful action "
                      f"request")
         message = GDCI.Message(
-            f"{DeviceMessage.ACTION_STATEFUL.value}{group}{state}"
+            f"{DeviceMessage.ACTION_STATEFUL.value}{group_id}{state_id}"
         )
-        self.device_connector.send(message, device)
+        self.aggregator.send(message, device)
 
     def reset(self):
         """
         Resets the device application.
         """
         LOGGER.info("resetting the device application...")
-        self.device_connector.disconnect_all()
+        self.aggregator.disconnect_all()
+        self.storage.delete_all(model=Device)
 
     """
     Private
     """
 
+    def _devices_discovered(self,
+                            devices: [Device],
+                            callback: callable):
+        """
+        Called when a device (or more) has been discovered.
+        """
+        for device in devices:
+            self.storage.set(device)
+
+        callback(devices)
+
     def _on_device_message(self,
                            device: Device,
-                           message_type: int,
+                           message_type: Union[
+                               DeviceMessage.ACTION_STATEFUL.value,
+                               DeviceMessage.CAPABILITY.value
+                           ],
                            body: bytearray):
         """
         Called when a connected device sends HUME a message.
@@ -143,13 +164,13 @@ class DeviceApp(App):
         """
         LOGGER.debug(f"connecting to device {device.uuid[:4]}")
 
-        if not self.device_connector.is_connected(device):
-            if not self.device_connector.connect(device):
+        if not self.aggregator.is_connected(device):
+            if not self.aggregator.connect(device):
                 LOGGER.error(f"failed to connect to device "
                              f"{device.uuid[:4]}")
                 return False
 
-            self.device_connector.notify(self._on_device_message, device)
+            self.aggregator.notify(self._on_device_message, device)
 
         return True
 
@@ -158,4 +179,4 @@ class DeviceApp(App):
         Requests the capabilities of the input device.
         """
         message = GDCI.Message(f"{DeviceMessage.CAPABILITY.value}")
-        return self.device_connector.send(message, device)
+        return self.aggregator.send(message, device)

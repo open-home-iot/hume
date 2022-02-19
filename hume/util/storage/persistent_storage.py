@@ -1,19 +1,13 @@
+import copy
 import logging
+import redis
 
-import peewee
+from typing import Type, Mapping, Union
 
+from util.storage.defs import Model, model_error, SINGLETON
 
 LOGGER = logging.getLogger(__name__)
-PSQL_DB_NAME = "hume"
-
-
-class PersistentModel(peewee.Model):
-    """
-    Base class for all persistent models.
-    """
-
-    class Meta:
-        database = peewee.PostgresqlDatabase(PSQL_DB_NAME)
+ENCODABLE_TYPES = [int, str, float, bytes]
 
 
 class PersistentStorage:
@@ -22,67 +16,123 @@ class PersistentStorage:
     through the peewee ORM.
     """
 
-    def __init__(self, user, password):
-        self._db = peewee.PostgresqlDatabase(PSQL_DB_NAME,
-                                             user=user,
-                                             password=password)
-        self._models = []
+    def __init__(self):
+        self._models: [Type[Model]] = []
+        self._redis = redis.Redis(host="localhost", port=6379, db=0)
 
-    def start(self):
-        """Starts the connection towards Postgres."""
-        LOGGER.info("starting persistent storage")
-
-    def stop(self):
-        """Stops the connection towards Postgres."""
-        LOGGER.info("stopping persistent storage")
-
-    def define_storage(self, model):
+    def define_storage(self, model: Type[Model]):
         """
-        Defines cache space and tables in postgres.
+        Pretty much just keeps track of which models exist to be able to clean
+        up after them using delete_all.
         """
-        LOGGER.debug("defining persistent storage")
-        with self._db as d:
-            print(d)
-            self._db.create_tables([model])
+        LOGGER.debug("added model to list of models")
+
+        if model in self._models:
+            model_error(
+                model.__name__,
+                custom_message=f"model {model.__name__} is already registered"
+            )
 
         self._models.append(model)
 
-    def save(self, obj):
+    def set(self, instance: Model):
         """
         Save an object persistently.
         """
-        LOGGER.debug("saving to database")
-        with self._db:
-            obj.save()
+        LOGGER.debug("saving in Redis")
 
-    def get_all(self, cls):
+        hash_name = PersistentStorage._gen_hash_name(instance)
+
+        # copy to avoid changing the instance __dict__ when preparing for
+        # storage
+        data = copy.copy(vars(instance))
+        data.pop(instance.key) if instance.key != SINGLETON else ...
+        for key, value in data.items():
+            # do not try to persist None values
+            if value is not None:
+                self._redis.hset(hash_name,
+                                 key,
+                                 PersistentStorage._encode_value(value))
+
+    def get_all(self, model: Type[Model]) -> [Model]:
         """
         Get all data associated with the model class cls.
+        """
+        LOGGER.debug("getting all records from Redis")
 
-        :param cls: class to get data for
-        :return: all data for model class
-        """
-        LOGGER.debug(f"getting all records for class: {cls}")
-        with self._db:
-            return cls.select()
+        instances = []
+        if model.key == SINGLETON:
+            hash_name = f"{model.__name__}:{SINGLETON}"
+            redis_hash = self._redis.hgetall(hash_name)
+            if redis_hash:  # not just an empty dict
+                instances.append(PersistentStorage._decode(
+                    model, SINGLETON, redis_hash)
+                )
+                return instances
 
-    def delete(self, obj):
-        """
-        Removes the object from persistent storage.
+        for hash_name in self._redis.scan_iter(match=f"{model.__name__}:*"):
+            instances.append(PersistentStorage._decode(
+                model,
+                # b"ModelName:key" -> key
+                hash_name.decode().split(":")[1],
+                self._redis.hgetall(hash_name))
+            )
+        return instances
 
-        :param obj:
-        :return:
-        """
-        LOGGER.debug(f"delete object: {obj}")
-        with self._db:
-            obj.delete_instance()
+    def delete(self, instance: Model):
+        """Delete the input instance from Redis."""
+        LOGGER.debug("delete in Redis")
 
-    def delete_all(self):
+        self._redis.delete(PersistentStorage._gen_hash_name(instance))
+
+    def delete_all(self, model=None):
+        """Delete all data stored in Redis."""
+        LOGGER.debug("delete all in Redis")
+
+        if model is not None:
+            for hash_name in self._redis.scan_iter(
+                    match=f"{model.__name__}:*"):
+                self._redis.delete(hash_name)
+            return
+
+        for registered_model in self._models:
+            for hash_name in self._redis.scan_iter(
+                    match=f"{registered_model.__name__}:*"):
+                self._redis.delete(hash_name)
+
+    """
+    Private
+    """
+
+    @staticmethod
+    def _encode_value(value: Union[bool, str, int, float, bytes]) -> \
+            Union[str, int, float, bytes]:
+        if type(value) in ENCODABLE_TYPES:
+            return value
+        elif type(value) is bool:
+            return int(value)
+        # add more expected types as needed
+
+    @staticmethod
+    def _decode(model: Type[Model],
+                key: str,
+                redis_hash: Mapping[bytes, bytes]) -> Model:
+        kwargs = {model.key: key} if key != SINGLETON else {}
+        kwargs.update({key.decode(): value.decode()
+                       for key, value in redis_hash.items()})
+        return model.decode(**kwargs)
+
+    @staticmethod
+    def _gen_hash_name(instance: Model) -> str:
         """
-        Drop all tables.
+        Generate the hash name to be used towards Redis for a given instance
+        of a model.
         """
-        LOGGER.debug("deleting all persistent data")
-        print(self._db.transaction_depth())
-        with self._db:
-            print(self._db.transaction_depth())
-            self._db.drop_tables(self._models)
+        hash_name = (f"{instance.__class__.__name__}:"
+                     f"{PersistentStorage._gen_key(instance)}")
+        return hash_name
+
+    @staticmethod
+    def _gen_key(instance: Model) -> str:
+        return (getattr(instance, instance.key)
+                if instance.key != SINGLETON else SINGLETON)

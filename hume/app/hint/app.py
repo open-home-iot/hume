@@ -8,7 +8,7 @@ from rabbitmq_client import (
     RMQConsumer,
     RMQProducer,
     QueueParams,
-    ConsumeParams
+    ConsumeParams, ConsumeOK
 )
 
 from app.device.models import Device
@@ -19,7 +19,7 @@ from defs import (
     CLI_HINT_PORT,
     CLI_HINT_IP_ADDRESS
 )
-from util.storage import DataStore
+from util.storage import DataStore, SINGLETON
 from app.abc import App, StartError
 from app.hint.models import HumeUser, BrokerCredentials, HintAuthentication
 from app.hint.defs import HintMessage
@@ -73,22 +73,18 @@ class HintApp(App):
         LOGGER.info("hint app start")
 
         # runs pairing, authentication, and getting updated broker credentials.
-        # may raise StartErrors
         try:
             self._connect_and_sync_with_hint()
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, RuntimeError):
             LOGGER.critical("failed to sync with HINT")
             raise StartError("failed to sync with HINT")
 
         # Fetch broker credentials
-        broker_credentials = self.storage.get(BrokerCredentials, None)
-        if broker_credentials is not None:
-            credentials = pika.PlainCredentials(broker_credentials.username,
-                                                broker_credentials.password)
-        else:
-            raise StartError("no broker credentials available")
+        broker_credentials = self.storage.get(BrokerCredentials, SINGLETON)
 
-        self._conn_params.credentials = credentials
+        self._conn_params.credentials = pika.PlainCredentials(
+            broker_credentials.username, broker_credentials.password
+        )
         self._consumer.connection_parameters = self._conn_params
         self._producer.connection_parameters = self._conn_params
 
@@ -146,7 +142,7 @@ class HintApp(App):
         """
         LOGGER.info("sending create device request")
 
-        hint_auth = self.storage.get(HintAuthentication, None)
+        hint_auth = self.storage.get(HintAuthentication, SINGLETON)
         response = requests.post(
             f"{self._hint_url}humes/"
             f"{self.cli_args.get(CLI_HUME_UUID)}/devices",
@@ -161,14 +157,14 @@ class HintApp(App):
         LOGGER.error("failed to create device")
         return False
 
-    def attach_failure(self, device: Device):
+    def attach_failure(self, device_identifier: str):
         """Sends an attach failure notification to HINT."""
         LOGGER.info("sending attach failure to HINT")
 
         message = {
             "type": HintMessage.ATTACH.value,
             "content": {
-                "identifier": device.uuid,
+                "identifier": device_identifier,
                 "success": False,
             },
         }
@@ -197,7 +193,12 @@ class HintApp(App):
         Called when the consumer which monitors the HUME's message queue
         receives a message.
         """
+        if isinstance(message, ConsumeOK):
+            LOGGER.info("succeeded in consuming from HUME message queue")
+            return
+
         LOGGER.debug("received HINT message")
+
         decoded_message = json.loads(message.decode('utf-8'))
         self._registered_callback(decoded_message["type"], decoded_message)
 
@@ -266,7 +267,7 @@ class HintApp(App):
             # to continue startup anyway.
             LOGGER.warning("HINT could not interpret pairing")
 
-        return self.storage.get(HumeUser, None)
+        return self.storage.get(HumeUser, SINGLETON)
 
     def _authenticate(self, hume_user: HumeUser):
         """
@@ -280,16 +281,15 @@ class HintApp(App):
 
         if response.status_code == requests.codes.ok:
             LOGGER.debug(f"got cookies {response.cookies}")
-            session_id = response.cookies.get("sessionid")
-            csrf_token = response.cookies.get("csrftoken")
-            self.storage.set(HintAuthentication(session_id=session_id,
-                                                csrf_token=csrf_token)
-                             )
+            self.storage.set(HintAuthentication(
+                response.cookies.get("sessionid"),
+                csrf_token=response.cookies.get("csrftoken"))
+            )
         else:
             # We could re-try but that mostly imposes complex handling of
             # something that happens very rarely. On start we can be a little
             # stricter and enforce that most operations go well, else restart.
-            StartError("could not authenticate with HINT")
+            raise RuntimeError("could not authenticate with HINT")
 
     def _get_broker_credentials(self):
         """
@@ -299,19 +299,15 @@ class HintApp(App):
         """
         LOGGER.info("getting broker credentials")
 
-        hint_auth = self.storage.get(HintAuthentication, None)
+        hint_auth = self.storage.get(HintAuthentication, SINGLETON)
         response = requests.get(self._hint_url + "broker-credentials",
                                 cookies={"sessionid": hint_auth.session_id})
 
         if response.status_code == requests.codes.ok:
             broker_credentials = response.json()
             LOGGER.debug(f"got broker credentials: {broker_credentials}")
-            username = broker_credentials['username']
-            password = broker_credentials['password']
-            new_broker_credentials = BrokerCredentials(
-                username=username,
-                password=password,
+            self.storage.set(BrokerCredentials(
+                broker_credentials['username'], broker_credentials['password'])
             )
-            self.storage.set(new_broker_credentials)
         else:
-            LOGGER.warning("failed to fetch broker credentials")
+            raise RuntimeError("failed to fetch broker credentials")

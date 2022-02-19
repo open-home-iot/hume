@@ -1,38 +1,37 @@
-import peewee
+from __future__ import annotations
 
-from util.storage import PersistentModel
+from typing import Union
 
-from app.device.defs import DeviceTransport
-
-
-class Device(PersistentModel):
-    uuid = peewee.CharField(unique=True, max_length=36, null=True)
-
-    transport = peewee.CharField(choices=(DeviceTransport.BLE.value,
-                                          DeviceTransport.SIM.value))
-    address = peewee.CharField(unique=True)
-
-    name = peewee.CharField(max_length=255)
-    attached = peewee.BooleanField(default=False)
-
-    @staticmethod
-    def local_key_field():
-        """
-        :return: name of local dict key field
-        """
-        return "uuid"
+from util.storage import Model
+from app.device.connection.defs import DeviceTransport
 
 
-class DeviceHealth:
+class Device(Model):
+    persistent = True
+    key = "uuid"
 
-    def __init__(self, uuid, heartbeat):
-        """
-        :param uuid: device UUID
-        :param heartbeat: datetime
-        """
+    def __init__(self,
+                 uuid: str,
+                 name: str,
+                 transport: Union[DeviceTransport.BLE.value,
+                                  DeviceTransport.SIM.value],
+                 address: str,
+                 attached: bool):
         self.uuid = uuid
-        self.heartbeat = heartbeat
+        self.name = name
+        self.transport = transport
+        self.address = address
+        self.attached = attached
 
-    @staticmethod
-    def local_key_field():
-        return "uuid"
+    @classmethod
+    def decode(cls,
+               uuid: str = None,
+               name: str = None,
+               transport: str = None,
+               address: str = None,
+               attached: str = None) -> Device:
+        return cls(uuid,
+                   name,
+                   DeviceTransport(transport).value,
+                   address,
+                   bool(int(attached)))

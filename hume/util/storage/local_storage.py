@@ -1,8 +1,9 @@
 import logging
 import copy
 
-from util.storage.defs import SINGLETON
+from typing import Type, Union
 
+from util.storage.defs import Model, model_error, SINGLETON
 
 LOGGER = logging.getLogger(__name__)
 
@@ -15,15 +16,19 @@ class LocalStorage:
     def __init__(self):
         self._data_dict = dict()
 
-    def define_storage(self, model):
+    def define_storage(self, model: Type[Model]):
         """
         Defines space in the local storage dict for input model.
-
-        :param model:
         """
         LOGGER.debug("defining local storage")
 
-        if model.local_key_field() == SINGLETON:
+        if model.__name__ in self._data_dict.keys():
+            model_error(
+                model.__name__,
+                custom_message=f"model {model.__name__} is already registered"
+            )
+
+        if model.key == SINGLETON:
             # No need for initialization, just need the table key.
             self._data_dict[model.__name__] = None
         else:
@@ -31,92 +36,81 @@ class LocalStorage:
 
         LOGGER.debug(f"current local storage state: {self._data_dict}")
 
-    def save(self, obj):
+    def set(self, instance: Model):
         """
-        Save an object to local storage dict.
-
-        :param obj: object to save
+        Set an object to local storage's dict.
         """
         LOGGER.debug("saving to in memory dictionary")
 
-        local_key_field = obj.local_key_field()
+        if instance.__class__.__name__ not in self._data_dict:
+            model_error(instance.__class__.__name__)
 
-        if local_key_field == SINGLETON:
-            self._data_dict[obj.__class__.__name__] = obj
+        if instance.key == SINGLETON:
+            self._data_dict[instance.__class__.__name__] = \
+                copy.deepcopy(instance)
         else:
-            table = self._data_dict[obj.__class__.__name__]
-            table.update({getattr(obj, local_key_field): obj})
+            table = self._data_dict[instance.__class__.__name__]
+            table.update({getattr(instance, instance.key):
+                          copy.deepcopy(instance)})
 
         LOGGER.debug(f"resulting local storage state: {self._data_dict}")
 
-    def get(self, cls, key, **kwargs):
+    def get(self, model: Type[Model], key: Union[str, SINGLETON]) -> Model:
         """
-        Get a single object matching the provided key. Will always check local
-        storage only as it should be up-to-date with persistent storage.
-
-        :param cls: class
-        :param key: key
-        :return: class object matching key or None
+        Get the object in local storage's dict that resolves from 'key'.
         """
-        LOGGER.debug("getting object")
+        LOGGER.debug("get local")
 
-        table = self._data_dict[cls.__name__]
-        LOGGER.debug(f"table contents: {table}")
+        if model.__name__ not in self._data_dict:
+            model_error(model.__name__)
 
-        if cls.local_key_field() == SINGLETON:
-            # Just one object exists.
-            return copy.deepcopy(table)
+        tab = self._data_dict[model.__name__]
 
-        return copy.deepcopy(table.get(key))
+        if key == SINGLETON:
+            return copy.deepcopy(tab)
+        return copy.deepcopy(tab[key])
 
-    def get_all(self, cls):
+    def get_all(self, model: Type[Model]):
         """
-        Get all objects of the provided class.
-
-        :param cls:
-        :return:
+        Get all instances of a model.
         """
-        LOGGER.debug(f"getting all object of model: {cls}")
+        LOGGER.debug("get all local")
+        if model.__name__ not in self._data_dict:
+            model_error(model.__name__)
 
-        if cls.local_key_field() == SINGLETON:
-            return copy.copy(self._data_dict[cls.__name__])
+        if model.key == SINGLETON:
+            return copy.deepcopy(self._data_dict[model.__name__])
+
+        return [copy.deepcopy(value)
+                for value in self._data_dict[model.__name__].values()]
+
+    def delete(self, instance: Model):
+        """Delete a model instance from the local storage's data dict."""
+        LOGGER.debug("delete local")
+
+        if instance.__class__.__name__ not in self._data_dict:
+            model_error(instance.__class__.__name__)
+
+        if instance.key == SINGLETON:
+            self._data_dict[instance.__class__.__name__] = None
         else:
-            table = copy.deepcopy(self._data_dict[cls.__name__])
-            return table.values()
-
-    def save_all(self, data):
-        """
-        Sets all objects in the data list to the local storage dict.
-
-        :param data: list of objects to save
-        """
-        LOGGER.debug("setting all objects in input list")
-
-        for obj in data:
-            self.save(obj)
+            self._data_dict[instance.__class__.__name__].pop(
+                getattr(instance, instance.key))
 
         LOGGER.debug(f"resulting local storage state: {self._data_dict}")
 
-    def delete(self, obj):
-        """
-        Removes the object from both local storage.
+    def delete_all(self, model=None):
+        """Delete all data stored in the local data dict."""
+        LOGGER.debug("delete all local")
 
-        :param obj:
-        """
-        LOGGER.debug("deleting object from local storage")
-
-        if obj.local_key_field() == SINGLETON:
-            # Can't pop the whole table...
-            self._data_dict[obj.__class__.__name__] = None
-        else:
-            table = self._data_dict[obj.__class__.__name__]
-            table.pop(getattr(obj, obj.local_key_field()))
-
-        LOGGER.debug(f"resulting local storage state: {self._data_dict}")
-
-    def delete_all(self):
-        """Delete all table data."""
-        LOGGER.debug("deleting all local storage data")
+        if model is not None:
+            tab = self._data_dict[model.__name__]
+            if isinstance(tab, dict):
+                self._data_dict[model.__name__] = dict()
+            else:
+                self._data_dict[model.__name__] = None
+            LOGGER.debug(f"resulting local storage state: {self._data_dict}")
+            return
 
         for key in self._data_dict.keys():
             if isinstance(self._data_dict[key], dict):
@@ -125,3 +119,7 @@ class LocalStorage:
                 self._data_dict[key] = None
 
         LOGGER.debug(f"resulting local storage state: {self._data_dict}")
+
+    """
+    Private
+    """

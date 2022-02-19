@@ -1,115 +1,82 @@
 import logging
+from typing import Type, TypeVar
 
-from defs import CLI_PSQL_USER, CLI_PSQL_PASSWORD
 from util.storage.local_storage import LocalStorage
-from util.storage.persistent_storage import PersistentModel, PersistentStorage
+from util.storage.persistent_storage import PersistentStorage
+from util.storage.defs import Model
 
 
 LOGGER = logging.getLogger(__name__)
+
+ModelInstance = TypeVar("ModelInstance")
 
 
 class DataStore:
     """
     Class that handles storage for the HUME services. It has both local and
-    persistent storage.
+    persistent storage capabilities. Local does not survive reboots, persisted
+    data does.
     """
 
-    def __init__(self, cli_args: dict):
-        self._persistent_storage: PersistentStorage = PersistentStorage(
-            cli_args[CLI_PSQL_USER], cli_args[CLI_PSQL_PASSWORD]
-        )
+    def __init__(self):
+        self._persistent_storage: PersistentStorage = PersistentStorage()
         self._local_storage: LocalStorage = LocalStorage()
 
-    def start(self):
-        """Start up the datastore, will lead to connect to Postgres."""
-        LOGGER.info("starting DataStore")
-        self._persistent_storage.start()
-
-    def stop(self):
+    def register(self, model: Type[Model]):
         """
-        Gracefully shut down the data store, terminating the PSQL
-        connection.
-        """
-        LOGGER.info("stopping DataStore")
-        self._persistent_storage.stop()
-
-    def register(self, model):
-        """
-        Register models with the DataStore.
-
-        :param model: model to register
+        Register models with the DataStore, which allocates storage space for
+        model instances.
         """
         # Registration process:
         # 1. Define storage space in _store, named same as model class
         # 2. Get data from storage if persistent
         LOGGER.info(f"registering model: {model.__name__}")
 
-        self.define_storage(model)
-
-        if issubclass(model, PersistentModel):
-            # load data into state
-            model_data = self._persistent_storage.get_all(model)
-            self._local_storage.save_all(model_data)
-
-    def define_storage(self, model):
-        """
-        Allocates storage both locally and towards the database. Tables are
-        only created if the model is a descendant of peewee.Model
-
-        :param model: model to define storage for
-        """
-        if issubclass(model, PersistentModel):
+        if model.persistent:
             self._persistent_storage.define_storage(model)
-
         self._local_storage.define_storage(model)
 
-    def set(self, obj):
+        if model.persistent:
+            model_instances = self._persistent_storage.get_all(model)
+
+            for instance in model_instances:
+                self._local_storage.set(instance)
+
+    def set(self, instance: Model):
         """
-        Set an object.
-
-        :param obj: object to save
+        Stores an object in the data store.
         """
-        if issubclass(obj.__class__, PersistentModel):
-            LOGGER.debug("saving persistently")
-            self._persistent_storage.save(obj)
+        LOGGER.debug(f"set {instance}")
+        self._persistent_storage.set(instance)
+        self._local_storage.set(instance)
 
-        LOGGER.debug("saving locally")
-        self._local_storage.save(obj)
-
-    def get(self, cls, key, **kwargs):
+    def get(self, model: Type[Model], key: str) -> ModelInstance:
         """
         Get a single object matching the provided key. Will always check local
         storage only as it should be up-to-date with persistent storage.
-
-        :param cls: class
-        :param key: key
-        :return: class object matching key
         """
-        return self._local_storage.get(cls, key, **kwargs)
+        LOGGER.debug(f"get {model.__name__}:{key}")
+        return self._local_storage.get(model, key)
 
-    def get_all(self, cls):
+    def get_all(self, model: Type[Model]) -> [ModelInstance]:
         """
-        Get all object of the provided class.
+        Get all instances of a model.
+        """
+        LOGGER.debug(f"get all {model.__name__}")
+        return self._local_storage.get_all(model)
 
-        :param cls:
-        :return:
-        """
-        return self._local_storage.get_all(cls)
+    def delete(self, instance: Model):
+        """Delete a model instance."""
+        LOGGER.debug(f"delete {instance}")
+        self._persistent_storage.delete(instance)
+        self._local_storage.delete(instance)
 
-    def delete(self, obj):
-        """
-        Removes the object from both local and persistent storage.
+    def delete_all(self, model=None):
+        """Flush all local and persistent data."""
+        LOGGER.debug(f"delete all, model={model}")
+        self._persistent_storage.delete_all(model=model)
+        self._local_storage.delete_all(model=model)
 
-        :param obj:
-        """
-        if issubclass(obj.__class__, PersistentModel):
-            self._persistent_storage.delete(obj)
-
-        self._local_storage.delete(obj)
-
-    def delete_all(self):
-        """
-        Clears data from all registered tables.
-        """
-        self._local_storage.delete_all()
-        self._persistent_storage.delete_all()
+    """
+    Private
+    """

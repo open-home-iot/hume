@@ -55,16 +55,6 @@ def parse_args() -> argparse.Namespace:
                         default=5672,
                         help="Central HINT broker port")
 
-    # PSQL args
-    parser.add_argument("-pu",
-                        "--psql-user",
-                        default="hume",
-                        help="PSQL username")
-    parser.add_argument("-pp",
-                        "--psql-password",
-                        default="password",
-                        help="PSQL password")
-
     # Logging
     parser.add_argument("-d",
                         "--debug",
@@ -99,7 +89,9 @@ def set_up_logging(_cli_args: dict):
 
 
 def stop(h: Hume, _a, _b):
-    """Stop everything!"""
+    """
+    Stop everything!
+    """
     exit_code = 0
     try:
         h.stop()
@@ -117,12 +109,13 @@ def log_exit_status():
     exiting.
     """
     exit_status = f"""exit status:
+    
     ----------------------------------------------
-    HUME EXIT STATUS
+                  HUME EXIT STATUS
     ----------------------------------------------
-    - THREADS -
+                    - THREADS -
     ----------------------------------------------
-    Active threads: {threading.active_count()}
+    Active threads:  {threading.active_count()}
     List of threads: {threading.enumerate()}
     """
 

@@ -1,43 +1,42 @@
-import peewee
+from __future__ import annotations
 
-from util.storage import PersistentModel
-from util.storage import SINGLETON
-
-
-class HumeUser(PersistentModel):
-
-    username = peewee.CharField(max_length=50)
-    password = peewee.CharField(max_length=50)
-
-    @staticmethod
-    def local_key_field():
-        """
-        :return: name of local dict key field
-        """
-        return SINGLETON
+from util.storage import Model, SINGLETON
 
 
-class BrokerCredentials(PersistentModel):
+class HumeUser(Model):
+    persistent = True
+    key = SINGLETON
 
-    username = peewee.CharField(max_length=50)
-    password = peewee.CharField(max_length=50)
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
 
-    @staticmethod
-    def local_key_field():
-        return SINGLETON
+    @classmethod
+    def decode(cls, username: str = None, password: str = None) -> HumeUser:
+        return cls(username, password)
 
 
-class HintAuthentication:
+class BrokerCredentials(Model):
+    persistent = True
+    key = SINGLETON
+
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
+
+    @classmethod
+    def decode(cls, username: str = None, password: str = None) -> \
+            BrokerCredentials:
+        return cls(username, password)
+
+
+class HintAuthentication(Model):
+    key = SINGLETON
 
     def __init__(self, session_id, csrf_token=None):
-        """
-        :param session_id: Django session ID used to authenticate consecutive
-                           requests
-        :param csrf_token: CSRF token
-        """
         self.session_id = session_id
         self.csrf_token = csrf_token
 
-    @staticmethod
-    def local_key_field():
-        return SINGLETON
+    @classmethod
+    def decode(cls, *args, **kwargs):
+        pass

@@ -3,25 +3,39 @@ import functools
 import logging
 
 from bleak import BleakScanner, BleakClient
+from bleak.backends.device import BLEDevice
 
-from app.device.defs import DeviceTransport
 from app.device.models import Device
-from app.device.connection.messages import has_message_start, get_request_type
+from app.device.connection.defs import DeviceTransport
 from app.device.connection.gdci import GDCI
-from app.device.connection.defs import MSG_START_ENC, MSG_END_ENC
-from app.device.connection.ble.defs import (
-    HOME_SVC_DATA_UUID,
-    HOME_SVC_DATA_VAL_HEX,
-    NUS_SVC_UUID,
-    NUS_RX_UUID,
-    NUS_TX_UUID
-)
+
+HOME_SVC_DATA_UUID = "0000a1b2-0000-1000-8000-00805f9b34fb"
+HOME_SVC_DATA_VAL_HEX = "1337"
+
+NUS_SVC_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+NUS_RX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+NUS_TX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+
+MSG_START = "^"
+MSG_START_ENC = b"^"
+MSG_END = "$"
+MSG_END_ENC = b"$"
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def is_home_compatible(device):
+def is_message_start(data: bytearray):
+    """Checks if the input data is the start of a device message."""
+    return data[0] == ord(MSG_START)
+
+
+def get_request_type(data: bytearray) -> int:
+    """:returns: the message request type"""
+    return int(chr(data[1]))
+
+
+def home_compatible(device):
     """
     Check a device returned by scanner for HOME compatibility. To be HOME
     compatible, a BLE device should:
@@ -119,7 +133,7 @@ class BLEConnection(GDCI):
 
     @staticmethod
     def on_device_found(on_devices_discovered,
-                        device,
+                        device: BLEDevice,
                         _advertisement_data):
         """
         Handle a bleak scanner device found event. Forward information to the
@@ -131,15 +145,16 @@ class BLEConnection(GDCI):
         :param device: bleak.backends.device.BLEDevice
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        LOGGER.debug(device)
+        LOGGER.debug("discovered device", device)
 
-        if is_home_compatible(device):
+        if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
-            discovered_device = Device(uuid=device.address,
-                                       transport=DeviceTransport.BLE.value,
-                                       address=device.address,
-                                       name=device.name)
+            discovered_device = Device(device.address,
+                                       device.name,
+                                       DeviceTransport.BLE.value,
+                                       device.address,
+                                       False)
 
             # Push device discovered to callback
             on_devices_discovered([discovered_device])
@@ -231,6 +246,8 @@ class BLEConnection(GDCI):
         return True
 
     def notify(self, callback: callable, device: Device):
+        LOGGER.info("enabling notify")
+
         if self.devices.get(device.address) is None:
             LOGGER.error(f"can't notify device {device.uuid[:4]}, it's not "
                          f"connected")
@@ -262,7 +279,7 @@ class BLEConnection(GDCI):
         # some messages are too long for the arduino message buffer, meaning
         # they will come as two separate messages. Find the start and end tags
         # of messages to make a complete request body for decoding.
-        if has_message_start(data):
+        if is_message_start(data):
             LOGGER.debug("has start tag, wiping request record for device")
             request_type = get_request_type(data)
             self.requests[device.address] = (request_type, bytearray(),)

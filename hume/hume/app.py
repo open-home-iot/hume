@@ -14,15 +14,13 @@ LOGGER = logging.getLogger(__name__)
 class Hume:
 
     def __init__(self, cli_args):
-        self.storage = DataStore(cli_args)
+        self.storage = DataStore()
         self.device_app = DeviceApp(cli_args, self.storage)
         self.hint_app = HintApp(cli_args, self.storage)
 
     def start(self):
         """Starts the HUME."""
         LOGGER.info("hume start")
-
-        self.storage.start()
 
         self.device_app.pre_start()
         self.hint_app.pre_start()
@@ -72,9 +70,8 @@ class Hume:
         """
         LOGGER.debug("HUME handling device message")
 
-        decoded_msg = json.loads(msg)
-
         if msg_type == DeviceMessage.CAPABILITY.value:
+            decoded_msg = json.loads(msg)
             LOGGER.info(f"device {device.uuid[:4]} sent capability response")
             capabilities = decoded_msg
             capabilities["identifier"] = device.uuid
@@ -82,11 +79,9 @@ class Hume:
             if self.hint_app.create_device(capabilities):
                 LOGGER.info("device created in HINT successfully")
 
-                # delete the old device entry and re-set with capability-
-                # provided UUID. This is done since BLE devices cannot provide
-                # UUID before capability response is gotten and are thus saved
-                # with their address as their primary key prior to attach
-                # success.
+                # This is done since BLE devices cannot provide UUID before
+                # capability response is gotten and are thus saved with their
+                # address as their primary key prior to attach success.
                 device = self.storage.get(Device, device.uuid)
                 device.uuid = capabilities["uuid"]
                 device.attached = True
@@ -95,9 +90,10 @@ class Hume:
                 LOGGER.error("failed to create device in HINT")
                 # Detach device to clean up after unsuccessful attach.
                 self.device_app.detach(device)
-                self.hint_app.attach_failure(device)
+                self.hint_app.attach_failure(device.uuid)
 
         elif msg_type == DeviceMessage.ACTION_STATEFUL.value:
+            decoded_msg = msg.decode()
             self.hint_app.action_response(device,
                                           HintMessage.ACTION_STATEFUL,
                                           {
@@ -125,15 +121,11 @@ class Hume:
             LOGGER.info(f"HINT requested device {identifier[:4]} to "
                         f"be attached")
 
-            error = True
             device = self.storage.get(Device, identifier)
             if device is not None:
-                if self.device_app.request_capabilities(device):
-                    error = False
-
-            if error:
-                LOGGER.error(f"failed to attach device {identifier[:4]}")
-                self.hint_app.attach_failure(Device(uuid=identifier))
+                if not self.device_app.request_capabilities(device):
+                    LOGGER.error(f"failed to attach device {identifier[:4]}")
+                    self.hint_app.attach_failure(identifier)
 
         elif msg_type == HintMessage.DETACH.value:
             device_uuid = msg["device_uuid"]

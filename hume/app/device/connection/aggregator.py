@@ -4,15 +4,15 @@ import logging
 from threading import Thread
 
 from defs import CLI_SIMULATION
-from app.device.connection.ble.ble import BLEConnection
+from app.device.connection.ble import BLEConnection
 from app.device.connection.gdci import GDCI
-from app.device.connection.sim.sim import SimConnection
+from app.device.connection.sim import SimConnection
 from app.device.models import Device
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DeviceConnector(GDCI):
+class ConnectionAggregator(GDCI):
     """
     Layer of abstraction and aggregator for different device transports. As
     more transport types are added, the DeviceConnector class keeps the GCI
@@ -47,11 +47,18 @@ class DeviceConnector(GDCI):
 
         if not self.simulation:
             LOGGER.info("stopping BLE event loop")
-            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+            if self._event_loop.is_running():
+                self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+            else:
+                LOGGER.info("event loop already stopped...")
+
             self._event_loop_thread.join(timeout=2.0)
 
             if self._event_loop_thread.is_alive():
                 LOGGER.error("failed to join event loop thread")
+            else:
+                LOGGER.info("closing event loop")
+                self._event_loop.close()
 
     """
     Public (GDCI proxy)
@@ -111,7 +118,7 @@ class DeviceConnector(GDCI):
 
     def notify(self, callback: callable, device: Device):
         """
-        Returns True if the device was successfully connected to.
+        Notify on device message to callback.
         """
         LOGGER.info(f"enabling notify for device {device.uuid[:4]}")
         if self.simulation:

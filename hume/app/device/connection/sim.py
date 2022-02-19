@@ -3,7 +3,7 @@ import logging
 import threading
 
 from app.device.connection.gdci import GDCI
-from app.device.connection.sim.specs import (
+from app.device.connection.sim_specs import (
     BASIC_LED_CAPS,
     DEVICE_UUID_LED,
     DEVICE_UUID_AQUARIUM,
@@ -11,17 +11,19 @@ from app.device.connection.sim.specs import (
     AQUARIUM_CAPS
 )
 from app.device.models import Device
-from app.device.connection import messages
-from app.device.defs import DeviceTransport, DeviceMessage
+from app.device.connection import ble
+from app.device.connection.defs import DeviceTransport, DeviceMessage
+
 
 LOGGER = logging.getLogger(__name__)
 
 
 def discovered_device(device_dict):
-    return Device(uuid=device_dict["uuid"],
-                  transport=DeviceTransport.SIM.value,
-                  address=device_dict["uuid"].replace('-', ':'),
-                  name=device_dict["name"])
+    return Device(device_dict["uuid"],
+                  device_dict["name"],
+                  DeviceTransport.SIM.value,
+                  device_dict["uuid"].replace('-', ':'),
+                  False)
 
 
 class SimConnection(GDCI):
@@ -60,14 +62,14 @@ class SimConnection(GDCI):
         return self.device_registry.get(device.uuid) is not None
 
     def connect(self, device: Device) -> bool:
-        LOGGER.info(f"connecting to device {device.uuid}")
+        LOGGER.info(f"connecting to device")
 
         self.device_registry[device.uuid] = SimConnection.DeviceEntry(device)
 
         return True
 
     def disconnect(self, device: Device) -> bool:
-        LOGGER.info(f"disconnecting device {device.uuid}")
+        LOGGER.info(f"disconnecting device {device.uuid[:4]}")
 
         self.device_registry.pop(device.uuid)
 
@@ -83,9 +85,9 @@ class SimConnection(GDCI):
         LOGGER.debug(f"sending device {to.uuid[:4]} message {msg.content}")
 
         if self.device_registry.get(to.uuid) is None:
-            raise ValueError(f"device {to.uuid[:4]} is not connected")
+            raise ConnectionError(f"device {to.uuid[:4]} is not connected")
 
-        request_type = messages.get_request_type(msg.content)
+        request_type = ble.get_request_type(msg.content)
 
         if request_type == DeviceMessage.CAPABILITY.value:
             daemon = threading.Thread(
@@ -146,6 +148,7 @@ class SimConnection(GDCI):
         daemon.start()
 
     def notify(self, callback: callable, device: Device):
+        LOGGER.info("activating notify")
         self.device_registry[device.uuid].callback = callback
 
     def for_each(self, callback: callable):

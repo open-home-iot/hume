@@ -31,11 +31,13 @@ class TestModel(unittest.TestCase):
     def test_model_decoding(self):
         """Verify the Device model decoding works as intended."""
         decoded_device = Device.decode("UUID",
+                                       "name",
                                        DeviceTransport.BLE.value,
                                        "address",
                                        "1")
 
         self.assertEqual(decoded_device.uuid, "UUID")
+        self.assertEqual(decoded_device.name, "name")
         self.assertEqual(decoded_device.transport, DeviceTransport.BLE.value)
         self.assertEqual(decoded_device.address, "address")
         self.assertEqual(decoded_device.attached, True)
@@ -61,7 +63,8 @@ class TestAppLCM(unittest.TestCase):
             storage.get(Device, "fake-key")
 
         # start
-        device = Device("UUID", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "UUID", "name", DeviceTransport.SIM.value, "address", True)
         storage.set(device)
         device_app.start()
 
@@ -114,7 +117,8 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
 
     def test_register_callback(self):
         # setup some test stuff :)
-        device = Device("uuid", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.SIM.value, "address", True)
         self.storage.set(device)
 
         callback_called = False
@@ -158,7 +162,8 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
 
     def test_detach(self):
         # set up an attached device
-        device = Device("uuid", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.SIM.value, "address", True)
         self.storage.set(device)
         self.app.aggregator.connect(device)
 
@@ -171,7 +176,7 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
 
     def test_stateful_action(self):
         non_existent_device = Device(
-            "uuid", DeviceTransport.SIM.value, "address", False
+            "uuid", "name", DeviceTransport.SIM.value, "address", False
         )
 
         # SIM raises exception for non-existent devices.

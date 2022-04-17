@@ -111,7 +111,6 @@ class Hume:
         from HINT.
         """
         LOGGER.debug("HUME handling HINT message")
-
         if msg_type == HintMessage.DISCOVER_DEVICES.value:
             LOGGER.info("HINT requested device discovery")
             self.device_app.discover(self._discovered_devices)

@@ -46,7 +46,8 @@ class TestSimConnectionAggregatorGDCI(unittest.TestCase):
         self.assertEqual(1, calls)
 
     def test_connection(self):
-        device = Device("uuid", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.SIM.value, "address", True)
 
         # is connected -> False
         # then connect -> True
@@ -69,6 +70,7 @@ class TestSimConnectionAggregatorGDCI(unittest.TestCase):
 
     def test_send(self):
         device = Device(DEVICE_UUID_LED,
+                        "name",
                         DeviceTransport.SIM.value,
                         "address",
                         True)
@@ -79,13 +81,16 @@ class TestSimConnectionAggregatorGDCI(unittest.TestCase):
         self.assertTrue(self.aggregator.send(GDCI.Message("01"), device))
 
     def test_notify(self):
-        device = Device("uuid", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.SIM.value, "address", True)
         self.assertTrue(self.aggregator.connect(device))
         self.aggregator.notify(lambda _d, _mt, _m: ..., device)
 
     def test_for_each(self):
-        device = Device("uuid", DeviceTransport.SIM.value, "address", True)
-        device2 = Device("uuid2", DeviceTransport.SIM.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+        device2 = Device(
+            "uuid2", "name2", DeviceTransport.SIM.value, "address", True)
         self.assertTrue(self.aggregator.connect(device))
         self.assertTrue(self.aggregator.connect(device2))
 
@@ -124,7 +129,8 @@ class TestBLEConnectionAggregatorGDCI(unittest.TestCase):
         self.aggregator.ble.discover.assert_called()
 
     def test_connection(self):
-        device = Device("uuid", DeviceTransport.BLE.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.BLE.value, "address", True)
         self.aggregator.connect(device)
         self.aggregator.ble.connect.assert_called_with(device)
 
@@ -138,13 +144,15 @@ class TestBLEConnectionAggregatorGDCI(unittest.TestCase):
         self.aggregator.ble.disconnect_all.assert_called()
 
     def test_send(self):
-        device = Device("uuid", DeviceTransport.BLE.value, "address", True)
+        device = Device(
+            "uuid", "name",  DeviceTransport.BLE.value, "address", True)
         msg = GDCI.Message("")
         self.aggregator.send(msg, device)
         self.aggregator.ble.send.assert_called_with(msg, device)
 
     def test_notify(self):
-        device = Device("uuid", DeviceTransport.BLE.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.BLE.value, "address", True)
 
         def callback(_d, _mt, _m):
             pass
@@ -153,7 +161,8 @@ class TestBLEConnectionAggregatorGDCI(unittest.TestCase):
         self.aggregator.ble.notify.assert_called_with(callback, device)
 
     def test_for_each(self):
-        device = Device("uuid", DeviceTransport.BLE.value, "address", True)
+        device = Device(
+            "uuid", "name", DeviceTransport.BLE.value, "address", True)
         self.aggregator.for_each(device)
         self.aggregator.ble.for_each.assert_called_with(device)
 

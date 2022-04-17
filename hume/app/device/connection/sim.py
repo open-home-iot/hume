@@ -62,7 +62,7 @@ class SimConnection(GDCI):
         return self.device_registry.get(device.uuid) is not None
 
     def connect(self, device: Device) -> bool:
-        LOGGER.info(f"connecting to device")
+        LOGGER.info("connecting to device")
 
         self.device_registry[device.uuid] = SimConnection.DeviceEntry(device)
 

@@ -109,7 +109,7 @@ def log_exit_status():
     exiting.
     """
     exit_status = f"""exit status:
-    
+
     ----------------------------------------------
                   HUME EXIT STATUS
     ----------------------------------------------

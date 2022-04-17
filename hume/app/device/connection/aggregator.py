@@ -4,10 +4,11 @@ import logging
 from threading import Thread
 
 from defs import CLI_SIMULATION
+from app.device.models import Device
+from app.device.connection.defs import DeviceTransport
 from app.device.connection.ble import BLEConnection
 from app.device.connection.gdci import GDCI
 from app.device.connection.sim import SimConnection
-from app.device.models import Device
 
 LOGGER = logging.getLogger(__name__)
 
@@ -80,8 +81,10 @@ class ConnectionAggregator(GDCI):
         Returns True if the device was successfully connected to.
         """
         LOGGER.info(f"connecting to device {device.uuid[:4]}")
-        return (self.sim.connect(device) if self.simulation
-                else self.ble.connect(device))
+        if self.simulation and device.transport == DeviceTransport.SIM.value:
+            return self.sim.connect(device)
+        elif device.transport == DeviceTransport.BLE.value:
+            return self.ble.connect(device)
 
     def is_connected(self, device: Device) -> bool:
         """

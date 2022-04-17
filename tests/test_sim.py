@@ -13,14 +13,23 @@ from app.device.connection.sim import SimConnection
 from app.device.connection.sim_specs import (
     DEVICE_UUID_LED,
     DEVICE_UUID_AQUARIUM,
-    BASIC_LED_CAPS
+    BASIC_LED_CAPS,
+    AQUARIUM_CAPS,
 )
 
 DEVICE_LED = Device(
-    DEVICE_UUID_LED, DeviceTransport.SIM.value, "address", True
+    DEVICE_UUID_LED,
+    BASIC_LED_CAPS["name"],
+    DeviceTransport.SIM.value,
+    "address",
+    True
 )
 DEVICE_AQUARIUM = Device(
-    DEVICE_UUID_AQUARIUM, DeviceTransport.SIM.value, "address", True
+    DEVICE_UUID_AQUARIUM,
+    AQUARIUM_CAPS["name"],
+    DeviceTransport.SIM.value,
+    "address",
+    True
 )
 
 

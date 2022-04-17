@@ -32,6 +32,9 @@ def is_message_start(data: bytearray):
 
 def get_request_type(data: bytearray) -> int:
     """:returns: the message request type"""
+    # chr -> looks up the ASCII table for which character the number
+    # corresponds to
+    # int -> convert the character to an integer, for example '1' -> 1
     return int(chr(data[1]))
 
 
@@ -46,6 +49,8 @@ def home_compatible(device):
     :param device: bleak.backends.device.BLEDevice
     :return: bool
     """
+    LOGGER.debug(f"checking device with metadata {device.metadata}")
+
     # Interesting device, look for HOME compatibility
     if NUS_SVC_UUID in device.metadata["uuids"]:
 
@@ -145,7 +150,7 @@ class BLEConnection(GDCI):
         :param device: bleak.backends.device.BLEDevice
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        LOGGER.debug("discovered device", device)
+        LOGGER.debug(f"discovered device {device}")
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")

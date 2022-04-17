@@ -8,7 +8,8 @@ from rabbitmq_client import (
     RMQConsumer,
     RMQProducer,
     QueueParams,
-    ConsumeParams, ConsumeOK
+    ConsumeParams,
+    ConsumeOK
 )
 
 from app.device.models import Device
@@ -188,7 +189,7 @@ class HintApp(App):
     Private
     """
 
-    def _on_hint_message(self, message: bytes):
+    def _on_hint_message(self, message: bytes, ack=None):
         """
         Called when the consumer which monitors the HUME's message queue
         receives a message.
@@ -201,10 +202,12 @@ class HintApp(App):
 
         decoded_message = json.loads(message.decode('utf-8'))
         self._registered_callback(decoded_message["type"], decoded_message)
+        ack()
 
     def _publish(self, message: dict):
         """Publish to the HINT message queue."""
-        self._producer.publish(self._encode_hint_command(message),
+        self._producer.publish(self._encode_hint_command(message)
+                               .encode("utf-8"),
                                queue_params=self._hint_queue_params)
 
     def _encode_hint_command(self, message: dict):

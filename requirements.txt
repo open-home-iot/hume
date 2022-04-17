@@ -10,12 +10,8 @@ packaging==21.3
 pika==1.2.0
 pycodestyle==2.8.0
 pyflakes==2.4.0
-pyobjc-core==8.2
-pyobjc-framework-Cocoa==8.2
-pyobjc-framework-CoreBluetooth==8.2
-pyobjc-framework-libdispatch==8.2
 pyparsing==3.0.7
-rabbitmq-client==2.0.3
+rabbitmq-client==2.3.0
 redis==4.1.2
 requests==2.27.1
 urllib3==1.26.8

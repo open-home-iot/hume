@@ -8,7 +8,7 @@
 on run scriptpath
   tell application "Terminal"
     my makeTab()
-    do script "cd " & scriptpath & "/../hume && workon hume && python main.py" in front window
+    do script "cd " & scriptpath & "/../hume && workon hume && python main.py $HUME_UUID --sim" in front window
   end tell
 end run
 

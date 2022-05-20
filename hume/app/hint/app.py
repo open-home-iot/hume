@@ -202,6 +202,7 @@ class HintApp(App):
 
         decoded_message = json.loads(message.decode('utf-8'))
         self._registered_callback(decoded_message["type"], decoded_message)
+        # Always run without manual ack mode on.
         ack()
 
     def _publish(self, message: dict):

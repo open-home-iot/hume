@@ -51,7 +51,7 @@ class DeviceApp(App):
         self.aggregator.stop()
 
     def post_stop(self):
-        LOGGER.info("device app post_start")
+        LOGGER.info("device app post_stop")
 
     """
     Public

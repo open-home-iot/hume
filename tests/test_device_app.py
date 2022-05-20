@@ -3,7 +3,6 @@ import unittest
 import sys
 import os
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "../hume"))
 
 from util.storage import DataStore
@@ -142,7 +141,7 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
         self.app.discover(lambda _: ...)
 
         devices = self.storage.get_all(Device)
-        self.assertEqual(len(devices) > 0, True)
+        self.assertTrue(len(devices) > 0)
 
     def test_discover_and_request_capabilities(self):
         discovered_devices = False

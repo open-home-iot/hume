@@ -1,9 +1,18 @@
+# flake8: noqa: E402
 import unittest
+import sys
+import os
 
-from hume.app.hint.models import (
+sys.path.append(os.path.join(os.path.dirname(__file__), "../hume"))
+
+from defs import *
+from app.hint.models import (
     HumeUser,
-    BrokerCredentials
+    BrokerCredentials,
+    HintAuthentication
 )
+from app.hint import HintApp
+from util.storage import DataStore
 
 
 class TestModels(unittest.TestCase):
@@ -18,8 +27,28 @@ class TestModels(unittest.TestCase):
         self.assertEqual(broker_credentials.username, "username")
         self.assertEqual(broker_credentials.password, "password")
 
+    def test_hint_auth(self):
+        _ = HintAuthentication("...", "...")
+        HintAuthentication.decode("..", "..")
+
 
 class TestAppLCM(unittest.TestCase):
-    pass
-    # def test_app_lcm(self):
-    #     app = HintApp()
+
+    def test_app_lcm(self):
+        cli_args = {
+            CLI_BROKER_IP_ADDRESS: "127.0.0.1",
+            CLI_BROKER_PORT: 1337,
+        }
+        storage = DataStore()
+        app = HintApp(cli_args, storage)
+
+        app.pre_start()
+
+        with self.assertRaises(TypeError):
+            storage.get(HumeUser, "does-not-exist")
+
+        with self.assertRaises(TypeError):
+            storage.get(BrokerCredentials, "does-not-exist")
+
+        with self.assertRaises(TypeError):
+            storage.get(HintAuthentication, "does-not-exist")

@@ -110,6 +110,17 @@ class DeviceApp(App):
         )
         self.aggregator.send(message, device)
 
+    def action_states(self, device: Device):
+        """
+        Fetch all stateful action (current) states.
+        """
+        LOGGER.debug(f"sending device {device.uuid[:4]} a request for all of "
+                     f"its current stateful action states")
+        message = GDCI.Message(
+            f"{DeviceMessage.ACTION_STATES.value}"
+        )
+        self.aggregator.send(message, device)
+
     def reset(self):
         """
         Resets the device application.

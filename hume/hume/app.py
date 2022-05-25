@@ -153,6 +153,17 @@ class Hume:
                 LOGGER.error("could not execute stateful action since device "
                              "does not exist")
 
+        elif msg_type == HintMessage.ACTION_STATES.value:
+            device_uuid = msg["device_uuid"]
+            LOGGER.info(f"HINT requested all stateful action states for "
+                        f"device {device_uuid[:4]}")
+            device = self.storage.get(Device, device_uuid)
+            if device is not None:
+                self.device_app.action_states(device)
+            else:
+                LOGGER.error("could not fetch stateful action states since "
+                             "the device did not exist")
+
         else:
             LOGGER.warning(f"got message from hint of an unknown type: "
                            f"{msg_type}, msg: {msg}")

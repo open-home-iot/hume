@@ -9,3 +9,4 @@ class DeviceTransport(Enum):
 class DeviceMessage(Enum):
     CAPABILITY = 0
     ACTION_STATEFUL = 1
+    ACTION_STATES = 2

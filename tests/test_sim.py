@@ -129,6 +129,25 @@ class TestBasicLed(unittest.TestCase):
 
         self.assertFalse(error)
 
+    def test_send_action_states(self):
+        error = True
+
+        def callback(device: Device, msg_type: int, msg: bytearray):
+            nonlocal error
+            if (device.uuid == DEVICE_UUID_LED and
+                    msg_type == DeviceMessage.ACTION_STATEFUL.value and
+                    msg == b"00"):
+                error = False
+
+        self.sim.notify(callback, DEVICE_LED)
+        self.sim.send(
+            GDCI.Message(
+                f"{DeviceMessage.ACTION_STATES.value}"
+            ), DEVICE_LED
+        )
+
+        self.assertFalse(error)
+
     def test_send_nonexistent_stateful_action(self):
         with self.assertRaises(ValueError):
             self.sim.send(

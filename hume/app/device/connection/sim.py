@@ -26,15 +26,29 @@ def discovered_device(device_dict):
                   False)
 
 
+def initial_states(capabilities: dict) -> dict:
+    i = 0
+    states = dict()
+    for _ in capabilities["states"]:
+        states[i] = 0
+        i += 1
+
+    return states
+
+
 class SimConnection(GDCI):
 
     class DeviceEntry:
 
-        def __init__(self, device):
+        def __init__(self, device: Device, capabilities: dict):
             self.device = device
             self.callback = lambda _device, msg_type, msg: \
                 LOGGER.warning(f"no notify callback for device "
                                f"{_device.uuid[:4]}")
+            self.current_states = initial_states(capabilities)
+
+        def update_state(self, group_id: int, state_id: int):
+            self.current_states[group_id] = state_id
 
     def __init__(self):
         super().__init__()
@@ -64,7 +78,9 @@ class SimConnection(GDCI):
     def connect(self, device: Device) -> bool:
         LOGGER.info("connecting to device")
 
-        self.device_registry[device.uuid] = SimConnection.DeviceEntry(device)
+        self.device_registry[device.uuid] = SimConnection.DeviceEntry(
+            device, self._capabilities[device.uuid]
+        )
 
         return True
 
@@ -102,6 +118,9 @@ class SimConnection(GDCI):
         elif request_type == DeviceMessage.ACTION_STATEFUL.value:
             self._handle_stateful_action(msg, to)
 
+        elif request_type == DeviceMessage.ACTION_STATES.value:
+            self._handle_action_states(to)
+
         return True
 
     def _handle_stateful_action(self, msg: GDCI.Message, device: Device):
@@ -136,6 +155,8 @@ class SimConnection(GDCI):
         if len(states) != 1:
             raise ValueError("device does not have that group ID and state")
 
+        self.device_registry.get(device.uuid).update_state(group_id, state_id)
+
         # cast handling to avoid performing the response handling before
         # indicating that the message has been sent.
         daemon = threading.Thread(
@@ -146,6 +167,15 @@ class SimConnection(GDCI):
             daemon=True
         )
         daemon.start()
+
+    def _handle_action_states(self, device: Device):
+        cb = self.device_registry[device.uuid].callback
+        for group_id, state_id in self.device_registry[
+            device.uuid
+        ].current_states.items():
+            cb(device,
+               DeviceMessage.ACTION_STATEFUL.value,
+               f"{group_id}{state_id}".encode("utf-8"))
 
     def notify(self, callback: callable, device: Device):
         LOGGER.info("activating notify")

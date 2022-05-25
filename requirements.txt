@@ -1,12 +1,18 @@
-certifi==2021.5.30
-charset-normalizer==2.0.4
-idna==3.2
-peewee==3.14.4
+bleak==0.14.2
+certifi==2021.10.8
+charset-normalizer==2.0.11
+coverage==6.3.1
+Deprecated==1.2.13
+flake8==4.0.1
+idna==3.3
+mccabe==0.6.1
+packaging==21.3
 pika==1.2.0
-rabbitmq-client==2.0.3
-requests==2.26.0
-urllib3==1.26.6
-dbus-next>=0.2.2;sys_platform == "linux"
-pyobjc-core>=7.0.1;sys_platform == 'darwin'
-pyobjc-framework-CoreBluetooth>=7.0.1;sys_platform == 'darwin'
-pyobjc-framework-libdispatch>=7.0.1;sys_platform == 'darwin'
+pycodestyle==2.8.0
+pyflakes==2.4.0
+pyparsing==3.0.7
+rabbitmq-client==2.3.0
+redis==4.1.2
+requests==2.27.1
+urllib3==1.26.8
+wrapt==1.13.3

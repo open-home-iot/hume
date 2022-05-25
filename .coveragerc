@@ -1,2 +1,5 @@
 [run]
 source = hume
+omit =
+    hume/app/abc.py
+    hume/app/device/connection/gdci.py

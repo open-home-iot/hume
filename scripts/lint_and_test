@@ -3,5 +3,7 @@
 cd "$(dirname "$0")"/.. || exit
 
 echo "Linting hume..."
-# shellcheck disable=SC2046
-flake8 $(find . -name "*.py")
+flake8
+
+coverage run --source hume -m unittest discover -s tests -f
+coverage report -m --fail-under 96

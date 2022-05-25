@@ -29,11 +29,12 @@ class TestModels(unittest.TestCase):
 
     def test_hint_auth(self):
         _ = HintAuthentication("...", "...")
-        HintAuthentication.decode("..", "..")
+        HintAuthentication.decode("...", "...")
 
 
 class TestAppLCM(unittest.TestCase):
 
+    # Only tests pre_start since the other require a live HINT NW available.
     def test_app_lcm(self):
         cli_args = {
             CLI_BROKER_IP_ADDRESS: "127.0.0.1",
@@ -44,6 +45,7 @@ class TestAppLCM(unittest.TestCase):
 
         app.pre_start()
 
+        # TypeErrors rather than KeyErrors since these are all singleton models
         with self.assertRaises(TypeError):
             storage.get(HumeUser, "does-not-exist")
 

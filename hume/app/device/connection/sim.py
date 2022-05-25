@@ -47,7 +47,7 @@ class SimConnection(GDCI):
                                f"{_device.uuid[:4]}")
             self.current_states = initial_states(capabilities)
 
-        def update_state(self, group_id: int , state_id: int):
+        def update_state(self, group_id: int, state_id: int):
             self.current_states[group_id] = state_id
 
     def __init__(self):

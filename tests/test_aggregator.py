@@ -14,7 +14,10 @@ from app.device.connection.gdci import GDCI
 from app.device.connection.defs import DeviceTransport
 from app.device.connection.aggregator import ConnectionAggregator
 from app.device.connection.sim import SimConnection
-from app.device.connection.sim_specs import DEVICE_UUID_LED
+from app.device.connection.sim_specs import (
+    DEVICE_UUID_LED,
+    DEVICE_UUID_AQUARIUM
+)
 
 
 class TestSimConnectionAggregatorGDCI(unittest.TestCase):
@@ -47,7 +50,7 @@ class TestSimConnectionAggregatorGDCI(unittest.TestCase):
 
     def test_connection(self):
         device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", True)
 
         # is connected -> False
         # then connect -> True
@@ -82,15 +85,15 @@ class TestSimConnectionAggregatorGDCI(unittest.TestCase):
 
     def test_notify(self):
         device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_AQUARIUM, "name", DeviceTransport.SIM.value, "address", True)
         self.assertTrue(self.aggregator.connect(device))
         self.aggregator.notify(lambda _d, _mt, _m: ..., device)
 
     def test_for_each(self):
         device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", True)
         device2 = Device(
-            "uuid2", "name2", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_AQUARIUM, "name2", DeviceTransport.SIM.value, "address", True)
         self.assertTrue(self.aggregator.connect(device))
         self.assertTrue(self.aggregator.connect(device2))
 

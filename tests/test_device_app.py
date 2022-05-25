@@ -44,6 +44,12 @@ class TestModel(unittest.TestCase):
 
 class TestAppLCM(unittest.TestCase):
 
+    def setUp(self):
+        self.storage = DataStore()
+
+    def tearDown(self):
+        self.storage.delete_all()
+
     def test_app_lcm(self):
         """
         Verifies the different LCM hooks are doing what they should.
@@ -51,20 +57,19 @@ class TestAppLCM(unittest.TestCase):
         cli_args = {
             CLI_SIMULATION: True,
         }
-        storage = DataStore()
-        device_app = DeviceApp(cli_args, storage)
+        device_app = DeviceApp(cli_args, self.storage)
 
         # pre_start
         device_app.pre_start()
         # Assert KeyError rather than model error since the table should now
         # be registered.
         with self.assertRaises(KeyError):
-            storage.get(Device, "fake-key")
+            self.storage.get(Device, "fake-key")
 
         # start
         device = Device(
-            "UUID", "name", DeviceTransport.SIM.value, "address", True)
-        storage.set(device)
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", True)
+        self.storage.set(device)
         device_app.start()
 
         # all attached devices should be connected.
@@ -117,7 +122,7 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
     def test_register_callback(self):
         # setup some test stuff :)
         device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", True)
         self.storage.set(device)
 
         callback_called = False
@@ -162,7 +167,7 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
     def test_detach(self):
         # set up an attached device
         device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", True)
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", True)
         self.storage.set(device)
         self.app.aggregator.connect(device)
 
@@ -175,7 +180,7 @@ class TestDeviceAppPublicInterface(unittest.TestCase):
 
     def test_stateful_action(self):
         non_existent_device = Device(
-            "uuid", "name", DeviceTransport.SIM.value, "address", False
+            DEVICE_UUID_LED, "name", DeviceTransport.SIM.value, "address", False
         )
 
         # SIM raises exception for non-existent devices.

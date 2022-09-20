@@ -189,7 +189,7 @@ class HintApp(App):
     Private
     """
 
-    def _on_hint_message(self, message: bytes, ack=None):
+    def _on_hint_message(self, message: bytes, ack=None, **kwargs):
         """
         Called when the consumer which monitors the HUME's message queue
         receives a message.
@@ -291,7 +291,7 @@ class HintApp(App):
             )
         else:
             # We could re-try but that mostly imposes complex handling of
-            # something that happens very rarely. On start we can be a little
+            # something that happens very rarely. On start, we can be a little
             # stricter and enforce that most operations go well, else restart.
             raise RuntimeError("could not authenticate with HINT")
 

@@ -34,7 +34,8 @@ class Hume:
         try:
             self.device_app.start()
             self.hint_app.start()
-        except StartError:
+        except StartError as e:
+            LOGGER.error(f"caught StartError: {e}")
             self.stop()  # may or may not raise another exception
             # raise runtime error to ensure stop
             raise RuntimeError("failed to start an app")
@@ -93,6 +94,8 @@ class Hume:
                 self.hint_app.attach_failure(device.uuid)
 
         elif msg_type == DeviceMessage.ACTION_STATEFUL.value:
+            LOGGER.info(f"device {device.uuid[:4]} sent stateful action "
+                        f"response")
             decoded_msg = msg.decode()
             self.hint_app.action_response(device,
                                           HintMessage.ACTION_STATEFUL,

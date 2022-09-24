@@ -269,7 +269,7 @@ class HintApp(App):
         else:
             # Something else went wrong, perhaps HINT is unavailable, try
             # to continue startup anyway.
-            LOGGER.warning("HINT could not interpret pairing")
+            LOGGER.warning(f"request failed: {response.status_code}")
 
         return self.storage.get(HumeUser, SINGLETON)
 

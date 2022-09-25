@@ -42,6 +42,13 @@ class TestSupportingFunctions(unittest.TestCase):
             ble.home_compatible(BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID, uuid.uuid4()],
+                details={
+                    "props": {
+                        "ServiceData": {
+                            ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                        }
+                    }
+                },
                 service_data={
                     # LEEEEEEEEEEET
                     ble.HOME_SVC_DATA_UUID: b"\x13\x37"
@@ -54,6 +61,7 @@ class TestSupportingFunctions(unittest.TestCase):
             ble.home_compatible(BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID, uuid.uuid4(), uuid.uuid4()],
+                details={},
                 service_data={}
             ))
         )
@@ -75,6 +83,7 @@ class TestSupportingFunctions(unittest.TestCase):
             ble.home_compatible(BLEDevice(
                 "address", "name",
                 uuids=[uuid.uuid4(), uuid.uuid4()],
+                details={},
                 service_data={}
             ))
         )
@@ -84,6 +93,13 @@ class TestSupportingFunctions(unittest.TestCase):
             ble.home_compatible(BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID[1:], uuid.uuid4(), uuid.uuid4()],
+                details={
+                    "props": {
+                        "ServiceData": {
+                            ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                        }
+                    }
+                },
                 service_data={
                     # LEEEEEEEEEEET
                     ble.HOME_SVC_DATA_UUID: b"\x13\x37"

@@ -256,7 +256,7 @@ class BLEConnection(GDCI):
         disconnections = []
 
         # To avoid mutating the collection being iterated over.
-        devices = self.devices.values()
+        devices = list(self.devices.values())
 
         for device in devices:
             disconnections.append(self.disconnect(device))

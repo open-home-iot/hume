@@ -210,6 +210,7 @@ class BLEConnection(GDCI):
         )
         connected = await_future(future)
         if connected:
+            # TODO: Set disconnected callback.
             self.clients[device.address] = device_client
             self.devices[device.address] = device
 

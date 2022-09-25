@@ -104,8 +104,12 @@ class HintApp(App):
 
     def stop(self):
         LOGGER.info("hint app stop")
-        self._consumer.stop()
-        self._producer.stop()
+
+        # On startup errors these fields may not yet have been set.
+        if self._consumer is not None:
+            self._consumer.stop()
+        if self._producer is not None:
+            self._producer.stop()
 
     def post_stop(self):
         LOGGER.info("hint app post_stop")

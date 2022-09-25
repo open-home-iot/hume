@@ -254,7 +254,11 @@ class BLEConnection(GDCI):
         LOGGER.info("disconnecting all connected devices")
 
         disconnections = []
-        for device in self.devices.values():
+
+        # To avoid mutating the collection being iterated over.
+        devices = self.devices.values()
+
+        for device in devices:
             disconnections.append(self.disconnect(device))
 
         return False not in disconnections

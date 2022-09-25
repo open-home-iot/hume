@@ -86,6 +86,10 @@ def set_up_logging(_cli_args: dict):
                       logging.DEBUG if _cli_args[CLI_DEBUG]
                       else logging.WARNING,
                       HANDLER_STREAM)
+    set_up_logger_for("bleak",
+                      logging.DEBUG if _cli_args[CLI_DEBUG]
+                      else logging.WARNING,
+                      HANDLER_STREAM)
 
 
 def stop(h: Hume, _a, _b):

@@ -50,6 +50,7 @@ def home_compatible(device):
     :return: bool
     """
     LOGGER.debug(f"checking device with metadata {device.metadata}")
+    LOGGER.debug(f"device.details: {device.details}")
 
     # Interesting device, look for HOME compatibility
     if NUS_SVC_UUID in device.metadata["uuids"]:

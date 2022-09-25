@@ -172,6 +172,7 @@ class TestBLEConnectionInterface(unittest.TestCase):
             mock, BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID, uuid.uuid4()],
+                details={},
                 service_data={}
             ),
             _advertisement_data={}

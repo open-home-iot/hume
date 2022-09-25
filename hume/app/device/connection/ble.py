@@ -1,6 +1,9 @@
 import asyncio
 import functools
 import logging
+import sys
+
+from typing import Union
 
 from bleak import BleakScanner, BleakClient
 from bleak.backends.device import BLEDevice
@@ -20,7 +23,6 @@ MSG_START = "^"
 MSG_START_ENC = b"^"
 MSG_END = "$"
 MSG_END_ENC = b"$"
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,18 +51,38 @@ def home_compatible(device):
     :param device: bleak.backends.device.BLEDevice
     :return: bool
     """
+
+    def check_for_home_svc_data(d: BLEDevice) -> Union[bytearray, None]:
+        """
+        mac-backends will have a 'service_data' metadata property.
+        linux-backends will have a path.props 'ServiceData' property.
+
+        {'path': '/org/bluez/hci0/dev_D3_64_79_85_A2_61', 'props': {
+          ...
+          'ServiceData': {
+            '0000a1b2-0000-1000-8000-00805f9b34fb': bytearray(b'\x137')},
+            ...
+          }
+        }
+        """
+        if sys.platform.startswith("linux"):
+            return d.details\
+                .get("props", dict())\
+                .get("ServiceData", dict())\
+                .get(HOME_SVC_DATA_UUID)
+
+        return d.metadata.get("service_data", dict()).get(HOME_SVC_DATA_UUID)
+
     LOGGER.debug(f"checking device with metadata {device.metadata}")
     LOGGER.debug(f"device.details: {device.details}")
 
-    # Interesting device, look for HOME compatibility
+    # If the NUS service exists, continue checking
     if NUS_SVC_UUID in device.metadata["uuids"]:
-
         # Check for HOME service data
-        home_svc_data_val = (
-            device.metadata["service_data"].get(HOME_SVC_DATA_UUID))
-        if home_svc_data_val is not None and (
-                home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX):
-            return True
+        home_svc_data_val = check_for_home_svc_data(device)
+        return home_svc_data_val is not None and (
+                home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX)
+
     return False
 
 
@@ -83,7 +105,7 @@ def scan_data(data: bytearray) -> (bytearray, bool, int):
             data[start_index:end_index],
             True,
             # +1 to skip MSG_END character, 0 = does not end
-            end_index+1 if len(data[end_index+1:]) > 0 else 0
+            end_index + 1 if len(data[end_index + 1:]) > 0 else 0
         )
     except ValueError:
         return data[start_index:], False, 0

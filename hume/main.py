@@ -141,7 +141,7 @@ if __name__ == "__main__":
         hume.start()
         threading.Event().wait()
     except Exception as e:
-        LOGGER.info(f"exception {e} happened when starting")
+        LOGGER.info("exception happened when starting: ", e)
         # no need to call hume stop for cleanup, hume will cleanly stop when
         # failing to start, or at least it should.
         log_exit_status()

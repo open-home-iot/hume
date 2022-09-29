@@ -182,7 +182,7 @@ class BLEConnection(GDCI):
         :param device: bleak.backends.device.BLEDevice
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        LOGGER.debug(f"discovered device {device}")
+        LOGGER.debug(f"discovered device {device.name}")
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
@@ -214,11 +214,13 @@ class BLEConnection(GDCI):
         LOGGER.info(f"connecting to device {device.address}")
 
         async def _connect(client: BleakClient):
-            return await client.connect(timeout=0.0)
+            return await client.connect()
 
         bledevice_or_address = self._discovery_cache.get(
             device.address, device.address
         )
+        LOGGER.info("connecting to: ", bledevice_or_address)
+
         device_client = BleakClient(bledevice_or_address)
         future = asyncio.run_coroutine_threadsafe(
             _connect(device_client), self.event_loop

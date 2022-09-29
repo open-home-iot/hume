@@ -3,8 +3,6 @@ import functools
 import logging
 import sys
 
-from typing import Union
-
 from bleak import BleakScanner, BleakClient
 from bleak.backends.device import BLEDevice
 
@@ -76,7 +74,8 @@ def extract_device_uuid(device: BLEDevice) -> str:
     }
     """
     # The important bits (macOS):
-    # {'uuids': ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'], 'service_data': {<The device's UUID>: b'\xff\xff'}
+    # 'uuids': ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'],
+    # 'service_data': {<The device's UUID>: b'\xff\xff'}
 
     if sys.platform.startswith("linux"):
         service_data = device.details.get(
@@ -89,10 +88,11 @@ def extract_device_uuid(device: BLEDevice) -> str:
         try:
             if v.hex() == HOME_SVC_DATA_HEX:
                 return str(k)
-        except:  # Broad for a reason, ignore
+        except:  # noqa
             pass
 
     return ""
+
 
 def scan_data(data: bytearray) -> (bytearray, bool, int):
     """

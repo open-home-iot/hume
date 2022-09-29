@@ -217,7 +217,7 @@ class BLEConnection(GDCI):
             return await client.connect(timeout=0.0)
 
         bledevice_or_address = self._discovery_cache.get(
-            device.address, default=device.address
+            device.address, device.address
         )
         device_client = BleakClient(bledevice_or_address)
         future = asyncio.run_coroutine_threadsafe(

@@ -45,13 +45,13 @@ class TestSupportingFunctions(unittest.TestCase):
                 details={
                     "props": {
                         "ServiceData": {
-                            ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                            "some-uuid": b"\xff\xff"
                         }
                     }
                 },
                 service_data={
                     # LEEEEEEEEEEET
-                    ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                    "some-uuid": b"\xff\xff"
                 }
             ))
         )
@@ -73,7 +73,7 @@ class TestSupportingFunctions(unittest.TestCase):
                 uuids=[uuid.uuid4(), uuid.uuid4()],
                 service_data={
                     # LEEEEEEEEEEET
-                    ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                    "some-uuid": b"\xff\xff"
                 }
             ))
         )
@@ -96,13 +96,13 @@ class TestSupportingFunctions(unittest.TestCase):
                 details={
                     "props": {
                         "ServiceData": {
-                            ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                            "some-uuid": b"\xff\xff"
                         }
                     }
                 },
                 service_data={
                     # LEEEEEEEEEEET
-                    ble.HOME_SVC_DATA_UUID: b"\x13\x37"
+                    "some-uuid": b"\xff\xff"
                 }
             ))
         )

@@ -145,11 +145,13 @@ class BLEConnection(GDCI):
         # str(address): Device
         self.devices = dict()
 
+        # TODO: perhaps put back if BLEDevices start to be supported in
+        #  BlueZ.
         # str(address): BLEDevice
         # Needed because if you do not keep device details another discovery is
         # started and bleak cannot handle more than 1 simultaneous discovery at
         # a given time -> exception.
-        self._discovery_cache = dict()
+        # self._discovery_cache = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -161,8 +163,10 @@ class BLEConnection(GDCI):
         cb = functools.partial(self.on_device_discovered,
                                on_devices_discovered)
 
+        # TODO: perhaps put back if BLEDevices start to be supported in
+        #  BlueZ.
         # Reset discovery cache to avoid buildup
-        self._discovery_cache.clear()
+        # self._discovery_cache.clear()
 
         asyncio.run_coroutine_threadsafe(
             BleakScanner.discover(detection_callback=cb), self.event_loop
@@ -184,16 +188,20 @@ class BLEConnection(GDCI):
         """
         LOGGER.info(f"discovered device {device.name}")
 
-        if self._discovery_cache.get(device.address) is not None:
-            # Already know about this one, and cache is reset between
-            # discoveries.
-            return
+        # TODO: perhaps put back if BLEDevices start to be supported in
+        #  BlueZ.
+        # if self._discovery_cache.get(device.address) is not None:
+        #     # Already know about this one, and cache is reset between
+        #     # discoveries.
+        #     return
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
+            # TODO: perhaps put back if BLEDevices start to be supported in
+            #  BlueZ.
             # The device is always referred to with its address
-            self._discovery_cache[device.address] = BLEDevice
+            # self._discovery_cache[device.address] = BLEDevice
 
             discovered_device = Device(device.address,
                                        device.name,
@@ -221,18 +229,20 @@ class BLEConnection(GDCI):
         async def _connect(client: BleakClient):
             return await client.connect()
 
-        def fetch_device_info_to_connect_to(address: str) -> \
-                Union[BLEDevice, str]:
-            cache_result = self._discovery_cache.get(address, address)
-            if isinstance(cache_result, BLEDevice):
-                LOGGER.info("found discovered BLEDevice instance:")
-                LOGGER.info(cache_result.__str__())
+        # TODO: evaluate new way of connecting, cannot use BLEDevice on BlueZ
+        #  systems.
+        # def fetch_device_info_to_connect_to(address: str) -> \
+        #         Union[BLEDevice, str]:
+        #     cache_result = self._discovery_cache.get(address, address)
+        #     if isinstance(cache_result, BLEDevice):
+        #         LOGGER.info("found discovered BLEDevice instance:")
+        #         LOGGER.info(cache_result.__str__())
+        #
+        #     return cache_result
+        #
+        # bledevice_or_address = fetch_device_info_to_connect_to()
 
-            return cache_result
-
-        bledevice_or_address = fetch_device_info_to_connect_to(device.address)
-
-        device_client = BleakClient(bledevice_or_address)
+        device_client = BleakClient(device.address)
         future = asyncio.run_coroutine_threadsafe(
             _connect(device_client), self.event_loop
         )

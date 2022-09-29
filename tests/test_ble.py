@@ -163,7 +163,8 @@ class TestBLEConnectionInterface(unittest.TestCase):
 
     def test_on_device_found(self):
         mock = Mock()
-        BLEConnection.on_device_discovered(
+        ble_connection = BLEConnection(Mock())
+        ble_connection.on_device_discovered(
             mock, BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID, uuid.uuid4()],
@@ -184,7 +185,7 @@ class TestBLEConnectionInterface(unittest.TestCase):
         mock.assert_called()
 
         mock = Mock()
-        BLEConnection.on_device_discovered(
+        ble_connection.on_device_discovered(
             mock, BLEDevice(
                 "address", "name",
                 uuids=[ble.NUS_SVC_UUID, uuid.uuid4()],

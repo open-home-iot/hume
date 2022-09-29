@@ -66,9 +66,9 @@ def home_compatible(device):
         }
         """
         if sys.platform.startswith("linux"):
-            return d.details\
-                .get("props", dict())\
-                .get("ServiceData", dict())\
+            return d.details \
+                .get("props", dict()) \
+                .get("ServiceData", dict()) \
                 .get(HOME_SVC_DATA_UUID)
 
         return d.metadata.get("service_data", dict()).get(HOME_SVC_DATA_UUID)
@@ -182,7 +182,7 @@ class BLEConnection(GDCI):
         :param device: bleak.backends.device.BLEDevice
         :param _advertisement_data: bleak.backends.scanner.AdvertisementData
         """
-        LOGGER.debug(f"discovered device {device.name}")
+        LOGGER.info(f"discovered device {device.name}")
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
@@ -216,14 +216,16 @@ class BLEConnection(GDCI):
         async def _connect(client: BleakClient):
             return await client.connect()
 
-        bledevice_or_address = self._discovery_cache.get(
-            device.address, device.address
-        )
-        LOGGER.info(
-            "connecting to: ",
-            bledevice_or_address if isinstance(bledevice_or_address, str) else
-            f"BLEDevice<{bledevice_or_address.address}>"
-        )
+        def fetch_device_info_to_connect_to(address: str) -> \
+                Union[BLEDevice, str]:
+            cache_result = self._discovery_cache.get(address, address)
+            if isinstance(cache_result, BLEDevice):
+                LOGGER.info("found discovered BLEDevice instance:")
+                LOGGER.info(cache_result.__str__())
+
+            return cache_result
+
+        bledevice_or_address = fetch_device_info_to_connect_to(device.address)
 
         device_client = BleakClient(bledevice_or_address)
         future = asyncio.run_coroutine_threadsafe(

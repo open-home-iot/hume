@@ -111,6 +111,8 @@ class PersistentStorage:
             return value
         elif type(value) is bool:
             return int(value)
+        else:
+            LOGGER.error(f"got unexpected type {type(value)}")
         # add more expected types as needed
 
     @staticmethod

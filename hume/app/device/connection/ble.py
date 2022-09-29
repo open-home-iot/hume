@@ -12,8 +12,7 @@ from app.device.models import Device
 from app.device.connection.defs import DeviceTransport
 from app.device.connection.gdci import GDCI
 
-HOME_SVC_DATA_UUID = "0000a1b2-0000-1000-8000-00805f9b34fb"
-HOME_SVC_DATA_VAL_HEX = "1337"
+HOME_SVC_DATA_HEX = "ffff"
 
 NUS_SVC_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 NUS_RX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -52,39 +51,48 @@ def home_compatible(device):
     :return: bool
     """
 
-    def check_for_home_svc_data(d: BLEDevice) -> Union[bytearray, None]:
-        """
-        mac-backends will have a 'service_data' metadata property.
-        linux-backends will have a path.props 'ServiceData' property.
-
-        {'path': '/org/bluez/hci0/dev_D3_64_79_85_A2_61', 'props': {
-          ...
-          'ServiceData': {
-            '0000a1b2-0000-1000-8000-00805f9b34fb': bytearray(b'\x137')},
-            ...
-          }
-        }
-        """
-        if sys.platform.startswith("linux"):
-            return d.details \
-                .get("props", dict()) \
-                .get("ServiceData", dict()) \
-                .get(HOME_SVC_DATA_UUID)
-
-        return d.metadata.get("service_data", dict()).get(HOME_SVC_DATA_UUID)
-
     LOGGER.debug(f"checking device with metadata {device.metadata}")
     LOGGER.debug(f"device.details: {device.details}")
 
     # If the NUS service exists, continue checking
     if NUS_SVC_UUID in device.metadata["uuids"]:
         # Check for HOME service data
-        home_svc_data_val = check_for_home_svc_data(device)
-        return home_svc_data_val is not None and (
-                home_svc_data_val.hex() == HOME_SVC_DATA_VAL_HEX)
+        return extract_device_uuid(device) != ""
 
     return False
 
+
+def extract_device_uuid(device: BLEDevice) -> str:
+    """
+    mac-backends will have a 'service_data' metadata property.
+    linux-backends will have a path.props 'ServiceData' property.
+
+    {'path': '/org/bluez/hci0/dev_D3_64_79_85_A2_61', 'props': {
+      ...
+      'ServiceData': {
+        '0000a1b2-0000-1000-8000-00805f9b34fb': bytearray(b'\x137')},
+        ...
+      }
+    }
+    """
+    # The important bits (macOS):
+    # {'uuids': ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'], 'service_data': {<The device's UUID>: b'\xff\xff'}
+
+    if sys.platform.startswith("linux"):
+        service_data = device.details.get(
+            "props", dict()
+        ).get("ServiceData", dict())
+    else:
+        service_data = device.metadata.get("service_data", dict())
+
+    for k, v in service_data.items():
+        try:
+            if v.hex() == HOME_SVC_DATA_HEX:
+                return str(k)
+        except:  # Broad for a reason, ignore
+            pass
+
+    return ""
 
 def scan_data(data: bytearray) -> (bytearray, bool, int):
     """
@@ -145,13 +153,8 @@ class BLEConnection(GDCI):
         # str(address): Device
         self.devices = dict()
 
-        # TODO: perhaps put back if BLEDevices start to be supported in
-        #  BlueZ.
-        # str(address): BLEDevice
-        # Needed because if you do not keep device details another discovery is
-        # started and bleak cannot handle more than 1 simultaneous discovery at
-        # a given time -> exception.
-        # self._discovery_cache = dict()
+        # str(address): bool
+        self._discovery_cache = dict()
 
     def discover(self, on_devices_discovered):
         """
@@ -163,10 +166,8 @@ class BLEConnection(GDCI):
         cb = functools.partial(self.on_device_discovered,
                                on_devices_discovered)
 
-        # TODO: perhaps put back if BLEDevices start to be supported in
-        #  BlueZ.
         # Reset discovery cache to avoid buildup
-        # self._discovery_cache.clear()
+        self._discovery_cache.clear()
 
         asyncio.run_coroutine_threadsafe(
             BleakScanner.discover(detection_callback=cb), self.event_loop
@@ -188,25 +189,22 @@ class BLEConnection(GDCI):
         """
         LOGGER.info(f"discovered device {device.name}")
 
-        # TODO: perhaps put back if BLEDevices start to be supported in
-        #  BlueZ.
-        # if self._discovery_cache.get(device.address) is not None:
-        #     # Already know about this one, and cache is reset between
-        #     # discoveries.
-        #     return
+        if self._discovery_cache.get(device.address) is not None:
+            # Already know about this one, and cache is reset between
+            # discoveries.
+            LOGGER.info(f"already discovered device {device.name}")
+            return
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 
-            # TODO: perhaps put back if BLEDevices start to be supported in
-            #  BlueZ.
             # The device is always referred to with its address
-            # self._discovery_cache[device.address] = BLEDevice
+            self._discovery_cache[device.address] = True
 
-            discovered_device = Device(device.address,
-                                       device.name,
+            discovered_device = Device(extract_device_uuid(device),
+                                       str(device.name),
                                        DeviceTransport.BLE.value,
-                                       device.address,
+                                       str(device.address),
                                        False)
 
             # Push device discovered to callback

@@ -79,16 +79,13 @@ def set_up_logging(_cli_args: dict):
                       else logging.INFO,
                       HANDLER_STREAM)
     set_up_logger_for("rabbitmq_client",
-                      logging.DEBUG if _cli_args[CLI_DEBUG]
-                      else logging.WARNING,
+                      logging.WARNING,
                       HANDLER_STREAM)
     set_up_logger_for("pika",
-                      logging.DEBUG if _cli_args[CLI_DEBUG]
-                      else logging.WARNING,
+                      logging.WARNING,
                       HANDLER_STREAM)
     set_up_logger_for("bleak",
-                      logging.DEBUG if _cli_args[CLI_DEBUG]
-                      else logging.WARNING,
+                      logging.WARNING,
                       HANDLER_STREAM)
 
 

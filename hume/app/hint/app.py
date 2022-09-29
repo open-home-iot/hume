@@ -204,7 +204,10 @@ class HintApp(App):
         LOGGER.debug("received HINT message")
 
         decoded_message = json.loads(message.decode('utf-8'))
-        self._registered_callback(decoded_message["type"], decoded_message)
+        try:
+            self._registered_callback(decoded_message["type"], decoded_message)
+        except Exception as e:  # broad for a reason.
+            LOGGER.error("an error happened when handling a HINT message", e)
         # Always run without manual ack mode on.
         ack()
 

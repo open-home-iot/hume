@@ -155,7 +155,10 @@ class DeviceApp(App):
         Called when a connected device sends HUME a message.
         """
         LOGGER.debug(f"received device message from {device.uuid[:4]}")
-        self._registered_callback(device, message_type, body)
+        try:
+            self._registered_callback(device, message_type, body)
+        except Exception as e:
+            LOGGER.error("an error happened when handling a device message", e)
 
     def _connect_attached_devices(self):
         """

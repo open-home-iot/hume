@@ -184,6 +184,11 @@ class BLEConnection(GDCI):
         """
         LOGGER.info(f"discovered device {device.name}")
 
+        if self._discovery_cache.get(device.address) is not None:
+            # Already know about this one, and cache is reset between
+            # discoveries.
+            return
+
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
 

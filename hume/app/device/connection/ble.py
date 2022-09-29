@@ -145,6 +145,12 @@ class BLEConnection(GDCI):
         # str(address): Device
         self.devices = dict()
 
+        # str(address): BLEDevice
+        # Needed because if you do not keep device details another discovery is
+        # started and bleak cannot handle more than 1 simultaneous discovery at
+        # a given time -> exception.
+        self._discovery_cache = dict()
+
     def discover(self, on_devices_discovered):
         """
         :param on_devices_discovered: callable([Device]) will be called when
@@ -152,17 +158,20 @@ class BLEConnection(GDCI):
         """
         LOGGER.info("BLEConnection starting device discovery")
 
-        cb = functools.partial(BLEConnection.on_device_found,
+        cb = functools.partial(self.on_device_discovered,
                                on_devices_discovered)
+
+        # Reset discovery cache to avoid buildup
+        self._discovery_cache.clear()
 
         asyncio.run_coroutine_threadsafe(
             BleakScanner.discover(detection_callback=cb), self.event_loop
         )
 
-    @staticmethod
-    def on_device_found(on_devices_discovered,
-                        device: BLEDevice,
-                        _advertisement_data):
+    def on_device_discovered(self,
+                             on_devices_discovered,
+                             device: BLEDevice,
+                             _advertisement_data):
         """
         Handle a bleak scanner device found event. Forward information to the
         on_devices_discovered callback, but format it first to something HUME
@@ -177,6 +186,9 @@ class BLEConnection(GDCI):
 
         if home_compatible(device):
             LOGGER.info(f"device {device.name} was HOME compatible!")
+
+            # The device is always referred to with its address
+            self._discovery_cache[device.address] = BLEDevice
 
             discovered_device = Device(device.address,
                                        device.name,
@@ -202,9 +214,12 @@ class BLEConnection(GDCI):
         LOGGER.info(f"connecting to device {device.address}")
 
         async def _connect(client: BleakClient):
-            return await client.connect()
+            return await client.connect(timeout=0.0)
 
-        device_client = BleakClient(device.address)
+        bledevice_or_address = self._discovery_cache.get(
+            device.address, default=device.address
+        )
+        device_client = BleakClient(bledevice_or_address)
         future = asyncio.run_coroutine_threadsafe(
             _connect(device_client), self.event_loop
         )

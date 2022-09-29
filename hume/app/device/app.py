@@ -166,6 +166,11 @@ class DeviceApp(App):
         """
         LOGGER.info("connecting attached devices")
 
+        # TODO: if there is more than 1 device this will fail since device
+        #  details are not known until the first discovery is run. This leads
+        #  to an exception in bleak since it will try to start a discovery per
+        #  device. It MIGHT work since it's handled sequentially here, but
+        #  would be better to run an initial scan and then connect to be safe.
         devices = self.storage.get_all(Device)
         for device in devices:
             if device.attached:

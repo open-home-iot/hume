@@ -219,7 +219,11 @@ class BLEConnection(GDCI):
         bledevice_or_address = self._discovery_cache.get(
             device.address, device.address
         )
-        LOGGER.info("connecting to: ", bledevice_or_address)
+        LOGGER.info(
+            "connecting to: ",
+            bledevice_or_address if isinstance(bledevice_or_address, str) else
+            f"BLEDevice<{bledevice_or_address.address}>"
+        )
 
         device_client = BleakClient(bledevice_or_address)
         future = asyncio.run_coroutine_threadsafe(

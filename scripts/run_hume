@@ -1,0 +1,9 @@
+#!/bin/bash -i
+
+source ~/.bashrc
+
+docker run --name redis --rm -d -p 6379:6379 redis:latest
+
+cd ../hume
+workon hume && python main.py $HUME_UUID -bip=$BIP -hip=$HIP
+

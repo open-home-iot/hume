@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 
 import pika
 import requests
@@ -186,6 +187,11 @@ class HintApp(App):
             "device_uuid": device.uuid,
             "content": info
         }
+        self._publish(message)
+
+    def latency_answer(self, message: dict):
+        """Answers a latency test message."""
+        message["content"]["hint_hume_received"] = time.time_ns()
         self._publish(message)
 
     """

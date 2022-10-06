@@ -163,6 +163,10 @@ class Hume:
                 LOGGER.error("could not fetch stateful action states since "
                              "the device did not exist")
 
+        elif msg_type == HintMessage.LATENCY_TEST.value:
+            LOGGER.info("HINT requested a latency test")
+            self.hint_app.latency_answer(msg)
+
         else:
             LOGGER.warning(f"got message from hint of an unknown type: "
                            f"{msg_type}, msg: {msg}")

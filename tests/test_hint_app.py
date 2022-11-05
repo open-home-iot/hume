@@ -39,6 +39,7 @@ class TestAppLCM(unittest.TestCase):
         cli_args = {
             CLI_BROKER_IP_ADDRESS: "127.0.0.1",
             CLI_BROKER_PORT: 1337,
+            CLI_BROKER_VHOST: "/"
         }
         storage = DataStore()
         app = HintApp(cli_args, storage)

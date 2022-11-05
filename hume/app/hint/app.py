@@ -19,7 +19,7 @@ from defs import (
     CLI_BROKER_PORT,
     CLI_HUME_UUID,
     CLI_HINT_PORT,
-    CLI_HINT_IP_ADDRESS
+    CLI_HINT_IP_ADDRESS, CLI_BROKER_VHOST
 )
 from util.storage import DataStore, SINGLETON
 from app.abc import App, StartError
@@ -40,7 +40,7 @@ class HintApp(App):
         self._conn_params = pika.ConnectionParameters(
             host=self.cli_args.get(CLI_BROKER_IP_ADDRESS),
             port=self.cli_args.get(CLI_BROKER_PORT),
-            virtual_host='/'
+            virtual_host=self.cli_args.get(CLI_BROKER_VHOST)
         )
         self._hume_queue_params = QueueParams(
             self.cli_args.get(CLI_HUME_UUID), durable=True
@@ -276,7 +276,10 @@ class HintApp(App):
 
         elif response.status_code == requests.codes.forbidden:
             # Invalid HUME UUID
-            raise StartError("HUME UUID is invalid")
+            LOGGER.critical(f"pairing failed due to: {response.reason}"
+                            f"\n{response.content}")
+
+            raise StartError("HUME UUID is invalid or CSRF failure")
 
         else:
             # Something else went wrong, perhaps HINT is unavailable, try

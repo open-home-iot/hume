@@ -85,6 +85,9 @@ class ConnectionAggregator(GDCI):
             return self.sim.connect(device)
         elif device.transport == DeviceTransport.BLE.value:
             return self.ble.connect(device)
+        else:
+            LOGGER.info(f"could not connect to device {device.uuid[:4]} "
+                        f"since no matching transport was found")
 
     def is_connected(self, device: Device) -> bool:
         """

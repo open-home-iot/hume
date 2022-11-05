@@ -54,6 +54,11 @@ def parse_args() -> argparse.Namespace:
                         type=int,
                         default=5672,
                         help="Central HINT broker port")
+    parser.add_argument("-bvh",
+                        "--broker-vhost",
+                        type=str,
+                        default="/",
+                        help="Central HINT broker vhost")
 
     # Logging
     parser.add_argument("-d",

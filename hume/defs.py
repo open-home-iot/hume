@@ -10,5 +10,6 @@ CLI_HINT_PORT = "hint_port"
 
 CLI_BROKER_IP_ADDRESS = "broker_ip_address"
 CLI_BROKER_PORT = "broker_port"
+CLI_BROKER_VHOST = "broker_vhost"
 
 CLI_DEBUG = "debug"
